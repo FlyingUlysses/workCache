@@ -13,9 +13,9 @@
 -->
 </style>
 <body>
-		<div id="mm" class="easyui-menu" style="width:120px;">
-		    <div>New</div>
-		    <div>Exit</div>
+		<div id="menu" class="easyui-menu" style="width:120px;">
+		    <div id="menu_left" >left</div>
+		    <div id="menu_down">down</div>
 		</div>
 
 		<div class="row-fluid">
@@ -27,10 +27,9 @@
                	  </div>
             </div>
 			<div class="widget-body">
-	                <table class="table table-striped table-bordered table-hover">
-		                  <thead>
+	                <table id="cells_table" class="table table-striped table-bordered table-hover">
 		                      <tr>
-		                         <td id="test1" colspan="2">1111</td>
+		                         <td id="test1" colspan="1">1111</td>
 		                         <td id="test2" colspan="1">222</td>
 		                         <td id="test3">333</td>
 		                         <td id="test4">444</td>
@@ -41,8 +40,6 @@
 		                         <td id="test33">777</td>
 		                         <td id="test44">888</td>
 		                      </tr>
-		                 </thead>
-		                 <tbody id="rowBody"></tbody>
 	               </table>
 	               <div class="pagination pagination-right">
 	                    <ul id="pageUL"></ul>
@@ -51,16 +48,25 @@
 			</div>
 		</div>
 	<script type="text/javascript">
+		var select_td_row="";
+		var select_td_col="";
+		var tr_length="";
 		$("td").click(function(e){
-			$("#mm").menu("show", {
+			select_td_row=$(this).parent().index();
+			select_td_col=$(this).index();
+			tr_length=$("#cells_table tbody tr:eq("+select_td_row+") td").length;
+			$("#menu").menu("show", {
     			left: e.pageX,
     			top: e.pageY
 			});
 		});
-		$("#mm").menu({
-   	 		onClick:function(item){
-   	 			alert(item);
-    		}
+		$("#menu_left").click(function(){
+			$("#cells_table tbody tr:eq("+select_td_row+") td:eq("+select_td_col+")").attr("colspan","2");
+			$("#cells_table tbody tr:eq("+select_td_row+") td:eq("+ (tr_length-1) +")").remove();
+		});
+		$("#menu_down").click(function(){
+			$("#cells_table tbody tr:eq("+select_td_row+") td:eq("+select_td_col+")").attr("rowspan","2");
+			$("#cells_table tbody tr:eq("+(select_td_row+1)+") td:eq("+ (tr_length-1) +")").remove();
 		});
   </script>
 </body>	
