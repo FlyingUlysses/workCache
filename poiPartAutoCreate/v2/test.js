@@ -8,15 +8,16 @@ var tr_num="";
 var td_num="";
 $(function(){
 	var strs="";
-	$("#cells_table_body").empty();
+//		$("#cells_table").empty();
 	for ( var i = 0; i < row_num; i++) {
 		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' >";
 			for ( var j = 0; j < col_num; j++) {
-				strs+="<td location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' style='width: 180px;text-align: center;'>"+i+"行---"+j+"列</td>";
+				strs+="<td location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' >"+i+"行---"+j+"列</td>";
 			}
 		strs+="</tr>";
 	}
-	$("#cells_table_body").append(strs);
+	$("#cells_table").live(strs);
+	
 	
 	$("td").click(function(e){
 		var location=$(this).attr("location")+"";

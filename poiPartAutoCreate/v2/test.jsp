@@ -13,9 +13,9 @@
 -->
 </style>
 <body>
-		<div id="cellsTable_menu" class="easyui-menu" style="width:120px;">
-		    <div id="left_merge_cell" >向右合并</div>
-		    <div id="down_merge_cell" >向下合并</div>
+		<div id="menu" class="easyui-menu" style="width:120px;">
+		    <div id="menu_left" >left</div>
+		    <div id="menu_down">down</div>
 		</div>
 
 		<div class="row-fluid">
@@ -27,26 +27,42 @@
                	  </div>
             </div>
 			<div class="widget-body">
-	                <table class="table table-striped table-bordered table-hover" id="cells_table">
-		                      <tbody id="cells_table_body"></tbody>
+	                <table id="cells_table" class="table table-bordered table-hover">
+		                      <tr>
+		                         <td id="test1" colspan="1">1111</td>
+		                         <td id="test2" colspan="1">222</td>
+		                         <td id="test3">333</td>
+		                         <td id="test4">444</td>
+		                      </tr>
+		                      <tr>
+		                         <td id="test11">555</td>
+		                         <td id="test22">666</td>
+		                         <td id="test33">777</td>
+		                         <td id="test44">888</td>
+		                      </tr>
+		                      <tr>
+		                         <td id="test11">555</td>
+		                         <td id="test22">666</td>
+		                         <td id="test33">777</td>
+		                         <td id="test44">888</td>
+		                      </tr>
+		                      <tr>
+		                         <td id="test11">555</td>
+		                         <td id="test22">666</td>
+		                         <td id="test33">777</td>
+		                         <td id="test44">888</td>
+		                      </tr>
+		                      <tr>
+		                         <td id="test11">555</td>
+		                         <td id="test22">666</td>
+		                         <td id="test33">777</td>
+		                         <td id="test44">888</td>
+		                      </tr>
 	               </table>
-	               <div class="pagination pagination-right">
-	                    <ul id="pageUL"></ul>
-	               </div>
 			</div>
 			</div>
 		</div>
-	<script type="text/javascript">
-		$("td").click(function(e){
-			$("#mm").menu("show", {
-    			left: e.pageX,
-    			top: e.pageY
-			});
-		});
-		$("#mm").menu({
-   	 		onClick:function(item){
-   	 			alert(item);
-    		}
-		});
-  </script>
+	<script>
+</script>
+<script src="<%=basePath %>/resources/scripts/poi/test2.js"></script>
 </body>	
