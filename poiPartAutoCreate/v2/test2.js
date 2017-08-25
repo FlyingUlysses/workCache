@@ -1,7 +1,4 @@
-//需要的样式
-    document.write('<style>.cannotselect{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none;user-select:none;}td.selected{background:#0094ff;color:#fff}td.hide{display:none}</style>');
-    //jQuery表格单元格合并插件，功能和excel单元格合并功能一样，并且可以保留合并后的所有单元格内容到第一个单元格中
-    $.fn.tableMergeCells = function () {
+      $.fn.tableMergeCells = function () {
         return this.each(function () {
             var tb = $(this), startTD, endTD, MMRC = { startRowIndex: -1, endRowIndex: -1, startCellIndex: -1, endCellIndex: -1 };
             //如果表格存在合并的，先补全td在初始化rc
@@ -119,5 +116,4 @@
             tb.mousedown(onMousedown);
         });
     };
-
-    $('table').tableMergeCells();
+    

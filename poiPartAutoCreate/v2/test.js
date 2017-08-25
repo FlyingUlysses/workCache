@@ -8,7 +8,7 @@ var tr_num="";
 var td_num="";
 $(function(){
 	var strs="";
-//		$("#cells_table").empty();
+	$("#cells_table_body").empty();
 	for ( var i = 0; i < row_num; i++) {
 		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' >";
 			for ( var j = 0; j < col_num; j++) {
@@ -16,8 +16,9 @@ $(function(){
 			}
 		strs+="</tr>";
 	}
-	$("#cells_table").live(strs);
+	$("#cells_table_body").append(strs);
 	
+	$("#cells_table").tableMergeCells();
 	
 	$("td").click(function(e){
 		var location=$(this).attr("location")+"";
@@ -32,6 +33,7 @@ $(function(){
 			top:e.pageY
 		});
 	});
+	
 	
 //向右合并
 	$("#left_merge_cell").click(function(){
@@ -80,4 +82,22 @@ $(function(){
 		$("td[location='tr_"+(location_row+row_span)+"_td_"+(location_cell)+"']").remove();
 	});
 	
+//编辑表格内容
+	$("#edit_cell").click(function(){
+		$("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").html("测试成功");
+		alert(222);
+	});
+	
 });
+
+
+function createDataSql(){
+	$("#cells_table tbody tr").each(function(i,item){
+		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
+			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
+			alert(td.html());
+		});
+	});
+}
+
+
