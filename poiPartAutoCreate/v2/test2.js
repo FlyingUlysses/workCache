@@ -94,6 +94,7 @@
                             return (addBR ? '<br>' : '') + this.innerHTML
                         }).get().join(',');
                     tds.filter(':gt(0)').remove(); 
+                    //合并内容,不需要该功能
                     //firstTD.append(',' + html.replace(/，(<br>)/g, '$1'));
 
                     //更新合并的第一个单元格的缓存rc数据为所跨列和行

@@ -12,6 +12,7 @@
 		#sheetCat_select_chzn{ width: 45%!important; float: right;}
 		.cannotselect{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none;user-select:none;}td.selected{background:#0094ff;color:#fff}td.hide{display:none}
 -->
+	.inline{display:inline;}
 </style>
 <body>
 		<div id="cellsTable_menu" class="easyui-menu" style="width:120px;">
@@ -25,12 +26,16 @@
 			<div class="widget-title" id ="role_title" >
                	 <h4><i class="icon-align-left">Excel导出功能列表</i></h4>
                	  <div class="update-btn">
-               	  	<button id="dssss" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="createDataSql();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" "></span></button>
+               	  	<button id="createDataSql" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="createDataSql();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">回显SQL</span></button>
+               	  	<button id="editCellName" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="editCellName();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">编辑内容</span></button>
+               	  	<button id="saveCellName" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellName();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存至表格</span></button>
+               	  	<button id="addCellTableRow" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">增加行</span></button>
+               	  	<button id="addCellTableCow" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">增加列</span></button>
                	  </div>
             </div>
 			<div class="widget-body">
-	                <table id="cells_table" class="table table-bordered table-hover">
-					<tbody id="cells_table_body"></tbody>
+	                <table id="cells_table" class="table table-bordered table-hover" >
+						<tbody id="cells_table_body"></tbody>
 	               </table>
 			</div>
 			</div>

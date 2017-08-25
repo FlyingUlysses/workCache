@@ -1,5 +1,5 @@
 var row_num=3;
-var col_num=6;
+var col_num=7;
 var select_cell="";
 var select_row="";
 var location_cell="";
@@ -10,9 +10,10 @@ $(function(){
 	var strs="";
 	$("#cells_table_body").empty();
 	for ( var i = 0; i < row_num; i++) {
-		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' >";
+		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
 			for ( var j = 0; j < col_num; j++) {
-				strs+="<td location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' >"+i+"行---"+j+"列</td>";
+				strs+="<td style='text-align:center;' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value='22'/></div>" 
+					+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'></div><div style='display:inline;' tempType='attr_div'></div></td>";
 			}
 		strs+="</tr>";
 	}
@@ -85,7 +86,6 @@ $(function(){
 //编辑表格内容
 	$("#edit_cell").click(function(){
 		$("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").html("测试成功");
-		alert(222);
 	});
 	
 });
@@ -95,9 +95,69 @@ function createDataSql(){
 	$("#cells_table tbody tr").each(function(i,item){
 		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
 			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
-			alert(td.html());
+			alert(td.text());
 		});
 	});
+}
+
+function editCellName(){
+	var celltableTemp=$("#cells_table");
+	celltableTemp.find("input[tempType='name_input']").show();
+	celltableTemp.find("div[tempType='name_div']").hide();
+	celltableTemp.find("div[tempType='attr_div']").hide();
+}
+
+function saveCellName(){
+	$("#cells_table tbody tr").each(function(i,item){
+		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
+			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
+			var name=td.find("input[tempType='name_input']").val()+"";
+			td.find("div[tempType='name_div']").empty();
+			td.find("div[tempType='name_div']").append(name);
+			td.find("div[tempType='name_div']").show();
+			td.find("input").hide();
+		});
+	});
+	$("#cells_table").tableMergeCells();
+}
+
+function addCellTableRow(){
+	row_num++;
+	var strs=$("#cells_table_body").html()+" <tr>";
+	for ( var j = 0; j <col_num ; j++) {
+		strs+="<td style='text-align:center;' location='tr_"+row_num+"_td_"+j+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'>22222</div><div style='display:inline;' tempType='attr_div'></div></td>";
+	}
+	strs+="</tr>";
+	$("#cells_table_body").empty();
+	$("#cells_table_body").append(strs);
+	$("#cells_table").tableMergeCells();
+}
+
+function addCellTableCol(){
+	col_num++;
+	var strs="";
+	$("#cells_table_body").find("tr").each(function(){
+		var trStr="<tr>"+$(this).html()+"";
+		trStr+="<td style='text-align:center;' location='tr_"+row_num+"_td_"+col_num+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'>33333333</div><div style='display:inline;' tempType='attr_div'></div></td>";
+		trStr+="</tr>";
+		strs+=trStr;
+	});
+	alert(strs);
+	$("#cells_table_body").empty();
+	$("#cells_table_body").append(strs);
+	$("#cells_table").tableMergeCells();
+}
+
+function deleteCellTableRow(){
+	row_num--;
+	$("#cells_table tbody tr:eq("+row_num-1+")").remove();
+}
+
+function deleteCellTableCol(){
+	row_num--;
+	$("#cells_table tbody tr:eq("+row_num-1+")").remove();
 }
 
 
