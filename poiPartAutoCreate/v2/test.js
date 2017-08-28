@@ -1,4 +1,4 @@
-var row_num=3;
+var row_num=5;
 var col_num=7;
 var select_cell="";
 var select_row="";
@@ -6,6 +6,7 @@ var location_cell="";
 var location_row="";
 var tr_num="";
 var td_num="";
+var property_list=[];
 $(function(){
 	var strs="";
 	$("#cells_table_body").empty();
@@ -18,9 +19,16 @@ $(function(){
 		strs+="</tr>";
 	}
 	$("#cells_table_body").append(strs);
+	reload();
+	
+});
+
+//页面内容刷新后绑定方法
+function reload(){
+	showPropertyList();
+	
 	
 	$("#cells_table").tableMergeCells();
-	
 	$("td").click(function(e){
 		var location=$(this).attr("location")+"";
 		location_row=parseInt(location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", ""), 10);
@@ -38,12 +46,12 @@ $(function(){
 	
 //向右合并
 	$("#left_merge_cell").click(function(){
-		var col_span=parseInt($("#cells_table tbody tr:eq("+select_row+") td:eq("+select_cell+")").attr("colspan"),10);
-		var row_span=parseInt($("#cells_table tbody tr:eq("+select_row+") td:eq("+select_cell+")").attr("rowspan"),10);
 		if (select_cell == (td_num-1)) {
 			alert("请求操作超过表格范围,请先添加列!");
 			return;
 		}
+		var col_span=parseInt($("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").attr("colspan"),10);
+		var row_span=parseInt($("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").attr("rowspan"),10);
 		var max_col_span=1;
 		if (row_span && row_span>1) {
 			//取下一列中最大colspan
@@ -53,14 +61,8 @@ $(function(){
 				}
 			}
 			for ( var i = 0; i < row_span; i++) {
-				next_cols_pan=parseInt($("td[location='tr_"+(location_row+i)+"_td_"+(location_cell+col_span)+"']").attr("colspan"),10);
-				if (next_cols_pan <max_col_span) {
-					for ( var j = 0; j <max_col_span; j++) {
-						alert("tr_"+(location_row+i)+"_td_"+(location_cell+col_span+j));
-						$("td[location='tr_"+(location_row+i)+"_td_"+(location_cell+col_span+j)+"']").remove();
-					}
-				}else{
-					$("td[location='tr_"+(location_row+i)+"_td_"+(location_cell+col_span)+"']").remove();
+				for ( var j = 0; j <max_col_span; j++) {
+					$("td[location='tr_"+(location_row+i)+"_td_"+(location_cell+col_span+j)+"']").remove();
 				}
 			}
 		}else{
@@ -71,35 +73,61 @@ $(function(){
 
 //向下合并
 	$("#down_merge_cell").click(function(){
-		var col_span=parseInt($("#cells_table tbody tr:eq("+select_row+") td:eq("+select_cell+")").attr("colspan"),10);
-		var row_span=parseInt($("#cells_table tbody tr:eq("+select_row+") td:eq("+select_cell+")").attr("rowspan"),10);
+		var col_span=parseInt($("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").attr("colspan"),10);
+		var row_span=parseInt($("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").attr("rowspan"),10);
 		if (!row_span || row_span == undefined) {
 			row_span=1;
 		}else if ((select_row+row_span) == tr_num) {
 			alert("请求操作超过表格范围,请先添加行!");
 			return;
 		}
-		$("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").attr("rowspan",(row_span+1)+"");
-		$("td[location='tr_"+(location_row+row_span)+"_td_"+(location_cell)+"']").remove();
+		var max_row_span=1;//向下合并涉及单元格的最大跨行
+		if (col_span && col_span>1) {
+			for ( var i = 0; i < col_span; i++) {
+				if (max_row_span < parseInt($("td[location='tr_"+(location_row+row_span)+"_td_"+(location_cell+i)+"']").attr("rowspan"),10)) {
+					max_row_span=parseInt($("td[location='tr_"+(location_row+row_span)+"_td_"+(location_cell+i)+"']").attr("rowspan"),10);
+				}
+			}
+			for ( var i = 0; i < col_span; i++) {
+				for ( var j = 0; j <max_row_span; j++) {
+					$("td[location='tr_"+(location_row+row_span+j)+"_td_"+(location_cell+i)+"']").remove();
+				}
+			}
+		}else{
+			$("td[location='tr_"+(location_row+row_span)+"_td_"+(location_cell)+"']").remove();
+		}
+		$("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").attr("rowspan",(row_span+max_row_span)+"");
 	});
 	
-//编辑表格内容
-	$("#edit_cell").click(function(){
-		$("td[location='tr_"+(location_row)+"_td_"+(location_cell)+"']").html("测试成功");
+//删除选择行
+	$("#delete_row").click(function(){
+		$("#cells_table tbody tr:eq("+select_row+")").remove();
+		row_num--;
 	});
 	
-});
+	
+//删除选择列
+	$("#delete_col").click(function(){
+		for ( var i = 0; i < row_num; i++) {
+			
+		}
+		col_num--;
+	});
+}
 
 
+
+
+//根据表头生成datasql
 function createDataSql(){
 	$("#cells_table tbody tr").each(function(i,item){
 		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
 			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
-			alert(td.text());
 		});
 	});
 }
 
+//编辑名称
 function editCellName(){
 	var celltableTemp=$("#cells_table");
 	celltableTemp.find("input[tempType='name_input']").show();
@@ -107,6 +135,8 @@ function editCellName(){
 	celltableTemp.find("div[tempType='attr_div']").hide();
 }
 
+
+//保存名称编辑
 function saveCellName(){
 	$("#cells_table tbody tr").each(function(i,item){
 		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
@@ -118,46 +148,57 @@ function saveCellName(){
 			td.find("input").hide();
 		});
 	});
-	$("#cells_table").tableMergeCells();
+	reload();
 }
 
+//添加整行
 function addCellTableRow(){
-	row_num++;
 	var strs=$("#cells_table_body").html()+" <tr>";
 	for ( var j = 0; j <col_num ; j++) {
 		strs+="<td style='text-align:center;' location='tr_"+row_num+"_td_"+j+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'>22222</div><div style='display:inline;' tempType='attr_div'></div></td>";
+		+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'>hhhhh</div><div style='display:inline;' tempType='attr_div'></div></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
 	$("#cells_table").tableMergeCells();
+	row_num++;
+	reload();
 }
 
+//添加整列
 function addCellTableCol(){
-	col_num++;
 	var strs="";
-	$("#cells_table_body").find("tr").each(function(){
-		var trStr="<tr>"+$(this).html()+"";
-		trStr+="<td style='text-align:center;' location='tr_"+row_num+"_td_"+col_num+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'>33333333</div><div style='display:inline;' tempType='attr_div'></div></td>";
+	for ( var i = 0; i < row_num; i++) {
+		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
+		trStr+="<td style='text-align:center;' location='tr_"+i+"_td_"+col_num+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'>llll</div><div style='display:inline;' tempType='attr_div'></div></td>";
 		trStr+="</tr>";
 		strs+=trStr;
-	});
-	alert(strs);
+	}
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
 	$("#cells_table").tableMergeCells();
-}
-
-function deleteCellTableRow(){
-	row_num--;
-	$("#cells_table tbody tr:eq("+row_num-1+")").remove();
-}
-
-function deleteCellTableCol(){
-	row_num--;
-	$("#cells_table tbody tr:eq("+row_num-1+")").remove();
+	col_num++;
+	reload();
 }
 
 
+//展示所有字段供选择
+function showPropertyList(){
+	var url = _basePath + "/poiAutoExport/getPropertyList?table=roles";
+	$.post(url, function(data, status) {
+		 $.each(data,function(i,item){
+			 $("#cellsTable_menu").menu("appendItem", {
+					parent: $("#cellsTable_menu").menu("findItem", "选择表字段").target,  
+					text: ""+i
+				});
+			 $.each(item,function(p,property){
+				 $("#cellsTable_menu").menu("appendItem", {
+						parent: $("#cellsTable_menu").menu("findItem", ""+i).target, 
+						text: ""+property.column_name
+					});
+			 });
+		 });
+	});
+}
