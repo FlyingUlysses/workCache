@@ -86,7 +86,7 @@ $.fn.tableMergeCells = function () {
             }
             function onMouseup(e) {//鼠标弹起事件
                 tb.unbind({ mouseup: onMouseup, mousemove: onMousemove });
-                if (startTD && endTD && startTD != endTD && confirm('确认合并？！')) {//开始结束td不相同确认合并
+                if (startTD && endTD && startTD != endTD && confirm('是否合并?')) {
                     var tds = tb.find('td.selected'), firstTD = tds.eq(0), index = -1, t, addBR
                         , html = tds.filter(':gt(0)').map(function () {
                             t = this.parentNode.rowIndex;
