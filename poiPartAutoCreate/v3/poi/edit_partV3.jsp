@@ -15,7 +15,7 @@
 					<input type="hidden" id="template_id" value="${template_id}"/>		                      
                     	<div class="row-fluid" style="margin-top: 10px;">
                     	
-	                    	<div  class="span2" id="sheet_column_div" >
+	                    	<div  class="span2" id="sheet_column_div" style="display: inline;" >
 								  <div class="widget blue"  >
 									   	<div class="widget-title" id ="role_title" >
 											    <h4><i class="icon-align-left">sheet字段选择</i></h4>
@@ -117,7 +117,6 @@
 								<div class="widget-title" id ="role_title" >
 					               	 <h4><i class="icon-align-left">Excel导出功能列表</i></h4>
 					               	  <div class="update-btn">
-					               	  	<button id="createDataSql" type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="createDataSql();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">回显SQL</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="editCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">编辑内容</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存至表格</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加行</span></button>

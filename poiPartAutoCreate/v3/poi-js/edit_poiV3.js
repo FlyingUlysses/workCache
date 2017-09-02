@@ -4,23 +4,26 @@ var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=
 var page = { page: 1,limit: 10 };
 
 $(function() {
-	var strs="";
-	$("#cells_table_body").empty();
-	for ( var i = 0; i < row_num_v3; i++) {
-		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
-			for ( var j = 0; j < col_num_v3; j++) {
-				strs+="<td style='text-align:center;' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
-					+"<div style='display:inline;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:inline;'><div tempType='name_div' style='display:inline;'></div><div style='display:inline;' tempType='attr_div'></div></td>";
-			}
-		strs+="</tr>";
-	}
-	$("#cells_table_body").append(strs);
 	reload();
 });
 
 function reload(){
 	page.page = 1;
 	loadDataPages();
+	reloadCells();
+}
+function reloadCells(){
+	var strs="";
+	$("#cells_table_body").empty();
+	for ( var i = 0; i < row_num_v3; i++) {
+		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
+			for ( var j = 0; j < col_num_v3; j++) {
+				strs+="<td style='text-align:center;' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
+					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;' tempType='attr_div'></div></td>";
+			}
+		strs+="</tr>";
+	}
+	$("#cells_table_body").append(strs);
 	reloadCells_v3();
 }
 
@@ -30,19 +33,20 @@ var sheetCat="";//sheet分类
 function selectSheet(){
 	sheetCat=$("#sheetCat_select").val()+"";
 	$("#sheetSql_input").empty();	
-	sheetTableCode="";
-	sheetColumnArray=[];
+	$("input[name='rowRadio']").each(function(i){
+		$(this).attr("checked",false);
+	});
+	joinTables =[];
+	reload();
 	if (sheetCat=="all") {
 		$("#sheetName_title").show();
 		$("#sheetName_content").show();
 		$("#sheetCat_div").hide();
-		$("#cells_table_div").hide();
 	}else if(sheetCat=="categery"){
 		$("#sheetName_title").hide();
 		$("#sheetName_content").hide();
 		$("#sheetName_content").val("");
 		$("#sheetCat_div").show("");
-		$("#cells_table_div").show();
 	}
 }
 
@@ -57,8 +61,6 @@ function getAllSheet(){
     sheet_sql_temp=sheet_sql_temp.replace("from #tableName", "");
     $("#sheetSql_input").empty();
     $("#sheetSql_input").append(sheet_sql_temp);
-    DATA_SQL_TEMPLATE=DATA_SQL_TEMPLATE.replace("#sheet=#id","");
-    dataJoinTableArray.push(sheetTableCode);
 }
 
 //data主表分页
@@ -93,7 +95,7 @@ var tableCode="";//主表编码
 function reloadColumns(code){
 	tableCode=code;
 	$("#dataSql_input").empty();
-	edit_property_v3();
+	reloadCells();
 	var strs="";
 	var url="";
 	if (  sheetCat =="categery") {
@@ -112,7 +114,7 @@ function loadSheetTable(){
 		var strs="<option value=''> 请选择表格...<option>";
 		if (data && data.length>0) {
 			$.each(data,function(i,item){
-				strs+="<option value='"+formatNull(item.re_table)+"' column_name='"+formatNull(item.column_name)+"' re_column='"+formatNull(item.re_column)+"' re_tableCode="+formatNull(item.re_tablecode)+">"+formatNull(item.re_table)+"</option>";
+				strs+="<option  value='"+formatNull(item.re_table)+"' column_name='"+formatNull(item.column_name)+"' re_column='"+formatNull(item.re_column)+"' re_table_name="+formatNull(item.re_table_name)+">"+formatNull(item.re_table)+"</option>";
 			});
 		}
 		$("#sheet_table").append(strs);
@@ -122,8 +124,23 @@ function loadSheetTable(){
 
 //根据选择sheettable查询该表字段
 var sheet_sql_temp="";//sheet sql 全局字段
+var sheetTableCode="";
 function loadSheetColumns(){
-	var url =_basePath + "/poiAutoExport/getSheetColumns?table_name="+tableCode;
+	sheetTableCode=$("#sheet_table").val();
+	joinTables=[];
+	$("#sheetSql_input").empty();
+	$("#dataSql_input").empty();
+	data_sql_temp=DATA_SQL_TEMPLATE;
+	if (sheetTableCode !=tableCode) {
+		var sheet_table={
+				name:$("#sheet_table").val()+"",
+				re_name:$("#sheet_table option:selected").attr("re_table_name")+"",
+				re_column:$("#sheet_table option:selected").attr("re_column")+"",
+				column_name:$("#sheet_table option:selected").attr("column_name")+""
+		};
+		joinTables.push(sheet_table);
+	}
+	var url =_basePath + "/poiAutoExport/getSheetColumns?table_name="+sheetTableCode;
 	$.post(url, function(data, status) {
 		$("#sheet_table_id").empty();
 		$("#sheet_table_name").empty();
@@ -141,6 +158,7 @@ function loadSheetColumns(){
 		sheet_sql_temp=sheet_sql_temp.replace("#tableName", tableCode);
 		$("#sheetSql_input").empty();
 		$("#sheetSql_input").append(sheet_sql_temp);
+		
 	});
 }
 //选择id
@@ -156,7 +174,7 @@ function selectSheetName(){
 	$("#sheetSql_input").append(sheet_sql_temp);
 }
 
-//--------------------------------------编辑cell表头----------------------
+//--------------------------------------编辑cell表头------------------------------
 var row_num_v3=5;
 var col_num_v3=7;
 var select_cell_v3="";
@@ -259,21 +277,12 @@ function delete_col_v3(){
 	col_num_v3--;
 }
 
-//根据表头生成datasql
-function createDataSql_v3(){
-	$("#cells_table tbody tr").each(function(i,item){
-		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
-			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
-		});
-	});
-}
 
 //编辑名称
 function editCellName_v3(){
 	var celltableTemp=$("#cells_table");
 	celltableTemp.find("input[tempType='name_input']").show();
 	celltableTemp.find("div[tempType='name_div']").hide();
-	celltableTemp.find("div[tempType='attr_div']").hide();
 }
 
 
@@ -327,6 +336,9 @@ function addCellTableCol_v3(){
 }
 
 //展示所有字段供选择
+var joinTables=[];
+var data_sql_temp =DATA_SQL_TEMPLATE;
+var data_sql_columns=[];
 function edit_property_v3(){
 	var url = _basePath + "/poiAutoExport/getPropertyList?table="+tableCode;
 	 var thisMenu=$('#edit_property').menu('destroy');
@@ -336,16 +348,84 @@ function edit_property_v3(){
 		});
 	$.post(url, function(data, status) {
 		 $.each(data,function(i,item){
+			 var jsonTable = $.parseJSON(i);
 			 $("#cellsTable_menu").menu("appendItem", {
 					parent: $("#cellsTable_menu").menu("findItem", "选择表字段").target,  
-					text: ""+i
+					text:jsonTable.re_table+""
 				});
 			 $.each(item,function(p,property){
 				 $("#cellsTable_menu").menu("appendItem", {
-						parent: $("#cellsTable_menu").menu("findItem", ""+i).target, 
-						text: ""+property.column_name
+						parent: $("#cellsTable_menu").menu("findItem", ""+jsonTable.re_table).target, 
+						text: ""+property.column_name,
+
+						
+						onclick:function(){
+							var td=$("#cells_table tbody tr:eq("+select_row_v3+") td:eq("+select_cell_v3+")");
+							var name=property.re_table_name+"."+property.column_name;
+							td.find("div[tempType='attr_div']").empty();
+							td.find("div[tempType='attr_div']").append(name);
+							td.find("div[tempType='attr_div']").show();
+							td.find("input").hide();
+							if (jsonTable.re_table+"" != tableCode) {
+								if (joinTables.length>0) {
+									$.each(joinTables,function(t,table){
+										if (table.name != jsonTable.re_table+"") {
+											var joinTable ={
+													name:jsonTable.re_table+"",
+													re_name:jsonTable.re_table_name+"",
+													re_column:jsonTable.re_column+"",
+													column_name:jsonTable.column_name+""
+											};
+											joinTables.push(joinTable);
+										}
+									});
+								}else{
+									var joinTable ={
+											name:jsonTable.re_table+"",
+											re_name:jsonTable.re_table_name+"",
+											re_column:jsonTable.re_column+"",
+											column_name:jsonTable.column_name+""
+									};
+									joinTables.push(joinTable);
+								}
+							}
+							//生成dataSql
+							//var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id #where #filter ";
+							data_sql_temp=DATA_SQL_TEMPLATE;
+							if (sheetCat =="all") {
+								data_sql_temp=data_sql_temp.replace("#sheet=#id","");
+							}
+							data_sql_temp=data_sql_temp.replace("#baseTable", tableCode+" t");
+							$.each(joinTables,function(t,table){
+								if (table.name != tableCode) {
+									data_sql_temp=data_sql_temp.replace("#joinTable", " left join "+table.name+" "+table.re_name+" on t."+table.column_name+" = "+table.re_name+"."+table.re_column);
+								}
+								if (sheetCat =="categery" && table.name == sheetTableCode) {
+									data_sql_temp=data_sql_temp.replace("#sheet", table.re_name+"."+$("#sheet_table_id").val());
+								}
+							});
+							data_sql_columns.push(name);
+							var column_str="";
+							$.each(data_sql_columns,function(c,column){
+								if (c==(data_sql_columns.length-1)) {
+									column_str+=column+" ";
+								}else{
+									column_str+=column+", ";
+									
+								}
+							});
+							data_sql_temp=data_sql_temp.replace("#columns", column_str);
+							$("#dataSql_input").empty();
+							$("#dataSql_input").append(data_sql_temp);
+						}
+				 
+				 
 					});
 			 });
 		 });
 	});
 }
+
+//---------------------------------保存新增---------------------------------------------------------------------
+
+
