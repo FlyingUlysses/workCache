@@ -234,7 +234,17 @@ public class PoiAutoExportController extends Controller{
         renderJson(new ResponseData(true,"添加模板成功!"));
     }
     
-  
-    
+    /*
+     * 跳转编辑part或者cell
+     */
+    public void editPartAndCell(){
+        Integer part_id = getParaToInt("id");
+        if (part_id!=null) {
+            ExcelPart part = ExcelPart.me.findById(part_id);
+            setAttr("part", part);
+            setAttr("excel_id", part.getInt("excel_id"));
+        }
+        renderJsp("edit_partV3.jsp");
+    }
     
 }

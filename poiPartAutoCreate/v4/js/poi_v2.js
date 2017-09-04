@@ -111,7 +111,8 @@ function editPart(id){
 }
 
 function editPartAndCell(id){
-	var url=_basePath + "/poiAutoExport/editPart?id="+id;
-	top.addTab("part_edit","ExcelPart编辑",url);
+	alert(2233);
+	var url=_basePath + "/poiAutoExport/editPartAndCell?id="+id;
+	top.addTab("partAndCell_edit","ExcelPart编辑",url);
 }
 

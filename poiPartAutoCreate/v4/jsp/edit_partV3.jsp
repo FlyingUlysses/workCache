@@ -11,8 +11,8 @@
 </style>
 <body>
 					<input type="hidden" id="excel_id" value="${excel_id}"/>		                      
-					<input type="hidden" id="part_id" value="${part_id}"/>		                      
-					<input type="hidden" id="template_id" value="${template_id}"/>		                      
+					<input type="hidden" id="part_id" value="${part.id}"/>		                      
+					<input type="hidden" id="template_id" value="${part.template}"/>		                      
                     	<div class="row-fluid" style="margin-top: 10px;">
                     	
 	                    	<div  class="span2" id="sheet_column_div"  >
