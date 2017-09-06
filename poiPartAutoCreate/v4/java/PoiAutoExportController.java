@@ -247,4 +247,11 @@ public class PoiAutoExportController extends Controller{
         renderJsp("edit_partV3.jsp");
     }
     
+    /*
+     * 获取编辑页面需要的数据
+     */
+    public void loadEditData(){
+        renderJson(PoiAutoExport.me.loadEditData(getParaToInt("id"),getParaToInt("limit")));
+    }
+    
 }

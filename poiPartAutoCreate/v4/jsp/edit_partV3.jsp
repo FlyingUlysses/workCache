@@ -15,30 +15,6 @@
 					<input type="hidden" id="template_id" value="${part.template}"/>		                      
                     	<div class="row-fluid" style="margin-top: 10px;">
                     	
-	                    	<div  class="span2" id="sheet_column_div"  >
-								  <div class="widget blue"  >
-									   	<div class="widget-title" id ="role_title" >
-											    <h4><i class="icon-align-left">sheet字段选择</i></h4>
-										</div>
-										<br>
-								  		<div class="input-wrap">
-								  			<div class="tLable"><span >sheet表名：</span></div>
-					  			            	<select  id="sheet_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns();" required>
-				         						</select>
-									  </div>
-									  <div class="input-wrap">
-								  			<div class="tLable"><span >ID字段：</span></div>
-					  			            <select  id="sheet_table_id"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="selectSheetId();" style="width: 98%" required>
-				         					</select>
-									  </div>
-									  <div class="input-wrap">
-								  			<div class="tLable"><span >name字段：</span></div>
-					  			            <select  id="sheet_table_name"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1"  onchange="selectSheetName();" style="width: 98%" required>
-				         					</select>
-									  </div>
-								 </div>
-							</div>
-			
                     	 <div class="span5" id="sheel_base_div">
 			                <div class="widget blue">
 	                      		<div class="widget-title" id ="role_title" >
@@ -48,23 +24,38 @@
 											 <div class="input-wrap">
 											    	 <div class="tLable"><span style="width: 42%;">sheet类型：</span><span style="width: 46%; float: right;" id ="partName_title" >模板名称：</span></div>
 											    	 <select id="sheetCat_select"  class="chzn-select" style="width: 45%;" tabindex="-1" onchange="selectSheet();">
-											    	 		<option value="categery" selected="selected">分类sheet</option>
-											    	 		<option value="all">固定sheet</option>
+											    	 		<c:choose>
+											    	 			<c:when test="${part.isFixed ==1 }">
+												    	 			<option value="categery" >分类sheet</option>
+												    	 			<option value="all" selected="selected">固定sheet</option>
+											    	 			</c:when>
+											    	 			<c:otherwise>
+												    	 			<option value="categery" selected="selected">分类sheet</option>
+												    	 			<option value="all">固定sheet</option>
+											    	 			</c:otherwise>
+											    	 		</c:choose>
 										            </select>
-										            <input type="text" id="partName_content" placeholder="请输入模板名称……"  style=" width: 43%; float: right;" />
+										            <input type="text" id="partName_content" placeholder="请输入模板名称……" value="${part.name }" style=" width: 43%; float: right;" />
 											</div>
 											 <div class="input-wrap">
 												    	 <div class="tLable"><span style="width: 42%;">sheet排序：</span><span style="width: 46%; float: right; display: none" id ="sheetName_title" >sheet名称：</span></div>
-												         <input type="text" id="part_sort" placeholder="请输入指定sheet排序……"  style=" width: 43%;"/>
-												         <input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……"  style="width: 43%; float: right; display: none" onblur="getAllSheet();"  />
+												         <input type="text" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 43%;"/>
+												         <c:choose>
+												         	<c:when test="${part.isFixed ==1 }">
+												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;" onblur="getAllSheet();"  />
+												         	</c:when>
+												         	<c:otherwise>
+												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;display=none;" onblur="getAllSheet();"  />
+												         	</c:otherwise>
+												         </c:choose>
 											</div>
 										    <div class="input-wrap">
 										    	<div class="tLable">sheetSQL：</div>
-										    	 <textarea id="sheetSql_input" class="txt" rows="2" style="width: 98%"></textarea>
+										    	 <textarea id="sheetSql_input" class="txt" rows="2" style="width: 98%">${part.sheet_sql }</textarea>
 										    </div>
 										    <div class="input-wrap">
 										    	 <div class="tLable">dataSQL：</div>
-										    	 <textarea  id="dataSql_input"  class="txt" rows="3" style="width:98%"></textarea>
+										    	 <textarea  id="dataSql_input"  class="txt" rows="3" style="width:98%">${part.data_sql }</textarea>
 										    </div>
 										    <div  style="text-align: right; margin-top: 10px;"  >
 										    	<button id="saveAll" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="savePartAndCells();">
@@ -106,6 +97,30 @@
 			                      </div>
 			                </div>
 			            </div>
+			            
+			            	<div  class="span2" id="sheet_column_div"  >
+								  <div class="widget blue"  >
+									   	<div class="widget-title" id ="role_title" >
+											    <h4><i class="icon-align-left">sheet字段选择</i></h4>
+										</div>
+										<br>
+								  		<div class="input-wrap">
+								  			<div class="tLable"><span >sheet表名：</span></div>
+					  			            	<select  id="sheet_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns();" required>
+				         						</select>
+									  </div>
+									  <div class="input-wrap">
+								  			<div class="tLable"><span >ID字段：</span></div>
+					  			            <select  id="sheet_table_id"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="selectSheetId();" style="width: 98%" required>
+				         					</select>
+									  </div>
+									  <div class="input-wrap">
+								  			<div class="tLable"><span >name字段：</span></div>
+					  			            <select  id="sheet_table_name"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1"  onchange="selectSheetName();" style="width: 98%" required>
+				         					</select>
+									  </div>
+								 </div>
+							</div>
 			            
                 	</div>
 				

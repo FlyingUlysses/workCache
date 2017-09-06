@@ -4,12 +4,11 @@ var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=
 var page = { page: 1,limit: 10 };
 $(function() {
 	part_id=$("#part_id").val();
-	if (part_id && part_id != undefined) {
+	if (part_id && part_id != undefined) 
 		loadEditPart();
-	}else{
+	else
 		reload();
 		
-	}
 	
 	$("#table_name_input").keydown(function(event){
 		if (event.keyCode == 13) {
@@ -27,7 +26,6 @@ function reload(){
 	page.page = 1;
 	loadDataPages();
 	reloadCells();
-	moveMergeCell();
 }
 function reloadCells(){
 	var strs="";
@@ -42,6 +40,7 @@ function reloadCells(){
 	}
 	$("#cells_table_body").append(strs);
 	reloadCells_v3();
+	moveMergeCell();
 }
 
 //----------------------------sheetSql生成------------------------------------------------------------------------
@@ -50,6 +49,7 @@ var sheetCat="categery";//sheet分类
 function selectSheet(){
 	sheetCat=$("#sheetCat_select").val()+"";
 	$("#sheetSql_input").empty();	
+	$("#sheet_table").empty();	
 	$("input[name='rowRadio']").each(function(i){
 		$(this).attr("checked",false);
 	});
@@ -60,10 +60,10 @@ function selectSheet(){
 	if (sheetCat=="all") {
 		$("#sheetName_title").show();
 		$("#sheetName_content").show();
-		$("#sheel_base_div").attr("class","span6");
-		$("#data_baseTables_div").attr("class","span5");
-		$("#sheet_column_div").attr("class","span0");
 		$("#sheet_column_div").hide();
+		$("#sheet_column_div").attr("class","span0");
+		$("#sheel_base_div").attr("class","span6");
+		$("#data_baseTables_div").attr("class","span6");
 	}else if(sheetCat=="categery"){
 		$("#sheetName_title").hide();
 		$("#sheetName_content").hide();
@@ -512,8 +512,69 @@ function savePartAndCells(){
 //---------------------------------------part编辑--------------------------------
 function loadEditPart(){
 	page.page = 1;
-	loadDataPages();
-	reloadCells();
+	loadEditData();
 	moveMergeCell();
 }
 
+//编辑加载数据方法
+function loadEditData(){
+		sheetCat=$("#sheetCat_select").val()+"";
+		if (sheetCat=="all") {
+			$("#sheetName_title").show();
+			$("#sheetName_content").show();
+			$("#sheet_column_div").hide();
+			$("#sheet_column_div").attr("class","span0");
+			$("#sheel_base_div").attr("class","span6");
+			$("#data_baseTables_div").attr("class","span6");
+		}
+		var url = _basePath + "/poiAutoExport/loadEditData";
+		page.id=$("#part_id").val();
+		$.post(url,page,function(result,status ){
+			
+			//跳转选定主表
+			$("#dataRowBody").empty();
+			var resPage=result.page;
+			var pageNum=result.page_num;
+			tableCode=result.base_table;
+			page.page=pageNum;
+			renderPage("dataPageUL",page,resPage.total,loadDataPages);
+			var data = resPage.data;
+			if(data != null && data.length > 0){
+				 var num =0;
+				 var baseTable_num=0;
+				 var strs = "";
+				 $.each(data,function(i,item){
+					 if (tableCode==item.code) {
+						 baseTable_num=num;
+					 }
+					 strs += "<tr onclick='dataPagesClick(" + num + ");'>"
+						 + "<td style='text-align: center;'><input class='checkboxes' name='rowRadio' type='radio' value='t5_" + num + "' /></td>"
+						 + "<td style='vertical-align: middle;' >" + item.code + "</td><td style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
+						 + "<td style='text-align: center;'>" + formatNull(item.create_time) + "</td>"
+						 + "<td style='text-align: center;'>"
+						 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"reloadColumns('"+ item.code +"');\"><i class='icon-plus'></i></button></td></tr>";
+					 num++;
+				 });
+					 $("#dataRowBody").append(strs);
+					 dataPagesClick(baseTable_num);
+			 }
+			
+			
+			//生成表头样式
+			var cellList=result.cell_list;
+			var strs="";
+			$("#cells_table_body").empty();
+			$.each(cellList,function(i,item){
+				strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
+				for ( var j = 0; j < col_num_v3; j++) {
+					strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
+					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;' tempType='attr_div'></div></td>";
+				}
+				strs+="</tr>";
+			});
+			$("#cells_table_body").append(strs);
+			reloadCells_v3();
+			moveMergeCell();
+			
+		});
+}
