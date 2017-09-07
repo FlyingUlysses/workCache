@@ -562,17 +562,31 @@ function loadEditData(){
 			
 			//生成表头样式
 			var cellList=result.cell_list;
-			var strs="";
 			$("#cells_table_body").empty();
-			$.each(cellList,function(i,item){
-				strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
-				for ( var j = 0; j < col_num_v3; j++) {
-					strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
-					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;' tempType='attr_div'></div></td>";
-				}
-				strs+="</tr>";
-			});
+			row_num_v3 =(cellList[cellList.length-1].startrow-cellList[0].startrow)+1;
+			col_num_v3 = (cellList[cellList.length-1].startcolumn-cellList[0].startcolumn)+1;
+			alert("row:"+row_num_v3+"   col:"+col_num_v3);
+				var num_row =0;
+				strs="<tr location='tr_"+num_row+"'  style='height:23px;'>";
+				$.each(cellList,function(i,item){
+					if (i>0 && cellList[i].startrow != cellList[i-1].startrow) {
+						num_row++;
+						strs+="<tr location='tr_"+num_row+"'  style='height:23px;'>";
+					}
+					for ( var j = 0; j < col_num_v3; j++) {
+						if (item.startrow==num_row && item.startcolumn==j) {
+							strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
+								+"colspan='"+(1+(item.endcolumn - item.startcolumn))+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
+								+"<div tempType='name_div' >"+item.cellname+"</div><div  tempType='attr_div' style='color: #999999;'>"+item.property+"</div></td>";
+						}
+					}
+					if (item.endcolumn ==col_num_v3-1) {
+						strs+="</tr>";
+					}
+				});
+				
 			$("#cells_table_body").append(strs);
+			$("#cells_table_div").show();
 			reloadCells_v3();
 			moveMergeCell();
 			
