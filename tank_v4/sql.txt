@@ -1,0 +1,15 @@
+select a.id, a.site_id, a.online, a.trans_time, b.abbr, 
+ round(dt.scale / 25.4,2) inch, dt.weight, dt.volume, dt.rate, 
+ do.mass, (case when dt.id is not null then dt.supply_days when dc.id is not null then dc.supply_days
+when do.id is not null then do.supply_days end) supply, b.classify, (select name from dict
+where group_code = 'SITE.DEVICE' and code = b.abbr) device_name
+from site_device a left join devices b on a.deviceId = b.id left join data_tanks dt on a.id = dt.device_id
+left join data_cards dc on a.id = dc.device_id left join data_odors do on a.id = do.device_id
+where a.state = 1 and find_in_set(22, a.tank_ids)
+and (a.location is null or a.location = '' or a.location = 'trunk') order by b.sort asc
+
+
+
+select * from site_device_attr t where t.deviceId = 1;
+select * from tank_attrs t where t.device_id = 1;
+select * from core_attrs;
