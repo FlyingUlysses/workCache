@@ -1,0 +1,515 @@
+.last {
+  border-bottom: none !important;
+}
+.h10 {
+  height: 10px;
+  background-color: #F4F4F4;
+}
+.circle tspan,
+.circle div text tspan {
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.circle.red tspan,
+.circle.red div text tspan {
+  font-size: 14px;
+  color:red;
+  font-weight: normal;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  padding-top: 40px;
+}
+.com1 {
+  width: 53px;
+  height: 59px;
+  margin: 0 auto;
+  position: relative;
+}
+.com1 > div {
+  width: 38px;
+  height: 16px;
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+.com1 span {
+  text-indent: 2px;
+  display: inline-block;
+  text-align: center;
+  width: 38px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 12px;
+  color: white;
+}
+.com1.red {
+  text-align: left;
+}
+.com1.red span {
+  font-size: 12px;
+  color: white;
+  position: absolute;
+  top: 14px;
+  left: 16px;
+}
+.com2 {
+  position: relative;
+}
+.temp {
+  width: 26px;
+  height: 94px;
+  position: relative;
+  margin: 0 auto;
+}
+.temp span {
+  width: 10px;
+  height: 69px;
+  position: absolute;
+  bottom: 23px;
+  left: 8px;
+}
+.temp span i {
+  width: 10px;
+  background-color: #88c8d9;
+  position: absolute;
+  bottom: 0;
+}
+.temp.red span i {
+  width: 10px;
+  background-color: #d60000;
+  position: absolute;
+  bottom: 0;
+}
+.temp img {
+  width: 26px;
+  height: 94px;
+  position: relative;
+  z-index: 10;
+}
+.com2 .n1 {
+  padding: 0 5px;
+  position: absolute;
+  left: 110px;
+  bottom: 60px;
+  font-size: 14px;
+  background-color: #eeeeee;
+}
+.com2 .n2 {
+  font-size: 12px;
+  white-space: nowrap;
+  color: #999999;
+  position: absolute;
+  left: 110px;
+  bottom: 20px;
+}
+.com2 .n1 i {
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-right: 5px solid #EEEEEE;
+  position: absolute;
+  left: -10px;
+  top: 5px;
+}
+.container {
+  /*margin: 0 auto;*/
+  margin-left: 5%;
+  width: 95%;
+  height: 100%;
+}
+/*left*/
+.cleft {
+  float: left;
+  width: 170px;
+  height: 534px;
+  border: 1px solid #E5E5E5;
+  position: relative;
+}
+.cl-top {
+  background-color: #f4f4f4;
+  position: relative;
+  padding: 0 0 0 10px;
+}
+.cl-top input {
+  width: 80%;
+  display: inline-block;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  line-height: 30px;
+  background-color: #f4f4f4;
+}
+.cl-top label {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20%;
+  height: 32px;
+  overflow: hidden;
+  background: url(../image/search.png) no-repeat center center;
+  background-size: 16px 16px;
+}
+.cleft ul {
+  padding-left: 15px;
+}
+.cleft li {
+  line-height: 30px;
+  font-size: 12px;
+  color: #333333;
+  text-indent: 5px;
+  border-bottom: 1px dashed #d7d7d7;
+}
+.cl-bottom {
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  bottom: 30px;
+}
+.bt-l {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: url(../image/arr-l.png) no-repeat center center;
+  background-size: 16px 16px;
+  cursor: hand;
+}
+.bt-c {
+  margin: 0 10px;
+  font-size: 14px;
+  color: #333333;
+}
+.bt-r {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: url(../image/arr-r.png) no-repeat center center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+.btactive {
+  background-color: #1296db;
+}
+/*ringht*/
+.cright {
+  margin-left: 170px;
+}
+.cr-top {
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  color: #0084cf;
+  padding: 0 10px;
+  background-color: #ededed;
+  position: relative;
+  /*border: 1px solid #E5E5E5;*/
+}
+.cr-top span {
+  display: inline-block;
+  font-size: 14px;
+  padding: 0 10px;
+  border-radius: 2px;
+  color: white;
+  background-color: #e86d12;
+  position: absolute;
+  right: 100px;
+}
+.cr-center {
+  padding-left: 10px;
+}
+.equip-box {
+  float: left;
+  margin-left: 220px;
+  overflow: hidden;
+}
+/*box1*/
+.box1 {
+  overflow: hidden;
+}
+.b1-card1 {
+  position: absolute;
+  text-align: center;
+  width: 220px;
+  height: 130px;
+  padding: 20px 0 10px 0;
+}
+.b1-card2,
+.b1-card3,
+.b1-card4,
+.b1-card5 {
+  float: left;
+  width: 180px;
+  height: 130px;
+  padding: 20px 0 10px 0;
+}
+.b1-card2 p,
+.b1-card4 p {
+  color: #999999;
+  text-align: center;
+  margin-top: 5px;
+}
+.b1-card3 p {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #999999;
+}
+.tank {
+  margin: 10px auto 0 auto;
+  width: 125px;
+  height: 74px;
+  position: relative;
+}
+.b1-card1 img {
+  width: 125px;
+  height: 74px;
+  z-index: 10;
+}
+.tank > div {
+  width: 125px;
+  background-image: url(../image/b1_c10.png);
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+  position: absolute;
+  bottom: 0px;
+}
+.tank > span {
+  position: absolute;
+  left: 43%;
+  top: 20px;
+}
+.b1-card2 div {
+  margin: 0 auto;
+}
+.b1-card4 {
+  width: 240px;
+}
+.b1-card4 ul {
+  margin: 0 auto;
+  overflow: hidden;
+  text-align: center;
+}
+.b1-card4 li {
+  float: left;
+  width: 50%;
+  margin-bottom: 5px;
+}
+.b1-card4 li span {
+  font-size: 16px;
+}
+.b1-card4 li p {
+  font-size: 12px;
+}
+.b1-card5 li {
+  float: left;
+  width: 25%;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.b1-card5 li.open div {
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background: url(../image/b1_c41.png) no-repeat center center;
+  background-size: 24px 24px;
+}
+.b1-card5 li.close div {
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background: url(../image/b1_c40.png) no-repeat center center;
+  background-size: 24px 24px;
+}
+.b1-card5 li p {
+  font-size: 12px;
+  margin-top: 5px;
+  word-break: keep-all;
+}
+.box2 {
+  overflow: hidden;
+}
+.b2-card1 {
+  position: absolute;
+  text-align: center;
+  width: 220px;
+  height: 130px;
+  padding: 20px 0 10px 0;
+}
+.b2-card2,
+.b2-card3,
+.b2-card4,
+.b2-card5,
+.b2-card6 {
+  float: left;
+  width: 180px;
+  height: 130px;
+  padding: 20px 0 10px 0;
+}
+.b2-card1 span {
+  vertical-align: middle;
+}
+.b2-card2 p {
+  text-align: center;
+  width: 100%;
+}
+.b2-card1 span {
+  font-size: 12px;
+  position: absolute;
+}
+.b2-card1 .b2-1 {
+  top: 26px;
+  left: 100px;
+}
+.b2-card1 .b2-2 {
+  top: 60px;
+  left: 130px;
+}
+.b2-card1 .b2-3 {
+  bottom: 5px;
+  left: 100px;
+}
+.b2-card4 {
+  position: relative;
+}
+.b2-card6 .com1 {
+  margin-top: 10px;
+}
+.b2-card6 p {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #999999;
+}
+.box3 {
+  overflow: hidden;
+}
+.b3-card1 {
+  position: absolute;
+  text-align: center;
+  vertical-align: middle;
+  width: 220px;
+  height: 130px;
+}
+.b3-card2,
+.b3-card3,
+.b3-card4,
+.b3-card5,
+.b3-card6 {
+  float: left;
+  width: 180px;
+  height: 130px;
+  padding: 20px 0 10px 0;
+}
+.b3-card1 span {
+  font-size: 12px;
+  position: absolute;
+  bottom: 16px;
+  left: 95px;
+}
+.b3-card4 {
+  position: relative;
+}
+.box4 {
+  overflow: hidden;
+}
+.b4-card1 {
+  position: absolute;
+  text-align: center;
+  width: 220px;
+  height: 130px;
+}
+.b4-card2,
+.b4-card3,
+.b4-card4,
+.b4-card5,
+.b4-card6 {
+  float: left;
+  width: 180px;
+  height: 130px;
+  padding: 20px 0 10px 0;
+}
+.b4-card1 span {
+  font-size: 12px;
+  position: absolute;
+  left: 70px;
+  bottom: 28px;
+}
+.b4-card2 {
+  position: relative;
+}
+.b4-card2 div {
+  margin: 0 auto;
+}
+.b4-card2 p {
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  position: absolute;
+  left: 0;
+  top: 10px;
+  color: #999999;
+}
+.box5 {
+  overflow: hidden;
+}
+.b5-card1 {
+  position: absolute;
+  text-align: center;
+  width: 220px;
+  padding: 20px 0 10px 0;
+}
+.b5-card2 {
+  float: left;
+  width: 130px;
+  padding: 20px 0 10px 0;
+}
+.b5-card1 span {
+  font-size: 12px;
+  position: absolute;
+  left: 90px;
+  bottom: 25px;
+}
+.dwp {
+  width: 40px;
+  height: 98px;
+  margin: 0 auto;
+  position: relative;
+}
+.dwp img {
+  width: 40px;
+  height: 98px;
+  position: relative;
+}
+.dwp span {
+  width: 36px;
+  height: 80px;
+  display: inline-block;
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+}
+.dwp span i {
+  width: 36px;
+  background-color: #3892ce;
+  position: absolute;
+  bottom: 0;
+}
+.dwp > i {
+  display: inline-block;
+  text-align: center;
+  width: 40px;
+  font-style: normal;
+  font-size: 12px;
+  position: absolute;
+  top: 35px;
+}
