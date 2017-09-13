@@ -141,7 +141,26 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
                 map.put("page_num",pageNum);
                 map.put("page", page);
                 map.put("base_table", baseTabel.getString("re_table"));
-        }
+           }
+         
+        //选择sheet表格
+        if (part.getInt("isFixed")!=null && part.getInt("isFixed") == 2) {
+        	 List<Record> joinTables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",PoiConstanceItems.TABLE_SCHEMA,baseTabel.getString("re_table"));
+        	 int num =1;
+             for (Record tableTemp : joinTables) {
+            	 tableTemp.set("re_table_name", "t"+num);
+                num++;
+             }
+             joinTables.add(new Record().set("re_table", baseTabel.getString("re_table")).set("re_table_name", "t"));
+             String sheetSql=part.getStr("sheet_sql");
+        	 matcher = Pattern.compile(".*from\\s+(\\w+)\\s+.*").matcher(sheetSql);
+        	 String sheet_table =null;
+        	 if (matcher.find()) {
+        		 sheet_table =matcher.group(1);
+             }
+        	 map.put("sheet_table_name", sheet_table);
+        	 map.put("join_tables", joinTables);
+		}
             
         
         //拼接cell    

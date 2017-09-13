@@ -15,7 +15,14 @@
 					<input type="hidden" id="template_id" value="${part.template}"/>		                      
                     	<div class="row-fluid" style="margin-top: 10px;">
                     	
-                    	 <div class="span5" id="sheel_base_div">
+                    	 <c:choose>
+				         	<c:when test="${part.isFixed ==1 }">
+                    			 <div class="span6" id="sheel_base_div">
+				         	</c:when>
+				         	<c:otherwise>
+                    			 <div class="span5" id="sheel_base_div">
+				         	</c:otherwise>
+				        </c:choose>
 			                <div class="widget blue">
 	                      		<div class="widget-title" id ="role_title" >
                        				 	<h4><i class="icon-align-left">编辑模板</i></h4>
@@ -38,14 +45,16 @@
 										            <input type="text" id="partName_content" placeholder="请输入模板名称……" value="${part.name }" style=" width: 43%; float: right;" />
 											</div>
 											 <div class="input-wrap">
-												    	 <div class="tLable"><span style="width: 42%;">sheet排序：</span><span style="width: 46%; float: right; display: none" id ="sheetName_title" >sheet名称：</span></div>
-												         <input type="text" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 43%;"/>
 												         <c:choose>
 												         	<c:when test="${part.isFixed ==1 }">
+														    	 <div class="tLable"><span style="width: 42%;">sheet排序：</span><span style="width: 46%; float: right;" id ="sheetName_title" >sheet名称：</span></div>
+														         <input type="text" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 43%;"/>
 												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;" onblur="getAllSheet();"  />
 												         	</c:when>
 												         	<c:otherwise>
-												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;display=none;" onblur="getAllSheet();"  />
+														    	 <div class="tLable"><span style="width: 42%;">sheet排序：</span><span style="width: 46%; float: right; display: none" id ="sheetName_title" >sheet名称：</span></div>
+														         <input type="text" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 43%;"/>
+												         		 <input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;display:none;"  onblur="getAllSheet();"  />
 												         	</c:otherwise>
 												         </c:choose>
 											</div>
@@ -67,8 +76,14 @@
 			                 </div>
 						</div>
 						
-				     	
-				     	<div class="span5" id="data_baseTables_div" >
+						 <c:choose>
+				         	<c:when test="${part.isFixed ==1 }">
+				     				<div class="span6" id="data_baseTables_div" >
+				         	</c:when>
+				         	<c:otherwise>
+				     				<div class="span5" id="data_baseTables_div" >
+				         	</c:otherwise>
+				        </c:choose>
 							<div class="widget blue" >
 									<div class="widget-title" id ="role_title" >
                          				 <h4><i class="icon-align-left">选择主表</i></h4>
@@ -97,8 +112,15 @@
 			                      </div>
 			                </div>
 			            </div>
-			            
-			            	<div  class="span2" id="sheet_column_div"  >
+			            	
+			           <c:choose>
+				         	<c:when test="${part.isFixed ==1 }">
+					         	<div   id="sheet_column_div"  style="display: none" >
+				         	</c:when>
+				         	<c:otherwise>
+					         	<div  class="span2" id="sheet_column_div" >
+				         	</c:otherwise>
+				        </c:choose>
 								  <div class="widget blue"  >
 									   	<div class="widget-title" id ="role_title" >
 											    <h4><i class="icon-align-left">sheet字段选择</i></h4>

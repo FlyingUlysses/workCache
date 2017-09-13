@@ -559,13 +559,29 @@ function loadEditData(){
 					 dataPagesClick(baseTable_num);
 			 }
 			
+			//sheet表格选择
+			if (result.sheet_table_name && result.sheet_table_name != undefined) {
+				alert(111);
+				$("#sheet_table").empty();
+				var strs="<option value=''> 请选择表格...<option>";
+				if (result.join_tables && result.join_tables.length>0) {
+					$.each(result.join_tables,function(i,item){
+						if(result.sheet_table_name == item.re_table)
+							strs+="<option selected='selected'  value='"+formatNull(item.re_table)+"' column_name='"+formatNull(item.column_name)+"' re_column='"+formatNull(item.re_column)+"' re_table_name="+formatNull(item.re_table_name)+">"+formatNull(item.re_table)+"</option>";
+						else
+							strs+="<option   value='"+formatNull(item.re_table)+"' column_name='"+formatNull(item.column_name)+"' re_column='"+formatNull(item.re_column)+"' re_table_name="+formatNull(item.re_table_name)+">"+formatNull(item.re_table)+"</option>";
+					});
+				}
+				$("#sheet_table").append(strs);
+				$("#sheet_table").trigger("liszt:updated");
+			}
+			
 			
 			//生成表头样式
 			var cellList=result.cell_list;
 			$("#cells_table_body").empty();
 			row_num_v3 =(cellList[cellList.length-1].startrow-cellList[0].startrow)+1;
 			col_num_v3 = (cellList[cellList.length-1].startcolumn-cellList[0].startcolumn)+1;
-			alert("row:"+row_num_v3+"   col:"+col_num_v3);
 				var num_row =0;
 				strs="<tr location='tr_"+num_row+"'  style='height:23px;'>";
 				$.each(cellList,function(i,item){
