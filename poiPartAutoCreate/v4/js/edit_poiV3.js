@@ -20,7 +20,12 @@ $(function() {
 			reload();
 		}
 	});
+	
+	
+	
+	
 });
+
 
 function reload(){
 	page.page = 1;
@@ -561,7 +566,6 @@ function loadEditData(){
 			
 			//sheet表格选择
 			if (result.sheet_table_name && result.sheet_table_name != undefined) {
-				alert(111);
 				$("#sheet_table").empty();
 				var strs="<option value=''> 请选择表格...<option>";
 				if (result.join_tables && result.join_tables.length>0) {
@@ -584,6 +588,7 @@ function loadEditData(){
 			col_num_v3 = (cellList[cellList.length-1].startcolumn-cellList[0].startcolumn)+1;
 				var num_row =0;
 				strs="<tr location='tr_"+num_row+"'  style='height:23px;'>";
+				console.log(JSON.stringify(cellList));
 				$.each(cellList,function(i,item){
 					if (i>0 && cellList[i].startrow != cellList[i-1].startrow) {
 						num_row++;
@@ -592,8 +597,8 @@ function loadEditData(){
 					for ( var j = 0; j < col_num_v3; j++) {
 						if (item.startrow==num_row && item.startcolumn==j) {
 							strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='"+(1+(item.endcolumn - item.startcolumn))+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+item.cellname+"</div><div  tempType='attr_div' style='color: #999999;'>"+item.property+"</div></td>";
+								+"colspan='"+(1+(item.endcolumn - item.startcolumn))+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
+								+"<div tempType='name_div' >"+item.cellname+"</div><div  tempType='attr_div' style='color: #999999;'>"+item.property+"</div></td></div>";
 						}
 					}
 					if (item.endcolumn ==col_num_v3-1) {
@@ -608,3 +613,5 @@ function loadEditData(){
 			
 		});
 }
+
+

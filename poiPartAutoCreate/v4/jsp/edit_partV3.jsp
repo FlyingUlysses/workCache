@@ -170,7 +170,10 @@
 						    <div id="left_merge_cell" onclick="left_merge_cell_v3();" >向右合并</div>
 						    <div id="down_merge_cell" onclick="down_merge_cell_v3();">向下合并</div>
 						    <div id="edit_property" >选择表字段</div>
-						</div>						
+						</div>
+			<div id="test_input" ">
+				dkdfkdl
+			</div>						
 	<script type="text/javascript">
     	  $(".chzn-select").chosen();
     	  initFormValid("<%=basePath%>/apppoi/poiUpdate");
