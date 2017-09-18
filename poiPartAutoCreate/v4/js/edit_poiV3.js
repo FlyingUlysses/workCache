@@ -25,6 +25,27 @@ $(function() {
 			loadDataPages();
 		}
 	});
+	$("#select_data_table").click(function(){
+		page.page = 1;
+		loadDataPages();
+	});
+	
+	$("#sheetTable_name_input").keydown(function(event){
+		if (event.keyCode == 13) {
+			page.page = 1;
+			loadSheetPages();
+		}
+	});
+	$("#sheetTable_code_input").keydown(function(event){
+		if (event.keyCode == 13) {
+			page.page = 1;
+			loadSheetPages();
+		}
+	});
+	$("#select_sheet_table").click(function(){
+		page.page = 1;
+		loadSheetPages();
+	});
 	
 });
 
@@ -701,12 +722,12 @@ function loadEditData(){
 			
 			//生成表头样式
 			var cellList=result.cell_list;
+			alert(result.cell_list);
 			$("#cells_table_body").empty();
 			row_num_v3 =(cellList[cellList.length-1].startrow-cellList[0].startrow)+1;
 			col_num_v3 = (cellList[cellList.length-1].startcolumn-cellList[0].startcolumn)+1;
 				var num_row =0;
 				strs="<tr location='tr_"+num_row+"'  style='height:23px;'>";
-				console.log(JSON.stringify(cellList));
 				$.each(cellList,function(i,item){
 					if (i>0 && cellList[i].startrow != cellList[i-1].startrow) {
 						num_row++;
