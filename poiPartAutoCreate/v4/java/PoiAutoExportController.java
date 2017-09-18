@@ -176,7 +176,6 @@ public class PoiAutoExportController extends Controller{
         String sheetSql = getPara("sheet_sql");
         String dataSql = getPara("data_sql");
         JSONArray cellArray = JSON.parseArray(getPara("cells"));
-        if (excelId!=null) {
             try {
                 ExcelPart part = new ExcelPart();
                 if (partId!=null && templateId!=null) {
@@ -206,21 +205,24 @@ public class PoiAutoExportController extends Controller{
                 String sql="INSERT INTO excel_cells (  `template`, `cellname`, `width`, `startRow`, `startColumn`, `isMerge`, `endRow`, `endColumn`,`property`) VALUES ";
                 for (int i = 0; i < cellArray.size(); i++) {
                     JSONObject cell =(JSONObject) cellArray.get(i);
-                    String remarks = null;
-                    Integer width = 4000;
+                    String cellName = null;
+                    Integer width = 4500;
                     Integer startRow = null;
                     Integer startColmun =null;
                     Integer endRow = null;
                     Integer endColmun = null;
-                    String columnName = null;
+                    String property = null;
                     String isMerge="N";
-                    try {remarks= cell.getString("remarks");} catch (Exception e) {}
-                    try {startRow = cell.getInteger("start_row");} catch (Exception e) {}
-                    try {startColmun = cell.getInteger("start_colmun");} catch (Exception e) {}
-                    try {endRow = cell.getInteger("end_row");} catch (Exception e) {}
-                    try {endColmun = cell.getInteger("end_colmun");} catch (Exception e) {}
-                    try {columnName = cell.getString("column_name");} catch (Exception e) {}
-                    sql+="("+templateId+",'"+remarks+"',"+width+","+startRow+","+startColmun+",'"+isMerge+"',"+endRow+","+endColmun+",'"+columnName+"')";
+                    try {cellName= cell.getString("cellName");} catch (Exception e) {}
+                    try {startRow = cell.getInteger("startRow");} catch (Exception e) {}
+                    try {startColmun = cell.getInteger("startColumn");} catch (Exception e) {}
+                    try {endRow = cell.getInteger("endRow");} catch (Exception e) {}
+                    try {endColmun = cell.getInteger("endColumn");} catch (Exception e) {}
+                    try {property = cell.getString("property");} catch (Exception e) {}
+                    if (startRow != endRow || startColmun != endColmun) {
+                    	isMerge= "Y";
+                    }
+                    sql+="(,"+templateId+",'"+cellName+"',"+width+","+startRow+","+startColmun+",'"+isMerge+"',"+endRow+","+endColmun+",'"+property+"')";
                     if (i<cellArray.size()-1) {
                         sql+=",";
                     }
@@ -230,7 +232,6 @@ public class PoiAutoExportController extends Controller{
                 renderJson(new ResponseData(false,"保存发生异常，异常操作如下: " + e.getMessage()));  
                 return;
             }
-        }
         renderJson(new ResponseData(true,"添加模板成功!"));
     }
     

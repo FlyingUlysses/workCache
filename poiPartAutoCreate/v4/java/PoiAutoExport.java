@@ -21,7 +21,10 @@ import com.yawa.util.model.Page;
 @SuppressWarnings("serial")
 public class PoiAutoExport extends Model<PoiAutoExport>{
     public static final PoiAutoExport me = new PoiAutoExport();
-
+    
+    public static final String TABLE_SCHEMA="ngms";
+    
+    
     public Page<Record> getPages(Integer page, Integer limit, String table_name, String table_code) {
         String filter="";
         if (StringUtils.isNotBlank(table_name)) {
@@ -30,15 +33,15 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         if (StringUtils.isNotBlank(table_code)) {
             filter+=" and TABLE_NAME like '%"+table_code+"%' ";
         }
-        Long count = Db.queryLong("select count(1) from information_schema.tables where table_schema=? "+filter,PoiConstanceItems.TABLE_SCHEMA);
+        Long count = Db.queryLong("select count(1) from information_schema.tables where table_schema=? "+filter,TABLE_SCHEMA);
         String sql="select TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time from information_schema.tables where table_schema=? "+filter+" limit ?,?";
-        return new Page<Record>(page, limit, count, Db.find(sql,PoiConstanceItems.TABLE_SCHEMA,(page - 1) * limit,limit));
+        return new Page<Record>(page, limit, count, Db.find(sql,TABLE_SCHEMA,(page - 1) * limit,limit));
     }
 
 
     public LinkedHashMap<String, List<Record>> gtPropertyList(String tableName) {
         LinkedHashMap<String, List<Record>> map = new LinkedHashMap<String, List<Record>>();
-        List<Record> tables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",PoiConstanceItems.TABLE_SCHEMA,tableName);
+        List<Record> tables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",TABLE_SCHEMA,tableName);
         int num =1;
         for (Record table : tables) {
            table.set("re_table_name", "t"+num);
@@ -46,7 +49,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         }
         tables.add(new Record().set("re_table", tableName).set("re_table_name", "t"));
         for (Record table : tables) {
-            List<Record> colmuns = Db.find("SELECT TABLE_NAME,COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_name =? AND table_schema=?",table.getStr("re_table"),PoiConstanceItems.TABLE_SCHEMA);
+            List<Record> colmuns = Db.find("SELECT TABLE_NAME,COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_name =? AND table_schema=?",table.getStr("re_table"),TABLE_SCHEMA);
                 for (Record column : colmuns) {
                         column.set("re_table_name", table.getStr("re_table_name"));
                 }
@@ -65,8 +68,8 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
      */
     public List<Record> getSheetTable(String tableName) {
         List<Record> tables =new ArrayList<Record>();
-        tables.add(new Record().set("re_table", tableName));
-        List<Record> joinTables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",PoiConstanceItems.TABLE_SCHEMA,tableName);
+        tables.add(new Record().set("re_table", tableName).set("re_table_name", "t"));
+        List<Record> joinTables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",TABLE_SCHEMA,tableName);
         int num =1;
         for (Record table : joinTables) {
            table.set("re_table_name", "t"+num);
@@ -80,7 +83,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
      * 根据选择sheet主表查询sheet字段信息
      */
     public List<Record> getSheetColumns(String tableName) {
-        List<Record> tables = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",PoiConstanceItems.TABLE_SCHEMA,tableName);
+        List<Record> tables = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableName);
         return tables;
     }
 
@@ -115,7 +118,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
                     tables.add(tableTemp);
                 }
             }else if (str.contains("from")) {
-                matcher = Pattern.compile(".*from\\s*(\\w+)\\s*(\\w+)\\s*.*").matcher(str);
+                matcher = Pattern.compile(".*from\\s*(\\w+)\\s*(\\w+)\\s*,*.*").matcher(str);
                 if (matcher.find()) {
                     baseTabel.put("re_table", matcher.group(1));
                     baseTabel.put("re_table_name ", matcher.group(2));
@@ -129,36 +132,45 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         HashMap<String, Object> map = new HashMap<String, Object>();
         Page<Record> page=null;
         Record table = Db.findFirst("select t2.* from  (select @rownum:=@rownum+1 rownum, TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time "
-                                  + " from (select @rownum:=0) t1 ,information_schema.TABLES t where t.table_schema =? order by t.table_name )t2 where t2.code=? ",PoiConstanceItems.TABLE_SCHEMA,baseTabel.getString("re_table"));
-            if (table.getStr("code").equals(baseTabel.getString("re_table"))) {
-                Integer rowNum = table.getNumber("rownum").intValue();
-                Integer pageNum =rowNum/limit;
-                if (rowNum%limit >0) 
-                    pageNum++;
-                Long count = Db.queryLong("select count(1) from information_schema.tables where table_schema=? ",PoiConstanceItems.TABLE_SCHEMA);
-                String sql="select TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time from information_schema.tables where table_schema=?  limit ?,?";
-                page = new Page<Record>(pageNum, limit, count, Db.find(sql,PoiConstanceItems.TABLE_SCHEMA,(pageNum - 1) * limit,limit));
-                map.put("page_num",pageNum);
-                map.put("page", page);
-                map.put("base_table", baseTabel.getString("re_table"));
-           }
-         
+                                  + " from (select @rownum:=0) t1 ,information_schema.TABLES t where t.table_schema =? order by t.table_name )t2 where t2.code=? ",TABLE_SCHEMA,baseTabel.getString("re_table"));
+        Integer rowNum = table.getNumber("rownum").intValue();
+        Integer pageNum =rowNum/limit;
+        if (rowNum%limit >0) 
+            pageNum++;
+        Long count = Db.queryLong("select count(1) from information_schema.tables where table_schema=? ",TABLE_SCHEMA);
+        String sql="select TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time from information_schema.tables where table_schema=? order by code  limit ?,?";
+        page = new Page<Record>(pageNum, limit, count, Db.find(sql,TABLE_SCHEMA,(pageNum - 1) * limit,limit));
+        map.put("page_num",pageNum);
+        map.put("page", page);
+        map.put("base_table", baseTabel.getString("re_table"));
+            
+        //解析sheet_sql语句
+        String sheetSql =part.getStr("sheet_sql");
+        matcher = Pattern.compile(".*from\\s+(\\w+)\\s+.*").matcher(sheetSql);
+        String sheetTableCode =null;
+   	 	if (matcher.find()) {
+   	 		sheetTableCode =matcher.group(1);
+        }
+   		Record sheetTable = Db.findFirst("select t2.* from  (select @rownum:=@rownum+1 rownum, TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time "
+             + " from (select @rownum:=0) t1 ,information_schema.TABLES t where t.table_schema =? order by t.table_name )t2 where t2.code=? ",TABLE_SCHEMA,sheetTableCode);
+   		Integer sheetRowNum = sheetTable.getNumber("rownum").intValue();
+   		pageNum =sheetRowNum/limit;
+        if (sheetRowNum%limit >0) 
+            pageNum++;
+        page = new Page<Record>(pageNum, limit, count, Db.find(sql,TABLE_SCHEMA,(pageNum - 1) * limit,limit));
+        map.put("sheet_page_num",pageNum);
+        map.put("sheet_page", page);
+        map.put("sheet_table_name",sheetTableCode);
+   		
         //选择sheet表格
         if (part.getInt("isFixed")!=null && part.getInt("isFixed") == 2) {
-        	 List<Record> joinTables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",PoiConstanceItems.TABLE_SCHEMA,baseTabel.getString("re_table"));
+        	 List<Record> joinTables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",TABLE_SCHEMA,sheetTableCode);
         	 int num =1;
              for (Record tableTemp : joinTables) {
             	 tableTemp.set("re_table_name", "t"+num);
                 num++;
              }
-             joinTables.add(new Record().set("re_table", baseTabel.getString("re_table")).set("re_table_name", "t"));
-             String sheetSql=part.getStr("sheet_sql");
-        	 matcher = Pattern.compile(".*from\\s+(\\w+)\\s+.*").matcher(sheetSql);
-        	 String sheet_table =null;
-        	 if (matcher.find()) {
-        		 sheet_table =matcher.group(1);
-             }
-        	 map.put("sheet_table_name", sheet_table);
+             joinTables.add(new Record().set("re_table", sheetTable.getStr("code")).set("re_table_name", "t"));
         	 map.put("join_tables", joinTables);
 		}
             
