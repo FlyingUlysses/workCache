@@ -83,7 +83,7 @@ function reloadRecord(){
 					 +"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button>    "
 					 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
 					 + 		"  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
-					 + 			" onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\",\"rvBtn_" + item.id + "\");'><i class='icon-trash'></i></button></td></tr>";
+					 + 			" onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button></td></tr>";
 			 });
 			 $("#rowBody").append(strs);
 		 }
@@ -115,3 +115,8 @@ function editPartAndCell(id){
 	top.addTab("partAndCell_edit","ExcelPart编辑",url);
 }
 
+function revPart(url){
+	$.post(url,function(data,status){
+		layer.alert(data.message);
+	});
+}

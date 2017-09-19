@@ -1,10 +1,11 @@
 //---------------------------sql模板------------------------------------------
 var SHEET_SQL_TEMPLATE=" select #id id,#name name from #tableName #joinTable #where";
-var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable  #sheet=#id #where #filter ";
+var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable  #sheet=#id where #where #filter ";
 var row_num_v3=2;
 var col_num_v3=7;
 var page = { page: 1,limit: 10 };
 var sheet_page = { page: 1,limit: 10 };
+var sql_test_status = 0 ;//sql语句测试状态，初始为0，sheetsql通过为1，datasql通过为2,全部通过为3
 $(function() {
 	part_id=$("#part_id").val();
 	if (part_id && part_id != undefined) 
@@ -162,9 +163,9 @@ function getAllSheet(){
 //sheet主表分页
 function loadSheetPages(){
 	var url = _basePath + "/poiAutoExport/getPages";
-	page.table_name=$("#sheetTable_name_input").val();
-	page.table_code=$("#sheeTable_code_input").val();
-	$.post(url, page, function(res, status) {
+	sheet_page.table_name=$("#sheetTable_name_input").val();
+	sheet_page.table_code=$("#sheetTable_code_input").val();
+	$.post(url, sheet_page, function(res, status) {
 		$("#sheetRowBody").empty();
 		renderPage("sheetPageUL",sheet_page,res.total,loadSheetPages);
 		var data = res.data;
@@ -572,8 +573,74 @@ function edit_property_v3(){
 }
 
 //---------------------------------保存新增---------------------------------------------------------------------
+//保存前页面数据校验
+function saveValidate(flag){
+	var res ={flag:flag,msg:""};
+	if (sheetCat == "all") {
+		if ($("#sheetName_content").val()+"" == "") {
+			res.msg="模板名称不能为空！";
+			res.flag = false;
+			return res;
+		}
+	}
+	if($("#part_sort").val()+"" == ""){
+		res.msg=="请先输入sheet在模板中的排序！";
+		res.flag = false;
+		return res;
+	}
+	if($("#sheetName_content").val()+"" == ""){
+		res.msg="请先输入固定sheet页名称！";
+		res.flag = false;
+		return res;
+	}
+	
+	var sheet_sql = $("#sheetSql_input").val()+"";
+	if(sheet_sql == ""){
+		res.msg="sheetSql不能为空！";
+		res.flag = false;
+		return res;
+	}else if(sheet_sql.indexOf("#where")) {
+		res.msg="请先手动填写sheetSql中的where条件！";
+		res.flag = false;
+		return res;
+	}
+	
+	var data_sql = $("#dataSql_input").val()+"";
+	if(data_sql == ""){
+		res.msg="dataSql不能为空！";
+		res.flag = false;
+		return res;
+	}else if(data_sql.indexOf("#where")) {
+		res.msg="请先手动填写dataSql中的where条件！";
+		res.flag = false;
+		return res;
+	}
+	
+	if (sql_test_status == 0) {
+		res.msg="保存前请先测试sql！";
+		res.flag = false;
+		return res;
+	}else if (sql_test_status == 1) {
+		res.msg="保存前请先测试DataSql！";
+		res.flag = false;
+		return res;
+	}else if (sql_test_status == 2) {
+		res.msg="保存前请先测试SheetSql！";
+		res.flag = false;
+		return res;
+	}
+	
+	return res;
+}
+
 //location='tr_"+i+"_td_"+j+"' 
 function savePartAndCells(){
+	var validateFlag = true;
+	var valiRes=saveValidate(validateFlag);
+	if (!valiRes.flag) {
+		layer.alert(res.msg);
+		return;
+	}
 	var cells=[];
 	$("#cells_table tbody tr").each(function(i,item){
 		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
@@ -582,9 +649,9 @@ function savePartAndCells(){
 			var	 cellName=td.find("div[tempType='name_div']").text()+"";
 			var	 property=td.find("div[tempType='attr_div']").text()+"";
 			var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
-			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10);
+			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
 			var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
-			var  endColumn =parseInt(startColumn, 10)+parseInt(td.attr("colspan"), 10);
+			var  endColumn =parseInt(startColumn, 10)+parseInt(td.attr("colspan"), 10)-1;
 			var cell={
 					cellName:cellName,
 					property:property,
@@ -612,7 +679,9 @@ function savePartAndCells(){
 	
 	var url = _basePath + "/poiAutoExport/savePartAndCells";
 	$.post(url, result, function(res, status) {
-		layer.alert(res.message,function(index){});
+		if(res.success)
+			top.reloadTab("poi报表");
+		layer.alert(res.message);
 	});
 }
 
@@ -633,6 +702,8 @@ function loadEditData(){
 		$("#sheet_column_div").hide();
 		$("#create_button_div").hide();
 		$("#edit_button_div").show();
+		$("#sheetCat_select").prop("disabled",true).trigger('liszt:updated');
+		$("#sheetCat_select").show();
 		var url = _basePath + "/poiAutoExport/loadEditData";
 		page.id=$("#part_id").val();
 		$.post(url,page,function(res,status ){
@@ -656,7 +727,7 @@ function loadEditData(){
 								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_div' style='color: #999999;'>"+formatNull(item.property)+"</div></td></div>";
 						}
 					}
-					if (item.endcolumn ==col_num_v3-1) {
+					if (item.endcolumn == col_num_v3-1) {
 						strs+="</tr>";
 					}
 				});
@@ -681,18 +752,22 @@ function toCreate(){
  */
 function testSheetSql(){
 	var sql =$("#sheetSql_input").val()+"";
-	var req={sql:sql};
+	if (sql==""){
+		layer.alert("sql语句没有不能为空！");
+		return;
+	} 
 	if (sql.indexOf("#where") >=0){
 		layer.alert("请先处理手动处理sql语句中的where条件！");
 		return;
 	} 
+	var req={sql:sql};
 	var url = _basePath + "/poiAutoExport/testSql";
 	$.post(url,req,function(data,status){
-		layer.alert(data.message,function(index){
-			if(data.success)
-				top.reloadTab("报表生成");
-			layer.close(index);
-		});
+		layer.alert(data.message);
+		if(data.success && sql_test_status == 0)
+			sql_test_status = 1;
+		else if(data.success && sql_test_status == 2)
+			sql_test_status = 3;
 	});
 }
 
@@ -701,14 +776,28 @@ function testSheetSql(){
  */
 function testDataSql(){
 	var sql =$("#dataSql_input").val()+"";
-	var req={sql:sql};
+	if (sql==""){
+		layer.alert("sql语句没有不能为空！");
+		return;
+	} 
+	if (sql.indexOf("#filter") >=0)
+		sql = sql.replace("#filter", "");
 	if (sql.indexOf("#where") >=0){
 		layer.alert("请先处理手动处理sql语句中的where条件！");
 		return;
 	} 
+	if (sql.indexOf("#id") >=0){
+		layer.alert("请先处理手动处理sql语句中的分类id条件！");
+		return;
+	} 
+	var req={sql:sql};
 	var url = _basePath + "/poiAutoExport/testSql";
 	$.post(url,req,function(data,status){
 		layer.alert(data.message);
+		if(data.success && sql_test_status == 0)
+			sql_test_status = 2;
+		else if(data.success && sql_test_status == 1)
+			sql_test_status = 3;
 	});
 }
 
