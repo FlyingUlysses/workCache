@@ -1,6 +1,6 @@
 //---------------------------sql模板------------------------------------------
 var SHEET_SQL_TEMPLATE=" select #id id,#name name from #tableName #joinTable #where";
-var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id #where #filter ";
+var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable  #sheet=#id #where #filter ";
 var row_num_v3=2;
 var col_num_v3=7;
 var page = { page: 1,limit: 10 };
@@ -32,18 +32,18 @@ $(function() {
 	
 	$("#sheetTable_name_input").keydown(function(event){
 		if (event.keyCode == 13) {
-			page.page = 1;
+			sheet_page.page = 1;
 			loadSheetPages();
 		}
 	});
 	$("#sheetTable_code_input").keydown(function(event){
 		if (event.keyCode == 13) {
-			page.page = 1;
+			sheet_page.page = 1;
 			loadSheetPages();
 		}
 	});
 	$("#select_sheet_table").click(function(){
-		page.page = 1;
+		sheet_page.page = 1;
 		loadSheetPages();
 	});
 	
@@ -54,8 +54,8 @@ function reload(){
 	sheet_page.page=1;
 	page.page = 1;
 	loadDataPages();
-	reloadCells();
 	loadSheetPages();
+	reloadCells();
 }
 function reloadCells(){
 	var strs="";
@@ -63,8 +63,8 @@ function reloadCells(){
 	for ( var i = 0; i < row_num_v3; i++) {
 		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
 			for ( var j = 0; j < col_num_v3; j++) {
-				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
-					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;' tempType='attr_div'></div></td>";
+				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
+					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;color: #999999;' tempType='attr_div'></div></div></td>";
 			}
 		strs+="</tr>";
 	}
@@ -152,8 +152,9 @@ function getAllSheet(){
 	}
     sheet_sql_temp=SHEET_SQL_TEMPLATE;
     sheet_sql_temp=sheet_sql_temp.replace("#id", "0");
-    sheet_sql_temp=sheet_sql_temp.replace("#name",$("#sheetName_content").val());
+    sheet_sql_temp=sheet_sql_temp.replace("#name","'"+$("#sheetName_content").val()+"'");
     sheet_sql_temp=sheet_sql_temp.replace("from #tableName", "");
+    sheet_sql_temp=sheet_sql_temp.replace("#joinTable", "");
     $("#sheetSql_input").empty();
     $("#sheetSql_input").append(sheet_sql_temp);
 }
@@ -190,8 +191,8 @@ function sheetPagesClick(num){
 //data主表分页
 function loadDataPages(){
 	var url = _basePath + "/poiAutoExport/getPages";
-	page.table_name=$("#table_name_input").val();
-	page.table_code=$("#table_code_input").val();
+	page.table_name=$("#dataTable_name_input").val();
+	page.table_code=$("#dataTable_code_input").val();
 	$.post(url, page, function(res, status) {
 		$("#dataRowBody").empty();
 		renderPage("dataPageUL",page,res.total,loadDataPages);
@@ -454,8 +455,8 @@ function saveCellName_v3(){
 function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
 	for ( var j = 0; j <col_num_v3 ; j++) {
-		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num_v3+"_td_"+j+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'></div></td>";
+		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num_v3+"_td_"+j+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'></div></div></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
@@ -470,8 +471,8 @@ function addCellTableCol_v3(){
 	var strs="";
 	for ( var i = 0; i < row_num_v3; i++) {
 		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
-		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num_v3+"'  colspan='1' rowspan='1' ><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div></td>";
+		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num_v3+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div></div></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
@@ -514,27 +515,23 @@ function edit_property_v3(){
 							td.find("div[tempType='attr_div']").show();
 							td.find("input").hide();
 							if (jsonTable.re_table+"" != tableCode) {
+								var joinTable ={
+										name:jsonTable.re_table+"",
+										re_name:jsonTable.re_table_name+"",
+										re_column:jsonTable.re_column+"",
+										column_name:jsonTable.column_name+""
+								};
 								if (joinTables.length>0) {
+									var addFlag = true;
 									$.each(joinTables,function(t,table){
-										if (table.name != jsonTable.re_table+"") {
-											var joinTable ={
-													name:jsonTable.re_table+"",
-													re_name:jsonTable.re_table_name+"",
-													re_column:jsonTable.re_column+"",
-													column_name:jsonTable.column_name+""
-											};
-											joinTables.push(joinTable);
+										if (table.name == jsonTable.re_table+"") {
+											addFlag = false;
 										}
 									});
-								}else{
-									var joinTable ={
-											name:jsonTable.re_table+"",
-											re_name:jsonTable.re_table_name+"",
-											re_column:jsonTable.re_column+"",
-											column_name:jsonTable.column_name+""
-									};
+									if (addFlag) 
+										joinTables.push(joinTable);
+								}else
 									joinTables.push(joinTable);
-								}
 							}
 							//生成dataSql
 							//var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id #where #filter ";
@@ -543,16 +540,16 @@ function edit_property_v3(){
 								data_sql_temp=data_sql_temp.replace("#sheet=#id","");
 							}
 							data_sql_temp=data_sql_temp.replace("#baseTable", tableCode+" t");
+							var join_str ="";
 							$.each(joinTables,function(t,table){
-								if (table.name != tableCode) {
-									data_sql_temp=data_sql_temp.replace("#joinTable", " left join "+table.name+" "+table.re_name+" on t."+table.column_name+" = "+table.re_name+"."+table.re_column);
-								}
-								if (sheetCat =="categery" && table.name == sheetTableCode) {
+								if (table.name != tableCode) 
+									join_str +=" left join "+table.name+" "+table.re_name+" on t."+table.column_name+" = "+table.re_name+"."+table.re_column;
+								if (sheetCat =="categery" && table.name == sheetTableCode) 
 									data_sql_temp=data_sql_temp.replace("#sheet", table.re_name+"."+$("#sheet_table_id").val());
-								}else if (sheetCat != "all") {
+								else if (sheetCat != "all") 
 									data_sql_temp=data_sql_temp.replace("#sheet","t."+$("#sheet_table_id").val());
-								}
 							});
+							data_sql_temp=data_sql_temp.replace("#joinTable",join_str);
 							data_sql_columns.push(name);
 							var column_str="";
 							$.each(data_sql_columns,function(c,column){
@@ -577,7 +574,6 @@ function edit_property_v3(){
 //---------------------------------保存新增---------------------------------------------------------------------
 //location='tr_"+i+"_td_"+j+"' 
 function savePartAndCells(){
-	alert(11);
 	var cells=[];
 	$("#cells_table tbody tr").each(function(i,item){
 		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
@@ -616,12 +612,7 @@ function savePartAndCells(){
 	
 	var url = _basePath + "/poiAutoExport/savePartAndCells";
 	$.post(url, result, function(res, status) {
-		layer.alert(data.message,function(index){
-			if(data.success)
-				top.reloadTab("报表生成");
-			layer.close(index);
-			top.closeTab("ExcelPart新增");
-		});
+		layer.alert(res.message,function(index){});
 	});
 }
 
@@ -644,9 +635,9 @@ function loadEditData(){
 		$("#edit_button_div").show();
 		var url = _basePath + "/poiAutoExport/loadEditData";
 		page.id=$("#part_id").val();
-		$.post(url,page,function(result,status ){
+		$.post(url,page,function(res,status ){
 			//生成表头样式
-			var cellList=result.cell_list;
+			var cellList=res;
 			$("#cells_table_body").empty();
 			row_num_v3 =(cellList[cellList.length-1].startrow-cellList[0].startrow)+1;
 			col_num_v3 = (cellList[cellList.length-1].startcolumn-cellList[0].startcolumn)+1;
@@ -661,8 +652,8 @@ function loadEditData(){
 					for ( var j = 0; j < col_num_v3; j++) {
 						if (item.startrow==num_row && item.startcolumn==j) {
 							strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='"+(1+(item.endcolumn - item.startcolumn))+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+item.cellname+"</div><div  tempType='attr_div' style='color: #999999;'>"+item.property+"</div></td></div>";
+								+"colspan='"+(item.endcolumn - item.startcolumn)+"' rowspan='"+(item.endrow-item.startrow)+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
+								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_div' style='color: #999999;'>"+formatNull(item.property)+"</div></td></div>";
 						}
 					}
 					if (item.endcolumn ==col_num_v3-1) {
@@ -677,5 +668,57 @@ function loadEditData(){
 			
 		});
 }
+
+
+function toCreate(){
+	var url=_basePath + "/poiAutoExport/addPart?id="+$("#part_id").val();
+	top.addTab("part_add","ExcelPart新增",url);
+	top.closeTab("ExcelPart编辑");
+}
+
+/*
+ * 测试sheetsql是否能执行
+ */
+function testSheetSql(){
+	var sql =$("#sheetSql_input").val()+"";
+	var req={sql:sql};
+	if (sql.indexOf("#where") >=0){
+		layer.alert("请先处理手动处理sql语句中的where条件！");
+		return;
+	} 
+	var url = _basePath + "/poiAutoExport/testSql";
+	$.post(url,req,function(data,status){
+		layer.alert(data.message,function(index){
+			if(data.success)
+				top.reloadTab("报表生成");
+			layer.close(index);
+		});
+	});
+}
+
+/*
+ * 测试DataSql是否能执行
+ */
+function testDataSql(){
+	var sql =$("#dataSql_input").val()+"";
+	var req={sql:sql};
+	if (sql.indexOf("#where") >=0){
+		layer.alert("请先处理手动处理sql语句中的where条件！");
+		return;
+	} 
+	var url = _basePath + "/poiAutoExport/testSql";
+	$.post(url,req,function(data,status){
+		layer.alert(data.message);
+	});
+}
+
+/**
+ * 测试导出
+ */
+function testExport(){
+	var url=_basePath + "/poiAutoExport/testExportExcel?id="+$("#part_id").val()+"&excel_id="+$("#excel_id").val();
+	window.location.href =url;
+}
+
 
 
