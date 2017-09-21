@@ -574,17 +574,17 @@ function edit_property_v3(){
 
 //---------------------------------保存新增---------------------------------------------------------------------
 //保存前页面数据校验
-function saveValidate(flag){
-	var res ={flag:flag,msg:""};
-	if (sheetCat == "all") {
+function saveValidate(){
+	var res ={flag:true,msg:"ok"};
+	if ($("#sheetCat_select").val() == "all") {
 		if ($("#sheetName_content").val()+"" == "") {
 			res.msg="模板名称不能为空！";
 			res.flag = false;
-			return res;
+			return  res ;
 		}
 	}
 	if($("#part_sort").val()+"" == ""){
-		res.msg=="请先输入sheet在模板中的排序！";
+		res.msg="请先输入sheet在模板中的排序！";
 		res.flag = false;
 		return res;
 	}
@@ -635,10 +635,9 @@ function saveValidate(flag){
 
 //location='tr_"+i+"_td_"+j+"' 
 function savePartAndCells(){
-	var validateFlag = true;
-	var valiRes=saveValidate(validateFlag);
+	var valiRes=saveValidate();
 	if (!valiRes.flag) {
-		layer.alert(res.msg);
+		layer.alert(valiRes.msg);
 		return;
 	}
 	var cells=[];
@@ -710,25 +709,58 @@ function loadEditData(){
 			//生成表头样式
 			var cellList=res;
 			$("#cells_table_body").empty();
-			row_num_v3 =(cellList[cellList.length-1].startrow-cellList[0].startrow)+1;
-			col_num_v3 = (cellList[cellList.length-1].startcolumn-cellList[0].startcolumn)+1;
+				row_num_v3 =cellList[cellList.length-1].maxrow+1;
+				col_num_v3 = cellList[cellList.length-1].maxcolumn+1;
 				var num_row =0;
 				strs="<tr location='tr_"+num_row+"'  style='height:23px;'>";
 				console.log(JSON.stringify(cellList));
+				var ColumnNum_temp=0;
 				$.each(cellList,function(i,item){
 					if (i>0 && cellList[i].startrow != cellList[i-1].startrow) {
-						num_row++;
+						if (cellList[i-1].endrow - cellList[i-1].startrow >0) {
+							for ( var tempInt = 0; tempInt < (cellList[i-1].endrow - cellList[i-1].startrow); tempInt++) {
+								strs += "<tr></tr>";
+								ColumnNum_temp=0;
+							}
+						}
+						num_row=cellList[i].startrow;
 						strs+="<tr location='tr_"+num_row+"'  style='height:23px;'>";
 					}
 					for ( var j = 0; j < col_num_v3; j++) {
 						if (item.startrow==num_row && item.startcolumn==j) {
-							strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='"+(item.endcolumn - item.startcolumn)+"' rowspan='"+(item.endrow-item.startrow)+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
+							if (j>0 && ColumnNum_temp == 0 && cellList[i].startcolumn > 0) {
+								for ( var tmepInt = 0; tmepInt < (cellList[i].startcolumn - 0 ); tmepInt++) {
+									strs +="<td></td>";
+								}
+							}
+							if (item.ismerge == "Y") {
+								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
+								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
 								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_div' style='color: #999999;'>"+formatNull(item.property)+"</div></td></div>";
+							}else if (item.ismerge == "N") {
+								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
+								+"colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
+								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_div' style='color: #999999;'>"+formatNull(item.property)+"</div></td></div>";
+							}
+							
+							if (ColumnNum_temp > 0 && i< col_num_v3-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
+								for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
+									strs +="<td></td>";
+								}
+							}
+							
+							if (ColumnNum_temp > 0 && i< col_num_v3-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow != cellList[i+1].startrow ) {
+								for ( var tmepInt = 0; tmepInt < (col_num_v3-1 - cellList[i].endcolumn); tmepInt++) {
+									strs +="<td></td>";
+								}
+							}
+							
+							ColumnNum_temp++;
 						}
 					}
 					if (item.endcolumn == col_num_v3-1) {
 						strs+="</tr>";
+						ColumnNum_temp=0;
 					}
 				});
 				
