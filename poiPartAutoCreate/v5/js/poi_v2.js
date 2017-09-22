@@ -58,11 +58,13 @@ function reloadRecord(){
 			 $.each(data,function(i,item){
 				 	row=1;
 				 	type="";
+				 	if (item.type=="") 
+						type="hidden";
+				 	if (i== data.length-1) 
+						row ++;
 					for ( var j = i+1; j < data.length; j++) {
-						 if (item.type=="") {
-								type="hidden";
-								break;
-							}else if(item.type!=data[j].type){
+							if(item.type!=data[j].type){
+								row++;
 								break;
 							}else if(item.type==data[j].type) {
 								row++;
@@ -84,6 +86,12 @@ function reloadRecord(){
 					 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
 					 + 		"  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
 					 + 			" onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button></td></tr>";
+				 
+				 if ((i<data.length -1 && item.type!=data[i+1].type && data[i+1].type != "") || i==data.length-1) {
+					strs += "<tr><td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
+						 +"<td style='text-align: center;'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
+						 +"<td ></td></tr>";
+				 }
 			 });
 			 $("#rowBody").append(strs);
 		 }
@@ -118,5 +126,6 @@ function editPartAndCell(id){
 function revPart(url){
 	$.post(url,function(data,status){
 		layer.alert(data.message);
+		reloadRecord();
 	});
 }

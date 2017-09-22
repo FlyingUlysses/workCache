@@ -2,7 +2,6 @@ package com.yawa.util.autoPoi;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 
@@ -16,11 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jfinal.core.Controller;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.render.RenderException;
-import com.yawa.core.model.User;
-import com.yawa.tank.model.Operation;
-import com.yawa.util.SecurityContextUtil;
 import com.yawa.util.excel.Excel;
-import com.yawa.util.excel.ExcelCell;
 import com.yawa.util.excel.ExcelPart;
 import com.yawa.util.excel.PoiMergeExporter;
 import com.yawa.util.model.ResponseData;
@@ -187,8 +182,8 @@ public class PoiAutoExportController extends Controller{
         String sheetSql = getPara("sheet_sql");
         String dataSql = getPara("data_sql");
         JSONArray cellArray = JSON.parseArray(getPara("cells"));
+        ExcelPart part = new ExcelPart();
             try {
-                ExcelPart part = new ExcelPart();
                 Integer isFixed =1;
                 if (StringUtils.isNotBlank(sheetCat) && sheetCat.equals("categery")) {
                     isFixed=0;
@@ -244,7 +239,10 @@ public class PoiAutoExportController extends Controller{
                 renderJson(new ResponseData(false,"保存发生异常，异常操作如下: " + e.getMessage()));  
                 return;
             }
-        renderJson(new ResponseData(true,"添加模板成功!"));
+            JSONObject data = new JSONObject();
+            data.put("id", part.getNumber("id").intValue());
+            ResponseData res = new ResponseData(true,"添加模板成功!",data);
+        renderJson(res);;
     }
     
     /*

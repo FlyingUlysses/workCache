@@ -1,27 +1,17 @@
 package com.yawa.util.autoPoi;
 
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Model;
 import com.jfinal.plugin.activerecord.Record;
-import com.jfinal.render.RenderException;
-import com.yawa.core.model.User;
-import com.yawa.tank.model.Operation;
-import com.yawa.util.SecurityContextUtil;
-import com.yawa.util.excel.ExcelCell;
 import com.yawa.util.excel.ExcelPart;
-import com.yawa.util.excel.PoiMergeExporter;
 import com.yawa.util.model.Page;
 
 @SuppressWarnings("serial")

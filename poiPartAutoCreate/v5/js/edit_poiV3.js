@@ -1,6 +1,6 @@
 //---------------------------sql模板------------------------------------------
 var SHEET_SQL_TEMPLATE=" select #id id,#name name from #tableName #joinTable #where";
-var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable  #sheet=#id where #where #filter ";
+var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id  #where #filter ";
 var row_num_v3=2;
 var col_num_v3=7;
 var page = { page: 1,limit: 10 };
@@ -65,7 +65,7 @@ function reloadCells(){
 		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
 			for ( var j = 0; j < col_num_v3; j++) {
 				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
-					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;color: #999999;' tempType='attr_div'></div></div></td>";
+					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;color: #999999;' tempType='attr_div'></div><div style='color: green;' tempType='attr_nick_div'></div></div></td>";
 			}
 		strs+="</tr>";
 	}
@@ -457,7 +457,7 @@ function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
 	for ( var j = 0; j <col_num_v3 ; j++) {
 		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num_v3+"_td_"+j+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'></div></div></td>";
+		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'><div style='color: green;' tempType='attr_nick_div'></div><div style='color: green;' tempType='attr_nick_div'></div></div></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
@@ -473,7 +473,7 @@ function addCellTableCol_v3(){
 	for ( var i = 0; i < row_num_v3; i++) {
 		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
 		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num_v3+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div></div></td>";
+		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div><div style='color: green;' tempType='attr_nick_div'></div></div></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
@@ -511,9 +511,13 @@ function edit_property_v3(){
 						onclick:function(){
 							var td=$("#cells_table tbody tr:eq("+select_row_v3+") td:eq("+select_cell_v3+")");
 							var name=property.re_table_name+"."+property.column_name;
+							var nick_name=property.column_name;
 							td.find("div[tempType='attr_div']").empty();
 							td.find("div[tempType='attr_div']").append(name);
 							td.find("div[tempType='attr_div']").show();
+							td.find("div[tempType='attr_nick_div']").empty();
+							td.find("div[tempType='attr_nick_div']").append(nick_name);
+							td.find("div[tempType='attr_nick_div']").show();
 							td.find("input").hide();
 							if (jsonTable.re_table+"" != tableCode) {
 								var joinTable ={
@@ -551,7 +555,7 @@ function edit_property_v3(){
 									data_sql_temp=data_sql_temp.replace("#sheet","t."+$("#sheet_table_id").val());
 							});
 							data_sql_temp=data_sql_temp.replace("#joinTable",join_str);
-							data_sql_columns.push(name);
+							data_sql_columns.push(name + " "+property.column_name+" ");
 							var column_str="";
 							$.each(data_sql_columns,function(c,column){
 								if (c==(data_sql_columns.length-1)) {
@@ -577,10 +581,10 @@ function edit_property_v3(){
 function saveValidate(){
 	var res ={flag:true,msg:"ok"};
 	if ($("#sheetCat_select").val() == "all") {
-		if ($("#sheetName_content").val()+"" == "") {
-			res.msg="模板名称不能为空！";
+		if($("#sheetName_content").val()+"" == ""){
+			res.msg="请先输入固定sheet页名称！";
 			res.flag = false;
-			return  res ;
+			return res;
 		}
 	}
 	if($("#part_sort").val()+"" == ""){
@@ -588,29 +592,27 @@ function saveValidate(){
 		res.flag = false;
 		return res;
 	}
-	if($("#sheetName_content").val()+"" == ""){
-		res.msg="请先输入固定sheet页名称！";
+	if ($("#partName_content").val()+"" == "") {
+		res.msg="模板名称不能为空！";
 		res.flag = false;
-		return res;
+		return  res ;
 	}
 	
-	var sheet_sql = $("#sheetSql_input").val()+"";
-	if(sheet_sql == ""){
+	if($("#sheetSql_input").val() == ""){
 		res.msg="sheetSql不能为空！";
 		res.flag = false;
 		return res;
-	}else if(sheet_sql.indexOf("#where")) {
+	}else if($("#sheetSql_input").val().indexOf("#where")>=0) {
 		res.msg="请先手动填写sheetSql中的where条件！";
 		res.flag = false;
 		return res;
 	}
 	
-	var data_sql = $("#dataSql_input").val()+"";
-	if(data_sql == ""){
+	if($("#dataSql_input").val() == ""){
 		res.msg="dataSql不能为空！";
 		res.flag = false;
 		return res;
-	}else if(data_sql.indexOf("#where")) {
+	}else if($("#dataSql_input").val().indexOf("#where")>=0) {
 		res.msg="请先手动填写dataSql中的where条件！";
 		res.flag = false;
 		return res;
@@ -646,7 +648,7 @@ function savePartAndCells(){
 			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
 			var  location=td.attr("location")+"";
 			var	 cellName=td.find("div[tempType='name_div']").text()+"";
-			var	 property=td.find("div[tempType='attr_div']").text()+"";
+			var	 property=td.find("div[tempType='attr_nick_div']").text()+"";
 			var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
 			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
 			var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
@@ -678,10 +680,33 @@ function savePartAndCells(){
 	
 	var url = _basePath + "/poiAutoExport/savePartAndCells";
 	$.post(url, result, function(res, status) {
-		if(res.success)
-			top.reloadTab("poi报表");
+		if(res.success){
+			top.reloadRecordTab("poi报表");
+			top.closeCurrentTab();
+//			editPartAndCell(res.data.id);
+		}
 		layer.alert(res.message);
 	});
+}
+
+//调用窗口reloadRecord方法
+function reloadRecordTab(title){
+	var tab = $('.menu-tabs').tabs('getTab', title);
+	var tabWin = null;
+	if (tab && tab.find('iframe').length > 0) {
+		tabWin = tab.find('iframe')[0].contentWindow;
+		if(tabWin != null){
+			tabWin.reloadRecord();
+		}
+	}
+}
+
+
+//保存后跳转编辑
+function editPartAndCell(id){
+	var url=_basePath + "/poiAutoExport/editPartAndCell?id="+id;
+	top.addTab("partAndCell_edit","ExcelPart编辑",url);
+	alert(id);
 }
 
 //---------------------------------------part编辑--------------------------------
@@ -728,40 +753,71 @@ function loadEditData(){
 					}
 					for ( var j = 0; j < col_num_v3; j++) {
 						if (item.startrow==num_row && item.startcolumn==j) {
+						
 							if (j>0 && ColumnNum_temp == 0 && cellList[i].startcolumn > 0) {
 								for ( var tmepInt = 0; tmepInt < (cellList[i].startcolumn - 0 ); tmepInt++) {
 									strs +="<td></td>";
 								}
 							}
+							ColumnNum_temp++;
 							if (item.ismerge == "Y") {
 								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
 								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_div' style='color: #999999;'>"+formatNull(item.property)+"</div></td></div>";
+								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
+								
+								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
+									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
+										strs +="<td></td>";
+									}
+								}
+								
+								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i].startrow != cellList[i+1].startrow ) {
+									for ( var tmepInt = 0; tmepInt < (col_num_v3-1 - cellList[i].endcolumn); tmepInt++) {
+										strs +="<td></td>";
+									}
+								}
 							}else if (item.ismerge == "N") {
 								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
 								+"colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_div' style='color: #999999;'>"+formatNull(item.property)+"</div></td></div>";
-							}
-							
-							if (ColumnNum_temp > 0 && i< col_num_v3-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
-								for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
-									strs +="<td></td>";
+								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
+								
+								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
+									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].startcolumn-1 ); tmepInt++) {
+										strs +="<td></td>";
+									}
+								}
+								
+								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i].startrow != cellList[i+1].startrow ) {
+									for ( var tmepInt = 0; tmepInt < (col_num_v3-1 - cellList[i].startcolumn); tmepInt++) {
+										strs +="<td></td>";
+									}
 								}
 							}
 							
-							if (ColumnNum_temp > 0 && i< col_num_v3-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow != cellList[i+1].startrow ) {
-								for ( var tmepInt = 0; tmepInt < (col_num_v3-1 - cellList[i].endcolumn); tmepInt++) {
-									strs +="<td></td>";
-								}
-							}
-							
-							ColumnNum_temp++;
 						}
 					}
-					if (item.endcolumn == col_num_v3-1) {
-						strs+="</tr>";
-						ColumnNum_temp=0;
+					if (item.ismerge == "Y") {
+						if (item.endcolumn == col_num_v3-1 || i == cellList.length-1) {
+							if (item.endcolumn < item.maxcolumn) {
+								for ( var intTemp = 0; intTemp < item.maxcolumn - item.endcolumn; intTemp++) {
+									strs +="<td></td>";
+								}
+							}
+							strs+="</tr>";
+							ColumnNum_temp=0;
+						}
+					}else {
+						if (item.startcolumn == col_num_v3-1 || i == cellList.length-1) {
+							if (item.startcolumn < item.maxcolumn) {
+								for ( var intTemp = 0; intTemp < item.maxcolumn - item.startcolumn; intTemp++) {
+									strs +="<td></td>";
+								}
+							}
+							strs+="</tr>";
+							ColumnNum_temp=0;
+						}
 					}
+					
 				});
 				
 			$("#cells_table_body").append(strs);
@@ -819,8 +875,7 @@ function testDataSql(){
 		return;
 	} 
 	if (sql.indexOf("#id") >=0){
-		layer.alert("请先处理手动处理sql语句中的分类id条件！");
-		return;
+		sql = sql.replace("#id", "1 or true");
 	} 
 	var req={sql:sql};
 	var url = _basePath + "/poiAutoExport/testSql";
