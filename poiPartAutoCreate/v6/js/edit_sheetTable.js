@@ -148,7 +148,10 @@ function add_joinTable(){
 function save(){
 	var res=validate();
 	if(res.flag){
-		
+		layer.alert(res.msg);
+	}else{
+		parent.testkkk();
+		layer.alert("ok!");
 	}
 }
 

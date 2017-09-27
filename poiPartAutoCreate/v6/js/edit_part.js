@@ -14,6 +14,7 @@ $(function() {
 });
 
 
+
 function reload(){
 //	loadDataPages();
 //	loadSheetPages();
@@ -67,6 +68,10 @@ function choseShettTable(){
 		height : "510px",
 		url : _basePath + "/poiAutoExport/editSheetTable" 
 	});
+}
+
+function testkkk(){
+	alert("-------------------------");
 }
 
 function choseDataTable(){
@@ -139,34 +144,7 @@ function getAllSheet(){
     $("#sheetSql_input").append(sheet_sql_temp);
 }
 
-//sheet主表分页
-function loadSheetPages(){
-	var url = _basePath + "/poiAutoExport/getPages";
-	sheet_page.table_name=$("#sheetTable_name_input").val();
-	sheet_page.table_code=$("#sheetTable_code_input").val();
-	$.post(url, sheet_page, function(res, status) {
-		$("#sheetRowBody").empty();
-		renderPage("sheetPageUL",sheet_page,res.total,loadSheetPages);
-		var data = res.data;
-		if(data != null && data.length > 0){
-			 var num =0;
-			 var strs = "";
-			 $.each(data,function(i,item){
-				 strs += "<tr onclick='sheetPagesClick(" + num + ");'>"
-					 + "<td style='text-align: center;'><input class='checkboxes' name='sheet_rowRadio' type='radio' value='sheetTable_" + num + "' /></td>"
-					 + "<td style='vertical-align: middle;' >" + item.code + "</td><td style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
-					 + "<td style='text-align: center;'>" + formatNull(item.create_time) + "</td>"
-					 + "<td style='text-align: center;'>"
-					 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"reloadSheetColumns('"+ item.code +"');\"><i class='icon-plus'></i></button></td></tr>";
-				 num++;
-			 });
-				 $("#sheetRowBody").append(strs);
-		 }
-	});
-}
-function sheetPagesClick(num){
-	$("input[name='sheet_rowRadio'][value='sheetTable_" + num + "']").attr("checked",'checked'); 
-}
+
 
 //data主表分页
 function loadDataPages(){
@@ -268,6 +246,7 @@ function selectSheetName(){
 	$("#sheetSql_input").empty();
 	$("#sheetSql_input").append(sheet_sql_temp);
 }
+
 //根据字段选择添加附表
 function add_joinTable(){
 	if ($("#sheet_table").val() !=sheetTableCode) {
