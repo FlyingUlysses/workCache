@@ -82,15 +82,14 @@ function reloadRecord(){
 					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvExcel?id=" + item.id + "\");'><i class='icon-trash'></i></button></td>"
 					 + "<td  style='text-align: center;'>" + formatNull(item.part_name) + "</td>"
 					 + "<td style='text-align: center;'>"
-					 +"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button>    "
 					 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
 					 + 		"  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
 					 + 			" onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button></td></tr>";
 				 
 				 if ((i<data.length -1 && item.type!=data[i+1].type && data[i+1].type != "") || i==data.length-1) {
 					strs += "<tr><td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
-						 +"<td style='text-align: center;'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
-						 +"<td ></td></tr>";
+						 +"<td style='text-align: center;' colspan ='2'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
+						 +"<td hidden></td></tr>";
 				 }
 			 });
 			 $("#rowBody").append(strs);

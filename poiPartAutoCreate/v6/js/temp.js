@@ -1,8 +1,8 @@
 //---------------------------sql模板------------------------------------------
 var SHEET_SQL_TEMPLATE=" select #id id,#name name from #tableName #joinTable #where";
 var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id  #where #filter ";
-var row_num_v3=2;
-var col_num_v3=7;
+var row_num=2;
+var col_num=7;
 var page = { page: 1,limit: 10 };
 var sheet_page = { page: 1,limit: 10 };
 var sql_test_status = 0 ;//sql语句测试状态，初始为0，sheetsql通过为1，datasql通过为2,全部通过为3
@@ -48,6 +48,7 @@ $(function() {
 		loadSheetPages();
 	});
 	
+	
 });
 
 
@@ -58,19 +59,25 @@ function reload(){
 	loadSheetPages();
 	reloadCells();
 }
+
 function reloadCells(){
 	var strs="";
 	$("#cells_table_body").empty();
-	for ( var i = 0; i < row_num_v3; i++) {
+	for ( var i = 0; i < row_num; i++) {
 		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
-			for ( var j = 0; j < col_num_v3; j++) {
-				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
-					+"<div style='display:none;'><input style='width: 80px;' tempType='attr_input' hidden /></div style='display:none;'><div tempType='name_div' style='display:none;'></div><div style='display:none;color: #999999;' tempType='attr_div'></div><div style='color: green;' tempType='attr_nick_div'></div></div></td>";
+			for ( var j = 0; j < col_num; j++) {
+				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ><div id='paddding_div' style='margin:5px'>" 
+					+"<div><input style='width: 120px;' tempType='name_input' hidden /></div>" 
+					+"<div tempType='attr_input_div' ><input style='width: 80px;color: #999999;' tempType='attr_input' hidden /></div style='display:none;'>" 
+					+"<div tempType='name_div' style='display:none;'></div><div style='display:none;color: #999999;' tempType='attr_div'></div>" 
+					+"<div style='color: green;' tempType='nick_div'></div>" 
+					+"<div style='color: green;' tempType='nick_input_div'><input style='width: 80px;color: green;' tempType='nick_input' hidden /></div>" 
+					+"</div></td>";
 			}
 		strs+="</tr>";
 	}
 	$("#cells_table_body").append(strs);
-	reloadCells_v3();
+	reloadCellsMenu();
 	moveMergeCell();
 }
 
@@ -92,9 +99,6 @@ function cleanSql(){
 }
 
 //----------------------------sheetSql生成------------------------------------------------------------------------
-function choseDataTable(){
-	alert(111);
-}
 var sheetCat="categery";//sheet分类
 //根据选择sheet类型确定页面展示内容
 function selectSheet(){
@@ -232,7 +236,6 @@ function reloadColumns(code){
 	$("#cells_table_div").show();
 	tableCode=code;
 	$("#dataSql_input").empty();
-	reloadCells();
 }
 
 //加载sheetTable供选择sheet字段
@@ -334,10 +337,20 @@ var tr_num_v3="";
 var td_num_v3="";
 var property_list_v3=[];
 
-
+var chose_state = true;
+//选择单元格
+//function choseTd(e){
+//	if (chose_state) {
+//		if ($(e).attr("chose") =="N") {
+//			
+//		}
+//		$(e).css("background","#0094ff");
+//		$(e).attr("chose","Y");
+//	}
+//}
 
 //页面内容刷新后绑定方法
-function reloadCells_v3(){
+function reloadCellsMenu(){
 	edit_property_v3();
 	//禁用浏览器右键
 	$("td[categery='cells_td']").bind("contextmenu", function(){
@@ -418,7 +431,7 @@ function down_merge_cell_v3(){
 function delete_row_v3(){
 	var Maxtr=$("#cells_table tbody tr").length;
 	$("#cells_table tbody tr:eq("+(Maxtr-1)+")").remove();
-	row_num_v3--;
+	row_num--;
 }
 
 //删除最后一列
@@ -428,7 +441,7 @@ function delete_col_v3(){
 		var Maxtd=$("#cells_table tbody tr:eq("+i+") td").length;
 		$("#cells_table tbody tr:eq("+i+") td:eq("+(Maxtd-1)+")").remove();
 	}
-	col_num_v3--;
+	col_num--;
 }
 
 
@@ -436,55 +449,55 @@ function delete_col_v3(){
 function editCellName_v3(){
 	var celltableTemp=$("#cells_table");
 	celltableTemp.find("input[tempType='name_input']").show();
+	celltableTemp.find("input[tempType='attr_input']").show();
+	celltableTemp.find("input[tempType='nick_input']").show();
 	celltableTemp.find("div[tempType='name_div']").hide();
+	celltableTemp.find("div[tempType='attr_div']").hide();
+	celltableTemp.find("div[tempType='nick_div']").hide();
 }
 
 
 //保存名称编辑
 function saveCellName_v3(){
-	$("#cells_table tbody tr").each(function(i,item){
-		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
-			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
-			var name=td.find("input[tempType='name_input']").val()+"";
-			td.find("div[tempType='name_div']").empty();
-			td.find("div[tempType='name_div']").append(name);
-			td.find("div[tempType='name_div']").show();
-			td.find("input").hide();
-		});
-	});
-	reloadCells_v3();
+	var celltableTemp=$("#cells_table");
+	celltableTemp.find("input[tempType='name_input']").hide();
+	celltableTemp.find("input[tempType='attr_input']").hide();
+	celltableTemp.find("input[tempType='nick_input']").hide();
+	celltableTemp.find("div[tempType='name_div']").show();
+	celltableTemp.find("div[tempType='attr_div']").show();
+	celltableTemp.find("div[tempType='nick_div']").show();
 }
 
 //添加整行
 function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
-	for ( var j = 0; j <col_num_v3 ; j++) {
-		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num_v3+"_td_"+j+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'><div style='color: green;' tempType='attr_nick_div'></div><div style='color: green;' tempType='attr_nick_div'></div></div></td>";
+	for ( var j = 0; j <col_num ; j++) {
+		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num+"_td_"+j+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'><div style='color: green;' tempType='nick_div'></div><div style='color: green;' tempType='nick_div'></div></div></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
 	moveMergeCell();
-	row_num_v3++;
-	reloadCells_v3();
+	row_num++;
+	reloadCellsMenu();
 }
 
 //添加整列
 function addCellTableCol_v3(){
 	var strs="";
-	for ( var i = 0; i < row_num_v3; i++) {
+	for ( var i = 0; i < row_num; i++) {
 		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
-		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num_v3+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div><div style='color: green;' tempType='attr_nick_div'></div></div></td>";
+		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
+		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div><div style='color: green;' tempType='nick_div'></div></div></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
 	moveMergeCell();
-	col_num_v3++;
-	reloadCells_v3();
+	col_num++;
+	reloadCellsMenu();
 }
 
 //展示所有字段供选择
@@ -517,11 +530,11 @@ function edit_property_v3(){
 							var nick_name=property.column_name;
 							td.find("div[tempType='attr_div']").empty();
 							td.find("div[tempType='attr_div']").append(name);
-							td.find("div[tempType='attr_div']").show();
-							td.find("div[tempType='attr_nick_div']").empty();
-							td.find("div[tempType='attr_nick_div']").append(nick_name);
-							td.find("div[tempType='attr_nick_div']").show();
-							td.find("input").hide();
+							td.find("input[tempType='attr_input']").val(name);
+							td.find("div[tempType='nick_div']").empty();
+							td.find("div[tempType='nick_div']").append(nick_name);
+							td.find("input[tempType='nick_input']").val(nick_name);
+//							td.find("input").hide();
 							if (jsonTable.re_table+"" != tableCode) {
 								var joinTable ={
 										name:jsonTable.re_table+"",
@@ -651,7 +664,7 @@ function savePartAndCells(){
 			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
 			var  location=td.attr("location")+"";
 			var	 cellName=td.find("div[tempType='name_div']").text()+"";
-			var	 property=td.find("div[tempType='attr_nick_div']").text()+"";
+			var	 property=td.find("div[tempType='nick_div']").text()+"";
 			var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
 			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
 			var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
@@ -737,8 +750,8 @@ function loadEditData(){
 			//生成表头样式
 			var cellList=res;
 			$("#cells_table_body").empty();
-				row_num_v3 =cellList[cellList.length-1].maxrow+1;
-				col_num_v3 = cellList[cellList.length-1].maxcolumn+1;
+				row_num =cellList[cellList.length-1].maxrow+1;
+				col_num = cellList[cellList.length-1].maxcolumn+1;
 				var num_row =0;
 				strs="<tr location='tr_"+num_row+"'  style='height:23px;'>";
 				console.log(JSON.stringify(cellList));
@@ -754,7 +767,7 @@ function loadEditData(){
 						num_row=cellList[i].startrow;
 						strs+="<tr location='tr_"+num_row+"'  style='height:23px;'>";
 					}
-					for ( var j = 0; j < col_num_v3; j++) {
+					for ( var j = 0; j < col_num; j++) {
 						if (item.startrow==num_row && item.startcolumn==j) {
 						
 							if (j>0 && ColumnNum_temp == 0 && cellList[i].startcolumn > 0) {
@@ -766,7 +779,7 @@ function loadEditData(){
 							if (item.ismerge == "Y") {
 								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
 								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
+								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
@@ -775,14 +788,14 @@ function loadEditData(){
 								}
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i].startrow != cellList[i+1].startrow ) {
-									for ( var tmepInt = 0; tmepInt < (col_num_v3-1 - cellList[i].endcolumn); tmepInt++) {
+									for ( var tmepInt = 0; tmepInt < (col_num-1 - cellList[i].endcolumn); tmepInt++) {
 										strs +="<td></td>";
 									}
 								}
 							}else if (item.ismerge == "N") {
 								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
 								+"colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='attr_nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
+								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].startcolumn-1 ); tmepInt++) {
@@ -791,7 +804,7 @@ function loadEditData(){
 								}
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i].startrow != cellList[i+1].startrow ) {
-									for ( var tmepInt = 0; tmepInt < (col_num_v3-1 - cellList[i].startcolumn); tmepInt++) {
+									for ( var tmepInt = 0; tmepInt < (col_num-1 - cellList[i].startcolumn); tmepInt++) {
 										strs +="<td></td>";
 									}
 								}
@@ -800,7 +813,7 @@ function loadEditData(){
 						}
 					}
 					if (item.ismerge == "Y") {
-						if (item.endcolumn == col_num_v3-1 || i == cellList.length-1) {
+						if (item.endcolumn == col_num-1 || i == cellList.length-1) {
 							if (item.endcolumn < item.maxcolumn) {
 								for ( var intTemp = 0; intTemp < item.maxcolumn - item.endcolumn; intTemp++) {
 									strs +="<td></td>";
@@ -810,7 +823,7 @@ function loadEditData(){
 							ColumnNum_temp=0;
 						}
 					}else {
-						if (item.startcolumn == col_num_v3-1 || i == cellList.length-1) {
+						if (item.startcolumn == col_num-1 || i == cellList.length-1) {
 							if (item.startcolumn < item.maxcolumn) {
 								for ( var intTemp = 0; intTemp < item.maxcolumn - item.startcolumn; intTemp++) {
 									strs +="<td></td>";
@@ -825,7 +838,7 @@ function loadEditData(){
 				
 			$("#cells_table_body").append(strs);
 			$("#cells_table_div").show();
-			reloadCells_v3();
+			reloadCellsMenu();
 			moveMergeCell();
 			
 		});
