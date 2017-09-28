@@ -61,21 +61,30 @@ function cleanSql(){
 
 //----------------------------sheetSql生成------------------------------------------------------------------------
 //弹出shett表格编选页
-function choseShettTable(){
+function editShettTable(){
 	showModel({
 		title : "sheet表格编辑",
-		width : "700px",
+		width : "810px",
 		height : "510px",
 		url : _basePath + "/poiAutoExport/editSheetTable" 
 	});
 }
 
-function testkkk(){
-	alert("-------------------------");
+//sheet表格编辑页调用保存sheetsql
+function saveSheetTables(sql){
+	$("#sheetSql_input").empty();
+	$("#sheetSql_input").val(sql);
 }
 
 function choseDataTable(){
+	showModel({
+		title : "Data表格编辑",
+		width : "1000px",
+		height : "510px",
+		url : _basePath + "/poiAutoExport/editDataTable" 
+	});
 }
+
 var sheetCat="categery";//sheet分类
 //根据选择sheet类型确定页面展示内容
 function selectSheet(){
@@ -289,16 +298,6 @@ var td_num_v3="";
 var property_list_v3=[];
 
 var chose_state = true;
-//选择单元格
-//function choseTd(e){
-//	if (chose_state) {
-//		if ($(e).attr("chose") =="N") {
-//			
-//		}
-//		$(e).css("background","#0094ff");
-//		$(e).attr("chose","Y");
-//	}
-//}
 
 //页面内容刷新后绑定方法
 function reloadCellsMenu(){

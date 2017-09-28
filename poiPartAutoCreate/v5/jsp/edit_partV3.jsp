@@ -154,35 +154,7 @@
 						
 						
 						
-     				<div class="span6" id="data_baseTables_div" style="display: none">
-							<div class="widget blue" >
-									<div class="widget-title" id ="role_title" >
-                         				 <h4><i class="icon-align-left">选择data主表</i></h4>
-                         				 <div class="update-btn">
-                         				 		<input placeholder="请输入表名称……" id="dataTable_name_input" style="width: 105px;margin-bottom: 10px">
-                         				 		<input placeholder="请输入表编码……" id="dataTable_code_input" style="width: 105px;margin-bottom: 10px">
-							               	  	<button id="select_data_table" type="button" style="margin-bottom: 10px;" class="btn btn-warning" ><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">搜索</span></button>
-					               	  	</div>
-                      				</div>
-			                      <div class="widget-body">
-			                          <table class="table table-striped table-bordered table-hover" >
-						                  <thead>
-						                      <tr>
-						                      	  <th style="width: 12px; vertical-align: middle;"></th>
-						                          <th style="width: 17%" >表编码</th>
-						                          <th >表名称</th>
-						                          <th style="width: 17%; text-align: center;">创建时间</th>
-						                          <th style="width: 80px; text-align: center;">操作</th>
-						                      </tr>
-						                 </thead>
-						                 <tbody id="dataRowBody"></tbody>
-						               </table>
-						               <div class="pagination pagination-right">
-			                                <ul id="dataPageUL"></ul>
-			                            </div>
-			                      </div>
-			                </div>
-			            </div>
+     			
 			            	
 			           <c:choose>
 				         	<c:when test="${part.isFixed ==1 }">

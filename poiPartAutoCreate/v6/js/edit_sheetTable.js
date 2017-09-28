@@ -41,6 +41,7 @@ function loadSheetPages(){
 				 strs += "<tr onclick='sheetPagesClick(" + num + ");'>"
 					 + "<td style='text-align: center;'><input class='checkboxes' name='sheet_rowRadio' type='radio' value='sheetTable_" + num + "' /></td>"
 					 + "<td style='vertical-align: middle;' >" + item.code + "</td><td style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
+					 + "<td style='text-align: center;'>" + formatNull(item.create_time) + "</td>"
 					 + "<td style='text-align: center;'>"
 					 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"reloadSheetColumns('"+ item.code +"');\"><i class='icon-plus'></i></button></td></tr>";
 				 num++;
@@ -147,11 +148,13 @@ function add_joinTable(){
 //保存
 function save(){
 	var res=validate();
+	var index = parent.layer.getFrameIndex(window.name);
+	alert(res.flag);
 	if(res.flag){
-		layer.alert(res.msg);
+		parent.saveSheetTables(sheet_sql_temp);
+		parent.layer.close(index);
 	}else{
-		parent.testkkk();
-		layer.alert("ok!");
+		layer.alert(res.msg);
 	}
 }
 
@@ -175,4 +178,5 @@ function validate(){
 		res.msg ="请先选择sheetSql的name字段！";
 		return res;
 	}
+	return res;
 }
