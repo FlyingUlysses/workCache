@@ -5,13 +5,13 @@
 </style>
 <body>
 	<div style="display: inline;">
-		 <div class="span5" id="sheet_baseTables_div"  style="width: 360px;">
+		 <div class="span5" id="sheet_baseTables_div"  style="width: 480px;">
 					<div class="widget green" >
 							<div class="widget-title" id ="role_title" >
 	                      				 <h4><i class="icon-align-left">选择表格</i></h4>
 	                      				 <div class="update-btn">
-	                      				 		<input placeholder="输入名称……" id="sheetTable_name_input" style="width: 85px;margin-bottom: 10px">
-	                      				 		<input placeholder="输入编码……" id="sheetTable_code_input" style="width: 85px;margin-bottom: 10px">
+	                      				 		<input placeholder="请输入名称……" id="sheetTable_name_input" style="width: 110px;margin-bottom: 10px">
+	                      				 		<input placeholder="请输入编码……" id="sheetTable_code_input" style="width: 110px;margin-bottom: 10px">
 					               	  	<button id="select_sheet_table" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">搜索</span></button>
 			               	  	</div>
 	                   				</div>
@@ -19,9 +19,10 @@
 	                          <table class="table table-striped table-bordered table-hover" >
 				                  <thead>
 				                      <tr>
-				                      	  <th style="width: 12px; vertical-align: middle;"></th>
-				                          <th style="width: 17%" >表编码</th>
+			                      	 	  <th style="width: 12px; vertical-align: middle;"></th>
+				                          <th style="width: 120px" >编码</th>
 				                          <th >表名称</th>
+				                          <th style="width: 80px;text-align: center;" >创建时间</th>
 				                          <th style="width: 80px; text-align: center;">操作</th>
 				                      </tr>
 				                 </thead>

@@ -53,7 +53,7 @@
 										    <div class="input-wrap">
 										    	<div class="tLable">sheetSQL：
 										    		<div style="float: right">
-										    				<button id="choseShettTable" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="choseShettTable();">
+										    				<button id="choseShettTable" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="editShettTable();">
 											    		 		<i class="icon-save"></i>&nbsp;
 											    				<span class="ladda-label" style="font-size: 12px;">选择数据表</span>
 											    			</button>
@@ -107,13 +107,14 @@
 			                      </div>
 			                 </div>
 						</div>
-				</div>				
+					</div>		
 			            	
-				
 			<!--------------------------------------- 表头添加 ------------------------------------------------>		                 
-					     <div class="widget blue" id="cells_table_div"  >
+			      <div class="row-fluid" style="margin-top: 10px;display: inline;">		 
+					 <div class="span9" style="width: 1030px;" >
+					     <div class="widget blue" id="cells_table_div" >
 								<div class="widget-title" id ="role_title" >
-					               	 <h4><i class="icon-align-left">Excel导出功能列表</i></h4>
+					               	 <h4><i class="icon-align-left">Excel表头编辑</i></h4>
 					               	  <div class="update-btn">
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="editCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">编辑内容</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存至表格</span></button>
@@ -129,16 +130,44 @@
 						               </table>
 								</div>
 						  </div>
-			<!------------------------------------------------- 表头右键菜单----------------------------------------- -->
-						<div id="cellsTable_menu" class="easyui-menu" style="width:120px;">
-						    <div id="left_merge_cell" onclick="left_merge_cell_v3();" >向右合并</div>
-						    <div id="down_merge_cell" onclick="down_merge_cell_v3();">向下合并</div>
-						    <div id="edit_property" >选择表字段</div>
-						</div>
+					</div>
+			<!------------------------------------------------- 表头右侧选框菜单----------------------------------------- -->
+					 <div  style="float: right;width: 260px;margin-right: 10px;display: inline;">
+					      <div class="widget green"  >
+							   	<div class="widget-title" id ="role_title" >
+									    <h4><i class="icon-align-left">sheet字段选择</i></h4>
+								</div>
+								 <div class="widget-body">
+									  	 <div class="input-wrap">
+									  			<div class="tLable"><span >sheet表名：</span></div>
+									            	<select  id="sheet_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns();" required>
+						      						</select>
+										  </div>
+										  <div class="input-wrap">
+									  			<div class="tLable"><span >ID字段：</span></div>
+										            <select  id="sheet_table_id"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="selectSheetId();" style="width: 98%" required>
+							      					</select>
+										  </div>
+										  <div class="input-wrap">
+									  			<div class="tLable"><span >name字段：</span></div>
+										            <select  id="sheet_table_name"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1"  onchange="selectSheetName();" style="width: 98%" required>
+							      					</select>
+										 </div>
+										 <div  style="text-align: right; margin-top: 10px;"  >
+											 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="save();">
+									    		 <i class="icon-save"></i>&nbsp;
+									    		<span class="ladda-label" style="font-size: 12px;">保存</span>
+									    	</button>
+									    </div>
+								</div>
+						 </div>
+					</div>
+					
+		</div>	
 	<script type="text/javascript">
     	  $(".chzn-select").chosen();
     </script>
-    <script src="<%=basePath %>/resources/scripts/poiV6/moveMergeCell.js"></script>
+    <script src="<%=basePath %>/resources/scripts/poi/moveMergeCell.js"></script>
 	
 </body>	
 	
