@@ -128,3 +128,8 @@ function revPart(url){
 		reloadRecord();
 	});
 }
+
+function toTest(){
+	var url=_basePath + "/poiAutoExport/toTest";
+	top.addTab("toTest","测试合并",url);
+}

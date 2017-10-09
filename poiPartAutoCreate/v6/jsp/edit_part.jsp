@@ -116,8 +116,7 @@
 								<div class="widget-title" id ="role_title" >
 					               	 <h4><i class="icon-align-left">Excel表头编辑</i></h4>
 					               	  <div class="update-btn">
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="editCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">编辑内容</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存至表格</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加行</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加列</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_row_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除最后行</span></button>
@@ -139,22 +138,29 @@
 								</div>
 								 <div class="widget-body">
 									  	 <div class="input-wrap">
-									  			<div class="tLable"><span >sheet表名：</span></div>
-									            	<select  id="sheet_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns();" required>
+									  			<div class="tLable"><span >表格：</span></div>
+									            	<select  id="data_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadColumn();" required>
 						      						</select>
 										  </div>
 										  <div class="input-wrap">
-									  			<div class="tLable"><span >ID字段：</span></div>
-										            <select  id="sheet_table_id"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="selectSheetId();" style="width: 98%" required>
+									  			<div class="tLable"><span >字段选择：</span></div>
+										            <select  id="data_column"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="loadReName();" style="width: 98%" required>
 							      					</select>
 										  </div>
 										  <div class="input-wrap">
-									  			<div class="tLable"><span >name字段：</span></div>
-										            <select  id="sheet_table_name"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1"  onchange="selectSheetName();" style="width: 98%" required>
-							      					</select>
+									  			<div class="tLable"><span >字段编辑：</span></div>
+										        <input id="editColumn" placeholder="请输入伪列或编辑字段..." type="text">
+										  </div>
+										  <div class="input-wrap">
+									  			<div class="tLable"><span >字段别名：</span></div>
+										        <input id="data_reColumn" placeholder="请输入别名..." type="text">
+										 </div>
+										  <div class="input-wrap">
+									  			<div class="tLable"><span >单元格名称：</span></div>
+										        <input id="cell_reColumn" placeholder="请输入单元格名称..." type="text">
 										 </div>
 										 <div  style="text-align: right; margin-top: 10px;"  >
-											 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="save();">
+											 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveCellContent();">
 									    		 <i class="icon-save"></i>&nbsp;
 									    		<span class="ladda-label" style="font-size: 12px;">保存</span>
 									    	</button>

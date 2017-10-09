@@ -19,6 +19,7 @@
                	  	<input id="excelname_input"  type="text" placeholder="输入表名进行搜索……" style="width: 145px;">
                	  	<button id="findBut" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-search"></i>&nbsp;<span style="font-size: 12px;">查询</span></button>
                	  	<button id="addExcel" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">新增</span></button>
+               	  	<button id="toTest" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" onclick="toTest();">跳转测试</span></button>
                	  </div>
             </div>
 			<div class="widget-body">

@@ -100,16 +100,16 @@ function choseJoinTable(code){
 	if(flag){
 		var strs ="";
 		joinTableColumn++;
-		strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+code+"' style='width: 80px;' ></div>"
+		strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+code+"' style='width: 80px;' readonly='readonly' ></div>"
 		+" <div style='display: inline;'><span>别名:</span><input name='joinTable_reName' value='t"+ joinTableColumn +"' style='width: 80px;'></div>";
 		$.each(joinTables,function(i,item){
 			if (item.table_name == code) {
-				strs+=" <div style='display: inline;' name='joinTable_link'><span>连接条件:</span><input value='t."+item.column_name+"=t"+joinTableColumn+"."+item.re_column+"' style='width: 110px;'></div></div>";
+				strs+=" <div style='display: inline;' ><span>连接条件:</span><input name='joinTable_link' value='t."+item.column_name+"=t"+joinTableColumn+"."+item.re_column+"' style='width: 110px;'></div></div>";
 				flag = false;
 			}
 		});
 		if(flag)
-			strs+=" <div style='display: inline;' name='joinTable_link'><span>连接条件:</span><input value='' style='width: 110px;'></div></div>";
+			strs+=" <div style='display: inline;' ><span>连接条件:</span><input value='' style='width: 110px;' name='joinTable_link'></div></div>";
 		$("#joinTable_div").append(strs);
 	}
 }
@@ -119,23 +119,60 @@ function save(){
 		layer.alert("清先选择主表！");
 		return;
 	}
-	var base_table ={
-		table_name:$("#baseTable_name").val(),
-		re_name:$("#baseTable_reName").val()
-	};
-	var joinTable_array = [];
-	$("div[name='join_table_columns']").each(function(){
-		var joinTable={};
-		$(this).find("input[name='joinTable_name']").each(function(){
-			joinTable.table_name=$(this).val();
-		});
-		$(this).find("input[name='joinTable_name']").each(function(){
-			joinTable.re_table=$(this).val();
-		});
-		$(this).find("input[name='joinTable_link']").each(function(){
-			joinTable.link=$(this).val();
-		});
-		joinTable_array.push(joinTable);
+	var index = parent.layer.getFrameIndex(window.name);
+	var url=_basePath + "/poiAutoExport/getDataColumns";
+	var joinTables_str="";
+	var joinTables_reName="";
+	$("input[name='joinTable_name']").each(function(){
+		joinTables_str+=$(this).val()+",";
 	});
+	$("input[name='joinTable_reName']").each(function(){
+		joinTables_reName+=$(this).val()+",";
+	});
+	var req ={
+			baseTable:table_name+"",
+			joinTables:joinTables_str,
+			joinReName:joinTables_reName,
+			baseReName:$("#baseTable_reName").val()+""
+	};
+	$.post(url,req,function(res,status){
+		alert(JSON.stringify(res));
+		var joinTable_array=createSql();
+		parent.saveDataTables(DATA_SQL_TEMPLATE,res);
+		parent.layer.close(index);
+	});
+}
+
+
+function createSql(){
+	var joinTable_array =[];
+	var base_table ={
+			table_name:$("#baseTable_name").val(),
+			re_name:$("#baseTable_reName").val()
+		};
+		DATA_SQL_TEMPLATE=DATA_SQL_TEMPLATE.replace("#baseTable",base_table.table_name+" "+base_table.re_name+" #noLinkJoinTable" );
+		var jointable_str="";
+		var noLinkJoinTable_str="";
+		$("div[name='join_table_columns']").each(function(){
+			var joinTable={};
+			$(this).find("input[name='joinTable_name']").each(function(){
+				joinTable.table_name=$(this).val();
+			});
+			$(this).find("input[name='joinTable_reName']").each(function(){
+				joinTable.re_table=$(this).val();
+			});
+			$(this).find("input[name='joinTable_link']").each(function(){
+				joinTable.link=$(this).val();
+			});
+			if (joinTable.link != null && joinTable.link != undefined && joinTable.link != "") {
+				jointable_str += " left join "+joinTable.table_name+" "+joinTable.re_table+" on "+joinTable.link+" ";
+			}else{
+				noLinkJoinTable_str +=","+joinTable.table_name+" " +joinTable.re_table+" ";
+			}
+			joinTable_array.push(joinTable);
+		});
+		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#noLinkJoinTable", noLinkJoinTable_str);
+		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#joinTable",jointable_str);
+		return joinTable_array;
 }
 

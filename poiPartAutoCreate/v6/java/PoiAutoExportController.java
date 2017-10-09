@@ -2,7 +2,11 @@ package com.yawa.util.autoPoi;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +18,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jfinal.core.Controller;
 import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.render.RenderException;
 import com.yawa.util.excel.Excel;
 import com.yawa.util.excel.ExcelPart;
@@ -29,7 +34,13 @@ import com.yawa.util.model.ResponseData;
  */
 public class PoiAutoExportController extends Controller{
     
-    
+	  /**
+     * 跳转测试
+     * @Description:
+     */
+    public void toTest(){
+        render("toTest.jsp");
+    }
     
     
     
@@ -321,9 +332,58 @@ public class PoiAutoExportController extends Controller{
 		renderJson(new ResponseData(true,"测试成功！sql正常运行。"));
 	}
 	
-	//调整sheet表格编辑页
+	/**
+     * 跳转sheetSql编辑页
+     * @param partId
+     * @return
+     * @throws Exception 
+     * @Description:
+     */
 	public void editSheetTable(){
 		render("edit_sheetTable.jsp");
+	}
+	
+	/**
+     * 跳转dataSql编辑页
+     * @param partId
+     * @return
+     * @throws Exception 
+     * @Description:
+     */
+	public void editDataTable(){
+		render("edit_dataTable.jsp");
+	}
+	
+	/**
+     * 跳转dataSql编辑页
+     * @param partId
+     * @return
+     * @throws Exception 
+     * @Description:
+     */
+	public void choseBaseTable(){
+		String baseTable = getPara("baseTable");
+		List<Record> joinTables = PoiAutoExport.me.getJoinTables(baseTable);
+		renderJson(joinTables);
+	}
+	
+	/**
+     * 根据表名查询字段
+     * @param partId
+     * @return
+     * @throws Exception 
+     * @Description:
+     */
+	public void getDataColumns(){
+		String joinTables = getPara("joinTables");
+		String reNamestr = getPara("joinReName");
+		ArrayList<String> tables = new ArrayList<>();
+		tables.addAll(Arrays.asList(joinTables.split(",")));
+		ArrayList<String> reNames = new ArrayList<>();
+		reNames.addAll(Arrays.asList(reNamestr.split(",")));
+		tables.add(0, getPara("baseTable"));
+		reNames.add(0, getPara("baseReName"));
+		renderJson(PoiAutoExport.me.getDataColumns(tables));
 	}
 	
 }

@@ -19,6 +19,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
     public static final PoiAutoExport me = new PoiAutoExport();
     
     public static final String TABLE_SCHEMA="ngms";
+
     
     
     public Page<Record> getPages(Integer page, Integer limit, String table_name, String table_code) {
@@ -110,6 +111,22 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         cellList.get(cellList.size()-1).set("maxRow", maxRow);
         return cellList;
     }
+
+
+	public  List<Record> getJoinTables(String tableName) {
+		List<Record> joinTables = Db.find("select column_name,REFERENCED_TABLE_NAME re_table,REFERENCED_COLUMN_NAME re_column  from information_schema.KEY_COLUMN_USAGE where TABLE_SCHEMA =? and table_name =? and column_name != 'id' and CONSTRAINT_NAME like 'FK%' order by REFERENCED_TABLE_NAME ",TABLE_SCHEMA,tableName);
+		return joinTables;
+	}
+
+
+	public LinkedHashMap<String, Object> getDataColumns(ArrayList<String> tables) {
+		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+		for (String tableName : tables) {
+			List<Record> tableTemp = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableName);
+			map.put(tableName, tableTemp);
+		}
+		return map;
+	}
     
     
     
