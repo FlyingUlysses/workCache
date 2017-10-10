@@ -83,6 +83,7 @@ var columnsMap =null;
 function saveDataTables(sql,map){
 	columnsMap=map;
 	$("#dataSql_input").empty();
+	DATA_SQL_TEMPLATE =sql;
 	$("#dataSql_input").val(sql);
 }
 
@@ -103,7 +104,6 @@ function selectSheet(){
 		
 	}
 }
-
 
 //清除sheetsql
 function deleteSheetSql(){
@@ -142,12 +142,13 @@ function loadColumn(){
 }
 
 function loadReName(){
-	$("#editColumn").val($("#data_column").val());
 	$.each(columnsMap,function(i,item){
 		if (i == $("#data_table").val() && item.length >0) {
 			$.each(item,function(j,temp){
 				if ($("#data_column").val() == temp.column_name) {
-					$("#data_reColumn").val(temp.remarks);
+					$("#editColumn").val(temp.re_table+"."+temp.column_name);
+					$("#data_reColumn").val(temp.column_name);
+					$("#cell_reColumn").val(temp.remarks);
 				}
 			});
 		}
@@ -156,6 +157,7 @@ function loadReName(){
 
 function saveCellContent(){
 	$("td[chose='Y']").attr("tableName",$("#data_table").val());
+	$("td[chose='Y']").attr("hasEdit",'Y');
 	$("td[chose='Y']").attr("column",$("#editColumn").val());
 	$("td[chose='Y']").attr("reName",$("#data_reColumn").val());
 	$("td[chose='Y']").html($("#cell_reColumn").val());
@@ -171,6 +173,10 @@ function choseTd(e){
 	$("#data_column").empty();
 	$("#data_reColumn").val("");
 	$("#cell_reColumn").val("");
+	
+	
+	$("#data_reColumn").val($(e).attr("rename"));
+	$("#cell_reColumn").val($(e).html());
 	var strs="<option value=''>--请选择表格--</option>";
 	$.each(columnsMap,function(i,item){
 		strs+="<option value='"+i+"'>"+i+"</option>";
@@ -190,15 +196,32 @@ function choseTd(e){
 	$("#data_table").append(strs);
 	
 	
+	$("#editColumn").val($(e).attr("column"));
 	$("#data_table").trigger("liszt:updated");
 	$("#data_column").trigger("liszt:updated");
-	$("#editColumn").val($(e).attr("column"));
-	$("#data_reColumn").val($(e).attr("reName"));
-	$("#cell_reColumn").val($(e).html());
+}
+
+function saveCellToSql(){
+	var strs ="";
+	var tds=$("#cells_table td[hasEdit='Y']");
+	$.each(tds,function(i,item){
+		if ($(item).attr("column") && $(item).attr("column") != undefined && $(item).attr("column") !="") {
+				if(i != tds.length-1){
+					strs+=" "+$(item).attr("column")+" "+$(item).attr("rename")+", ";
+					
+				}else{
+					strs+=" "+$(item).attr("column")+" "+$(item).attr("rename")+" ";
+				}
+		}
+	});
+	var sqlStr = DATA_SQL_TEMPLATE;
+	sqlStr = sqlStr.replace("#columns", strs);
+	$("#dataSql_input").empty();
+	$("#dataSql_input").val(sqlStr);
 }
 
 
-
+//-------------------------------右键菜单合并--------------------------
 var select_cell_v3="";
 var select_row_v3="";
 var location_cell_v3="";
@@ -430,11 +453,11 @@ function savePartAndCells(){
 	}
 	var cells=[];
 	$("#cells_table tbody tr").each(function(i,item){
-		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
-			var td=$("#cells_table tbody tr:eq("+i+") td:eq("+j+")");
+		$("#cells_table tbody tr:eq("+i+") td[hasedit='Y']").each(function(j,item){
+			var td=$(item);
 			var  location=td.attr("location")+"";
-			var	 cellName=td.find("div[tempType='name_div']").text()+"";
-			var	 property=td.find("div[tempType='nick_div']").text()+"";
+			var	 cellName=td.attr("rename");
+			var	 property=td.text()+"";
 			var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
 			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
 			var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
@@ -469,7 +492,6 @@ function savePartAndCells(){
 		if(res.success){
 			top.reloadRecordTab("poi报表");
 			top.closeCurrentTab();
-//			editPartAndCell(res.data.id);
 		}
 		layer.alert(res.message);
 	});
@@ -492,26 +514,17 @@ function reloadRecordTab(title){
 function editPartAndCell(id){
 	var url=_basePath + "/poiAutoExport/editPartAndCell?id="+id;
 	top.addTab("partAndCell_edit","ExcelPart编辑",url);
-	alert(id);
 }
 
 //---------------------------------------part编辑--------------------------------
 function loadEditPart(){
-	page.page = 1;
 	loadEditData();
 	moveMergeCell();
 }
 
 //编辑加载数据方法
+var page={};
 function loadEditData(){
-		$("#sheet_baseTables_div").empty();
-		$("#sheet_baseTables_div").hide();
-		$("#data_baseTables_div").empty();
-		$("#data_baseTables_div").hide();
-		$("#sheet_column_div").empty();
-		$("#sheet_column_div").hide();
-		$("#create_button_div").hide();
-		$("#edit_button_div").show();
 		$("#sheetCat_select").prop("disabled",true).trigger('liszt:updated');
 		$("#sheetCat_select").show();
 		var url = _basePath + "/poiAutoExport/loadEditData";
@@ -547,9 +560,8 @@ function loadEditData(){
 							}
 							ColumnNum_temp++;
 							if (item.ismerge == "Y") {
-								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
+								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' location='tr_"+num_row+"_td_"+j+"'  " 
+								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+item.cellname+"' >"+item.property+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
@@ -563,9 +575,8 @@ function loadEditData(){
 									}
 								}
 							}else if (item.ismerge == "N") {
-								strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='1' rowspan='1' categery='cells_td' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' value='"+item.cellname+"' tempType='name_input' hidden /></div>" 
-								+"<div tempType='name_div' >"+formatNull(item.cellname)+"</div><div  tempType='nick_div' style='color: green;'>"+formatNull(item.property)+"</div></td></div>";
+								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' location='tr_"+num_row+"_td_"+j+"'  " 
+								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+item.cellname+"' >"+item.property+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].startcolumn-1 ); tmepInt++) {
@@ -660,6 +671,10 @@ function testDataSql(){
 		layer.alert("请先处理手动处理sql语句中的where条件！");
 		return;
 	} 
+	if (sql.indexOf("#sheet") >=0){
+		layer.alert("请先处理手动处理sql语句中的sheet对应关系！");
+		return;
+	} 
 	if (sql.indexOf("#id") >=0){
 		sql = sql.replace("#id", "1 or true");
 	} 
@@ -684,3 +699,14 @@ function testExport(){
 
 
 
+function formatNull(str, rep, format) {
+	if (format == undefined)
+		format = "";
+	if (str == null || str == undefined) {
+		if (rep == null || rep == undefined || rep == "")
+			return "";
+		else
+			return rep;
+	}
+	return str + format;
+}

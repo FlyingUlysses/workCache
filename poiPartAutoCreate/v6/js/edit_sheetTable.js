@@ -149,7 +149,6 @@ function add_joinTable(){
 function save(){
 	var res=validate();
 	var index = parent.layer.getFrameIndex(window.name);
-	alert(res.flag);
 	if(res.flag){
 		parent.saveSheetTables(sheet_sql_temp);
 		parent.layer.close(index);

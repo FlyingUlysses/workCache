@@ -136,7 +136,6 @@ function save(){
 			baseReName:$("#baseTable_reName").val()+""
 	};
 	$.post(url,req,function(res,status){
-		alert(JSON.stringify(res));
 		var joinTable_array=createSql();
 		parent.saveDataTables(DATA_SQL_TEMPLATE,res);
 		parent.layer.close(index);
@@ -153,6 +152,16 @@ function createSql(){
 		DATA_SQL_TEMPLATE=DATA_SQL_TEMPLATE.replace("#baseTable",base_table.table_name+" "+base_table.re_name+" #noLinkJoinTable" );
 		var jointable_str="";
 		var noLinkJoinTable_str="";
+		var noLinkFlag =true;
+		$("div[name='join_table_columns']").each(function(){
+			$(this).find("input[name='joinTable_link']").each(function(){
+				if ($(this).val()==undefined || $(this).val() == null || $(this).val()=="") {
+					noLinkFlag =false;
+					return;
+				}
+			});
+		});
+		
 		$("div[name='join_table_columns']").each(function(){
 			var joinTable={};
 			$(this).find("input[name='joinTable_name']").each(function(){
@@ -164,11 +173,10 @@ function createSql(){
 			$(this).find("input[name='joinTable_link']").each(function(){
 				joinTable.link=$(this).val();
 			});
-			if (joinTable.link != null && joinTable.link != undefined && joinTable.link != "") {
+			if (noLinkFlag) 
 				jointable_str += " left join "+joinTable.table_name+" "+joinTable.re_table+" on "+joinTable.link+" ";
-			}else{
+			else
 				noLinkJoinTable_str +=","+joinTable.table_name+" " +joinTable.re_table+" ";
-			}
 			joinTable_array.push(joinTable);
 		});
 		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#noLinkJoinTable", noLinkJoinTable_str);

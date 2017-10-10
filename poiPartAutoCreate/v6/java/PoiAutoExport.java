@@ -119,12 +119,15 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
 	}
 
 
-	public LinkedHashMap<String, Object> getDataColumns(ArrayList<String> tables) {
+	public LinkedHashMap<String, Object> getDataColumns(ArrayList<String> tables,ArrayList<String> reNames) {
 		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
-		for (String tableName : tables) {
-			List<Record> tableTemp = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableName);
-			map.put(tableName, tableTemp);
-		}
+			for (int i = 0; i <tables.size(); i++) {
+					List<Record> tableTemp = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tables.get(i));
+					for (Record column : tableTemp) {
+						column.set("re_table",reNames.get(i));
+					}
+					map.put(tables.get(i), tableTemp);
+			}
 		return map;
 	}
     

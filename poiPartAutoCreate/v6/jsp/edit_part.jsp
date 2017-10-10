@@ -116,7 +116,7 @@
 								<div class="widget-title" id ="role_title" >
 					               	 <h4><i class="icon-align-left">Excel表头编辑</i></h4>
 					               	  <div class="update-btn">
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellName_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellToSql();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存至sql</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加行</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加列</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_row_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除最后行</span></button>
@@ -137,28 +137,34 @@
 									    <h4><i class="icon-align-left">sheet字段选择</i></h4>
 								</div>
 								 <div class="widget-body">
-									  	 <div class="input-wrap">
-									  			<div class="tLable"><span >表格：</span></div>
-									            	<select  id="data_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadColumn();" required>
+								 	<table>
+									  	 <tr>
+									  			<td style="width: 65px">表格：</td>
+									            <td>
+									            	<select  id="data_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 150px" onchange="loadColumn();" required>
 						      						</select>
-										  </div>
-										  <div class="input-wrap">
-									  			<div class="tLable"><span >字段选择：</span></div>
-										            <select  id="data_column"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="loadReName();" style="width: 98%" required>
-							      					</select>
-										  </div>
-										  <div class="input-wrap">
-									  			<div class="tLable"><span >字段编辑：</span></div>
-										        <input id="editColumn" placeholder="请输入伪列或编辑字段..." type="text">
-										  </div>
-										  <div class="input-wrap">
-									  			<div class="tLable"><span >字段别名：</span></div>
-										        <input id="data_reColumn" placeholder="请输入别名..." type="text">
-										 </div>
-										  <div class="input-wrap">
-									  			<div class="tLable"><span >单元格名称：</span></div>
-										        <input id="cell_reColumn" placeholder="请输入单元格名称..." type="text">
-										 </div>
+						      					</td>
+										  </tr>
+										  <tr>
+									  				<td >字段选择：</td>
+									  				<td>
+											            <select  id="data_column"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="loadReName();" style="width: 150px" required>
+								      					</select>
+							      					</td>
+										  </tr>
+										  <tr>
+									  			<td><span >字段编辑：</span></td>
+										        <td><input id="editColumn" placeholder="请输入伪列或编辑字段..." type="text" style="width: 140px"></td>
+										  </tr>
+										  <tr>
+									  			<td >字段别名：</td>
+										        <td><input id="data_reColumn" placeholder="请输入别名..." type="text" style="width: 140px"></td>
+										 </tr>
+										  <tr>
+									  			<td >单元格名称：</td>
+										        <td><input id="cell_reColumn" placeholder="请输入单元格名称..." type="text" style="width:140px"></td>
+										 </tr>
+									</table>
 										 <div  style="text-align: right; margin-top: 10px;"  >
 											 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveCellContent();">
 									    		 <i class="icon-save"></i>&nbsp;

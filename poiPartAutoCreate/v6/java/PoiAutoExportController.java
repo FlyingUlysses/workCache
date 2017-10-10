@@ -267,7 +267,7 @@ public class PoiAutoExportController extends Controller{
             setAttr("excel_id", part.getInt("excel_id"));
         }
         setAttr("isEdit", 1);
-        renderJsp("edit_partV6.jsp");
+        renderJsp("edit_part.jsp");
     }
     
     /*
@@ -383,7 +383,7 @@ public class PoiAutoExportController extends Controller{
 		reNames.addAll(Arrays.asList(reNamestr.split(",")));
 		tables.add(0, getPara("baseTable"));
 		reNames.add(0, getPara("baseReName"));
-		renderJson(PoiAutoExport.me.getDataColumns(tables));
+		renderJson(PoiAutoExport.me.getDataColumns(tables,reNames));
 	}
 	
 }
