@@ -8,6 +8,7 @@
 <script src="<%=basePath %>/resources/easyui/jquery.easyui.min.js"></script>
 <script src="<%=basePath %>/resources/scripts/poi/edit_part.js"></script>
 <style>
+	.cannotselect{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none;user-select:none;}td.selected{background:#0094ff;color:#fff}td.hide{display:none}
 </style>
 <body>
 					<input type="hidden" id="excel_id" value="${excel_id}"/>		                      

@@ -108,6 +108,7 @@ public class PoiAutoExportController extends Controller{
                 Excel excel = Excel.me.findById(id);
                 excel.set("state", 0)
                      .update();
+                Db.update("UPDATE excel_parts set state =0 where excel_id =? ",excel.getInt("id"));
             } catch (Exception e) {
                 renderJson(new ResponseData(false,"删除失败!失败原因:"+e.toString()));
                 return;

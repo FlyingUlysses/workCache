@@ -178,21 +178,23 @@ function choseTd(e){
 	$("#data_reColumn").val($(e).attr("rename"));
 	$("#cell_reColumn").val($(e).html());
 	var strs="<option value=''>--请选择表格--</option>";
-	$.each(columnsMap,function(i,item){
-		strs+="<option value='"+i+"'>"+i+"</option>";
-		if ($(e).attr("tableName") && $(e).attr("tableName")!= undefined  && $(e).attr("tableName") == i) {
-			strs+="<option value='"+i+"' selected='selected'>"+i+"</option>";
-			var colStr="<option value=''>--请选择字段--</option>";
-			$.each(item,function(j,temp){
-				colStr+="<option value='"+temp.column_name+"' >"+temp.column_name+"</option>";
-				if ($(e).attr("column") && $(e).attr("column")!= undefined  && $(e).attr("column") == temp.column_name) {
-					colStr+="<option value='"+temp.column_name+"' selected='selected'>"+temp.column_name+"</option>";
-					
+	if(columnsMap != null){
+			$.each(columnsMap,function(i,item){
+				strs+="<option value='"+i+"'>"+i+"</option>";
+				if ($(e).attr("tableName") && $(e).attr("tableName")!= undefined  && $(e).attr("tableName") == i) {
+					strs+="<option value='"+i+"' selected='selected'>"+i+"</option>";
+					var colStr="<option value=''>--请选择字段--</option>";
+					$.each(item,function(j,temp){
+						colStr+="<option value='"+temp.column_name+"' >"+temp.column_name+"</option>";
+						if ($(e).attr("column") && $(e).attr("column")!= undefined  && $(e).attr("column") == temp.column_name) {
+							colStr+="<option value='"+temp.column_name+"' selected='selected'>"+temp.column_name+"</option>";
+							
+						}
+					});
+					$("#data_column").append(colStr);
 				}
 			});
-			$("#data_column").append(colStr);
-		}
-	});
+	}
 	$("#data_table").append(strs);
 	
 	
@@ -355,8 +357,7 @@ function saveCellName_v3(){
 function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
 	for ( var j = 0; j <col_num ; j++) {
-		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num+"_td_"+j+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div ><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div style='color: #999999;' tempType='attr_div'><div style='color: green;' tempType='nick_div'></div><div style='color: green;' tempType='nick_div'></div></div></td>";
+		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num+"_td_"+j+"'  colspan='1' rowspan='1' onclick='choseTd(this);' ></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
@@ -371,8 +372,7 @@ function addCellTableCol_v3(){
 	var strs="";
 	for ( var i = 0; i < row_num; i++) {
 		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
-		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num+"'  colspan='1' rowspan='1' ><div id='paddding_div' style='margin:5px'><div><input style='width: 120px;' tempType='name_input' hidden value=''/></div>" 
-		+"<div><input style='width: 80px;' tempType='attr_input' hidden /></div><div tempType='name_div' ></div><div tempType='attr_div' style='color: #999999;'></div><div style='color: green;' tempType='nick_div'></div></div></td>";
+		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num+"'  colspan='1' rowspan='1' onclick='choseTd(this);' ></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
@@ -456,8 +456,8 @@ function savePartAndCells(){
 		$("#cells_table tbody tr:eq("+i+") td[hasedit='Y']").each(function(j,item){
 			var td=$(item);
 			var  location=td.attr("location")+"";
-			var	 cellName=td.attr("rename");
-			var	 property=td.text()+"";
+			var	 cellName=td.text()+"";
+			var	 property=td.attr("rename");
 			var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
 			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
 			var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
@@ -525,8 +525,6 @@ function loadEditPart(){
 //编辑加载数据方法
 var page={};
 function loadEditData(){
-		$("#sheetCat_select").prop("disabled",true).trigger('liszt:updated');
-		$("#sheetCat_select").show();
 		var url = _basePath + "/poiAutoExport/loadEditData";
 		page.id=$("#part_id").val();
 		$.post(url,page,function(res,status ){
@@ -561,7 +559,7 @@ function loadEditData(){
 							ColumnNum_temp++;
 							if (item.ismerge == "Y") {
 								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+item.cellname+"' >"+item.property+"</td>";
+								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+formatNull(item.property)+"' >"+formatNull(item.cellname)+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
@@ -576,7 +574,7 @@ function loadEditData(){
 								}
 							}else if (item.ismerge == "N") {
 								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' location='tr_"+num_row+"_td_"+j+"'  " 
-								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+item.cellname+"' >"+item.property+"</td>";
+								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+formatNull(item.property)+"' >"+formatNull(item.cellname)+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].startcolumn-1 ); tmepInt++) {
@@ -619,7 +617,7 @@ function loadEditData(){
 				
 			$("#cells_table_body").append(strs);
 			$("#cells_table_div").show();
-			reloadCellsMenu();
+//			reloadCellsMenu();
 			moveMergeCell();
 			
 		});
@@ -671,9 +669,12 @@ function testDataSql(){
 		layer.alert("请先处理手动处理sql语句中的where条件！");
 		return;
 	} 
-	if (sql.indexOf("#sheet") >=0){
-		layer.alert("请先处理手动处理sql语句中的sheet对应关系！");
+	if (sql.indexOf("#columns") >=0){
+		layer.alert("请先选择字段并保存为sql！");
 		return;
+	} 
+	if (sql.indexOf("#id") >=0){
+		sql = sql.replace("#id", "1 or true");
 	} 
 	if (sql.indexOf("#id") >=0){
 		sql = sql.replace("#id", "1 or true");
