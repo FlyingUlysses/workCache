@@ -5,14 +5,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -29,7 +24,7 @@ import com.yawa.util.model.ResponseData;
  *@Title:poi报表模块自动生成
  *@Description:
  *@Author:WangYong
- *@Since:2017-8-15
+ *@Since:2017-8-22
  *@Version:1.1.0
  */
 public class PoiAutoExportController extends Controller{
@@ -106,9 +101,12 @@ public class PoiAutoExportController extends Controller{
         if (id!=null) {
             try {
                 Excel excel = Excel.me.findById(id);
-                excel.set("state", 0)
-                     .update();
-                Db.update("UPDATE excel_parts set state =0 where excel_id =? ",excel.getInt("id"));
+                List<Record> partList = Db.find("select * from excel_parts where excel_id =?",excel.getInt("id"));
+                for (Record part : partList) {
+					Db.update("delete from excel_cells where template = ?",part.getInt("template"));
+				}
+                Db.update("delete from excel_parts where excel_id =? ",excel.getInt("id"));
+                excel.delete();
             } catch (Exception e) {
                 renderJson(new ResponseData(false,"删除失败!失败原因:"+e.toString()));
                 return;
@@ -150,8 +148,7 @@ public class PoiAutoExportController extends Controller{
             try {
                 ExcelPart part = ExcelPart.me.findById(id);
                 Db.update("DELETE  FROM excel_cells WHERE template =? ",part.getInt("template"));
-                part.set("state", 0)
-                     .update();
+                part.delete();
             } catch (Exception e) {
                 renderJson(new ResponseData(false,"删除失败!失败原因:"+e.toString()));
                 return;

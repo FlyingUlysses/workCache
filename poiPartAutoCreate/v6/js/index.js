@@ -58,13 +58,12 @@ function reloadRecord(){
 			 $.each(data,function(i,item){
 				 	row=1;
 				 	type="";
+				 	if (item.part_id != null) 
+				 		row ++;
 				 	if (item.type=="") 
 						type="hidden";
-				 	if (i== data.length-1) 
-						row ++;
 					for ( var j = i+1; j < data.length; j++) {
 							if(item.type!=data[j].type){
-								row++;
 								break;
 							}else if(item.type==data[j].type) {
 								row++;
@@ -79,18 +78,25 @@ function reloadRecord(){
 					 + "<td rowspan='"+row+"' "+type+" style='vertical-align: middle;'>" + formatNull(item.desc) + "</td>"
 					 + "<td rowspan='"+row+"' "+type+" style='vertical-align: middle;text-align: center;' >" + formatNull(item.create_time) + "</td>"
 					 +"<td rowspan='"+row+"' "+type+" style='vertical-align: middle;' ><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editExcel('"+ item.id +"');\"><i class='icon-pencil'></i></button>  "
-					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvExcel?id=" + item.id + "\");'><i class='icon-trash'></i></button></td>"
-					 + "<td  style='text-align: center;'>" + formatNull(item.part_name) + "</td>"
-					 + "<td style='text-align: center;'>"
-					 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
-					 + 		"  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
-					 + 			" onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button></td></tr>";
-				 
-				 if ((i<data.length -1 && item.type!=data[i+1].type && data[i+1].type != "") || i==data.length-1) {
-					strs += "<tr><td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
-						 +"<td style='text-align: center;' colspan ='2'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
-						 +"<td hidden></td></tr>";
-				 }
+					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvExcel?id=" + item.id + "\");'><i class='icon-trash'></i></button></td>";
+					 if(item.part_id !=null){
+						 strs+="<td  style='text-align: center;'>" + formatNull(item.part_name) + "</td>"
+							 + "<td style='text-align: center;'>"
+							 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
+							 + 		"  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
+							 + 			" onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button></td></tr>";
+						 
+						 if ((i<data.length -1 && item.type!=data[i+1].type && data[i+1].type != "") || i==data.length-1) {
+							 strs += "<tr><td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
+									 +"<td style='text-align: center;' colspan ='2'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
+									 +"<td hidden></td></tr>";
+						 }
+					 }
+					 if (item.part_id == null) {
+						strs+="<td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
+							 +"<td style='text-align: center;' colspan ='2'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
+							 +"<td hidden></td></tr>";
+					 }
 			 });
 			 $("#rowBody").append(strs);
 		 }

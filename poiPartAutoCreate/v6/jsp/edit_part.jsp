@@ -122,6 +122,10 @@
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加列</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_row_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除最后行</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_col_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除最后列</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="mergeCellButton"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">合并单元格</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" flag='N' class="btn btn-warning" id="choseCellPart"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">编辑样式</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="choseCellContent"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">编辑内容</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="changeToTwo"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">拆分为二</span></button>
 					               	  </div>
 					            </div>
 								<div class="widget-body">

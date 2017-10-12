@@ -10,7 +10,32 @@ $(function() {
 		loadEditPart();
 	else
 		reload();
-		
+	
+	$("#cells_table").bind("contextmenu", function(){
+	    return false;
+	});
+	
+	$("#cells_table td").each(function(){
+		$(this).click(function(){
+			choseTd(this);
+		});
+	});
+	
+	$("#choseCellPart").click(function(){
+		$("#choseCellPart").attr("flag","Y");
+		moveMergeCell();
+		$("#cells_table td[chose='Y']").css("background","");
+		$("#cells_table td[chose='Y']").attr("chose","N");
+	});
+	
+	$("#choseCellContent").click(function(){
+		$("#choseCellPart").attr("flag","N");
+		$("#cells_table").find('td').removeClass('selected');
+	});
+	
+	$("#changeToTwo").click(function(){
+		changeToTwo();
+	});
 });
 
 
@@ -25,14 +50,13 @@ function reloadCells(){
 	for ( var i = 0; i < row_num; i++) {
 		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
 			for ( var j = 0; j < col_num; j++) {
-				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' >" 
+				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td'  chose='N' >" 
 					+"</td>";
 			}
 		strs+="</tr>";
 	}
 	$("#cells_table_body").append(strs);
 //	reloadCellsMenu();
-	moveMergeCell();
 }
 
 function cleanSql(){
@@ -164,43 +188,45 @@ function saveCellContent(){
 }
 
 function choseTd(e){
-	$("td[chose='Y']").css("background","");
-	$("td[chose='Y']").attr("chose","N");
-	$(e).css("background","#adb6c3");
-	$(e).attr("chose","Y");
-	
-	$("#data_table").empty();
-	$("#data_column").empty();
-	$("#data_reColumn").val("");
-	$("#cell_reColumn").val("");
-	
-	
-	$("#data_reColumn").val($(e).attr("rename"));
-	$("#cell_reColumn").val($(e).html());
-	var strs="<option value=''>--请选择表格--</option>";
-	if(columnsMap != null){
-			$.each(columnsMap,function(i,item){
-				strs+="<option value='"+i+"'>"+i+"</option>";
-				if ($(e).attr("tableName") && $(e).attr("tableName")!= undefined  && $(e).attr("tableName") == i) {
-					strs+="<option value='"+i+"' selected='selected'>"+i+"</option>";
-					var colStr="<option value=''>--请选择字段--</option>";
-					$.each(item,function(j,temp){
-						colStr+="<option value='"+temp.column_name+"' >"+temp.column_name+"</option>";
-						if ($(e).attr("column") && $(e).attr("column")!= undefined  && $(e).attr("column") == temp.column_name) {
-							colStr+="<option value='"+temp.column_name+"' selected='selected'>"+temp.column_name+"</option>";
-							
-						}
-					});
-					$("#data_column").append(colStr);
-				}
-			});
+	if($("#choseCellPart").attr("flag") == "N"){
+		$("td[chose='Y']").css("background","");
+		$("td[chose='Y']").attr("chose","N");
+		$(e).css("background","#adb6c3");
+		$(e).attr("chose","Y");
+		
+		$("#data_table").empty();
+		$("#data_column").empty();
+		$("#data_reColumn").val("");
+		$("#cell_reColumn").val("");
+		
+		
+		$("#data_reColumn").val($(e).attr("rename"));
+		$("#cell_reColumn").val($(e).html());
+		var strs="<option value=''>--请选择表格--</option>";
+		if(columnsMap != null){
+				$.each(columnsMap,function(i,item){
+					strs+="<option value='"+i+"'>"+i+"</option>";
+					if ($(e).attr("tableName") && $(e).attr("tableName")!= undefined  && $(e).attr("tableName") == i) {
+						strs+="<option value='"+i+"' selected='selected'>"+i+"</option>";
+						var colStr="<option value=''>--请选择字段--</option>";
+						$.each(item,function(j,temp){
+							colStr+="<option value='"+temp.column_name+"' >"+temp.column_name+"</option>";
+							if ($(e).attr("column") && $(e).attr("column")!= undefined  && $(e).attr("column") == temp.column_name) {
+								colStr+="<option value='"+temp.column_name+"' selected='selected'>"+temp.column_name+"</option>";
+								
+							}
+						});
+						$("#data_column").append(colStr);
+					}
+				});
+		}
+		$("#data_table").append(strs);
+		
+		
+		$("#editColumn").val($(e).attr("column"));
+		$("#data_table").trigger("liszt:updated");
+		$("#data_column").trigger("liszt:updated");
 	}
-	$("#data_table").append(strs);
-	
-	
-	$("#editColumn").val($(e).attr("column"));
-	$("#data_table").trigger("liszt:updated");
-	$("#data_column").trigger("liszt:updated");
 }
 
 function saveCellToSql(){
@@ -223,95 +249,6 @@ function saveCellToSql(){
 }
 
 
-//-------------------------------右键菜单合并--------------------------
-var select_cell_v3="";
-var select_row_v3="";
-var location_cell_v3="";
-var location_row_v3="";
-var tr_num_v3="";
-var td_num_v3="";
-var property_list_v3=[];
-
-var chose_state = true;
-
-//页面内容刷新后绑定方法
-function reloadCellsMenu(){
-	edit_property_v3();
-	//禁用浏览器右键
-	$("td[categery='cells_td']").bind("contextmenu", function(){
-		return false;
-	});
-	$("td[categery='cells_td']").bind("contextmenu",function(e){
-		var location=$(this).attr("location")+"";
-		location_row_v3=parseInt(location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", ""), 10);
-		location_cell_v3=parseInt(location.substring( location.indexOf("td_")).replace("td_", ""), 10);
-		select_row_v3=$(this).parent().index();
-		select_cell_v3=$(this).index();
-		td_num_v3=$("#cells_table tbody tr:eq("+select_row_v3+") td").length;
-		tr_num_v3=$("#cells_table tbody tr").length;
-		$("#cellsTable_menu").menu("show",{
-			left:e.pageX,
-			top:e.pageY
-		});
-	});
-}
-
-//向右合并
-function left_merge_cell_v3(){
-	if (select_cell_v3 == (td_num_v3-1)) {
-		alert("请求操作超过表格范围,请先添加列!");
-		return;
-	}
-	var col_span=parseInt($("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3)+"']").attr("colspan"),10);
-	var row_span=parseInt($("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3)+"']").attr("rowspan"),10);
-	var max_col_span=1;
-	if (row_span && row_span>1) {
-		//取下一列中最大colspan
-		for ( var i = 0; i < row_span; i++) {
-			if (max_col_span<parseInt($("td[location='tr_"+(location_row_v3+i)+"_td_"+(location_cell_v3+col_span)+"']").attr("colspan"),10)) {
-				max_col_span=parseInt($("td[location='tr_"+(location_row_v3+i)+"_td_"+(location_cell_v3+col_span)+"']").attr("colspan"),10);
-			}
-		}
-		for ( var i = 0; i < row_span; i++) {
-			for ( var j = 0; j <max_col_span; j++) {
-				$("td[location='tr_"+(location_row_v3+i)+"_td_"+(location_cell_v3+col_span+j)+"']").remove();
-			}
-		}
-	}else{
-		$("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3+col_span)+"']").remove();
-	}
-	$("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3)+"']").attr("colspan",(col_span+max_col_span)+"");
-}
-
-
-//向下合并
-function down_merge_cell_v3(){
-	var col_span=parseInt($("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3)+"']").attr("colspan"),10);
-	var row_span=parseInt($("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3)+"']").attr("rowspan"),10);
-	if (!row_span || row_span == undefined) {
-		row_span=1;
-	}else if ((select_row_v3+row_span) == tr_num_v3) {
-		alert("请求操作超过表格范围,请先添加行!");
-		return;
-	}
-	var max_row_span=1;//向下合并涉及单元格的最大跨行
-	if (col_span && col_span>1) {
-		for ( var i = 0; i < col_span; i++) {
-			if (max_row_span < parseInt($("td[location='tr_"+(location_row_v3+row_span)+"_td_"+(location_cell_v3+i)+"']").attr("rowspan"),10)) {
-				max_row_span=parseInt($("td[location='tr_"+(location_row_v3+row_span)+"_td_"+(location_cell_v3+i)+"']").attr("rowspan"),10);
-			}
-		}
-		for ( var i = 0; i < col_span; i++) {
-			for ( var j = 0; j <max_row_span; j++) {
-				$("td[location='tr_"+(location_row_v3+row_span+j)+"_td_"+(location_cell_v3+i)+"']").remove();
-			}
-		}
-	}else{
-		$("td[location='tr_"+(location_row_v3+row_span)+"_td_"+(location_cell_v3)+"']").remove();
-	}
-	$("td[location='tr_"+(location_row_v3)+"_td_"+(location_cell_v3)+"']").attr("rowspan",(row_span+max_row_span)+"");
-}
-
 //删除最后一行
 function delete_row_v3(){
 	var Maxtr=$("#cells_table tbody tr").length;
@@ -329,30 +266,6 @@ function delete_col_v3(){
 	col_num--;
 }
 
-
-//编辑名称
-function editCellName_v3(){
-	var celltableTemp=$("#cells_table");
-	celltableTemp.find("input[tempType='name_input']").show();
-	celltableTemp.find("input[tempType='attr_input']").show();
-	celltableTemp.find("input[tempType='nick_input']").show();
-	celltableTemp.find("div[tempType='name_div']").hide();
-	celltableTemp.find("div[tempType='attr_div']").hide();
-	celltableTemp.find("div[tempType='nick_div']").hide();
-}
-
-
-//保存名称编辑
-function saveCellName_v3(){
-	var celltableTemp=$("#cells_table");
-	celltableTemp.find("input[tempType='name_input']").hide();
-	celltableTemp.find("input[tempType='attr_input']").hide();
-	celltableTemp.find("input[tempType='nick_input']").hide();
-	celltableTemp.find("div[tempType='name_div']").show();
-	celltableTemp.find("div[tempType='attr_div']").show();
-	celltableTemp.find("div[tempType='nick_div']").show();
-}
-
 //添加整行
 function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
@@ -362,7 +275,6 @@ function addCellTableRow_v3(){
 	strs+="</tr>";
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
-	moveMergeCell();
 	row_num++;
 //	reloadCellsMenu();
 }
@@ -378,9 +290,7 @@ function addCellTableCol_v3(){
 	}
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
-	moveMergeCell();
 	col_num++;
-//	reloadCellsMenu();
 }
 
 
@@ -453,24 +363,26 @@ function savePartAndCells(){
 	}
 	var cells=[];
 	$("#cells_table tbody tr").each(function(i,item){
-		$("#cells_table tbody tr:eq("+i+") td[hasedit='Y']").each(function(j,item){
+		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
 			var td=$(item);
-			var  location=td.attr("location")+"";
-			var	 cellName=td.text()+"";
-			var	 property=td.attr("rename");
-			var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
-			var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
-			var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
-			var  endColumn =parseInt(startColumn, 10)+parseInt(td.attr("colspan"), 10)-1;
-			var cell={
-					cellName:cellName,
-					property:property,
-					startRow:startRow,
-					endRow:endRow,
-					startColumn:startColumn,
-					endColumn:endColumn
-			};
-			cells.push(cell);
+			var	 cellName=td.text();
+			if(cellName && cellName != undefined && cellName !=""){
+					var  location=td.attr("location")+"";
+					var	 property=td.attr("rename");
+					var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
+					var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
+					var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
+					var  endColumn =parseInt(startColumn, 10)+parseInt(td.attr("colspan"), 10)-1;
+					var cell={
+							cellName:cellName,
+							property:property,
+							startRow:startRow,
+							endRow:endRow,
+							startColumn:startColumn,
+							endColumn:endColumn
+					};
+					cells.push(cell);
+			}
 		});
 		
 	});
@@ -490,7 +402,6 @@ function savePartAndCells(){
 	var url = _basePath + "/poiAutoExport/savePartAndCells";
 	$.post(url, result, function(res, status) {
 		if(res.success){
-			top.reloadRecordTab("poi报表");
 			top.closeCurrentTab();
 		}
 		layer.alert(res.message);
@@ -699,7 +610,7 @@ function testExport(){
 }
 
 
-
+//null值处理
 function formatNull(str, rep, format) {
 	if (format == undefined)
 		format = "";
@@ -710,4 +621,60 @@ function formatNull(str, rep, format) {
 			return rep;
 	}
 	return str + format;
+}
+
+//---------------------------------------拆分单元格------------------------------------------------
+function changeToTwo(){
+	var cell=$("#cells_table td[chose='Y']");
+	if (cell.length <1) {
+		layer.alert("请先选择需要合并的表格");
+		return;
+	}
+	var col;
+	var row;
+	alert(cell.html());
+	addHideCell();
+	$("#cells_table tr").each(function(i){
+		$("#cells_table tr:eq("+i+") td").each(function(y){
+			if ($(this).attr("chose") == "Y") {
+				col=y;
+				row=i;
+			}
+		});
+	});
+	alert("col"+col+"=========row"+row);
+	$("#cells_table tr").each(function(i){
+		$("#cells_table tr:eq("+i+") td").each(function(y){
+			if (i==row && y==col) {
+				$(this).after("<td style='text-align:center; width:180px;height:23px' colspan='1' rowspan='1' categery='cells_td'  chose='N' >");
+				return;
+			}
+			if (y== col) {
+				$(this).attr("colspan",2);
+			}
+		});
+	});
+}
+
+//补全存在合并的单元格
+function addHideCell(){
+	 var tds = $("#cells_table").find('td[colspan],td[rowspan]'), v,vc;
+     if (tds.length) {
+         tds.filter('[colspan]').each(function () {
+             v = (parseInt($(this).attr('colspan')) || 1) - 1;
+             if (v > 0)
+            	 for (var i = 0; i < v; i++) 
+            		 $(this).after('<td class="hide"></td>');
+         }).end().filter('[rowspan]').each(function () {
+             v = parseInt($(this).attr('rowspan')) || 1;
+             vc = parseInt($(this).attr('colspan')) || 1;
+             if (v > 1) {
+                 for (var i = 1; i < v; i++) {
+                     var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex]);
+                     for (var j = 0; j < vc; j++) 
+                    	 td.before('<td class="hide"></td>')
+                 }
+             }
+         });
+     }
 }
