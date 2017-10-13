@@ -10,32 +10,6 @@ $(function() {
 		loadEditPart();
 	else
 		reload();
-	
-	$("#cells_table").bind("contextmenu", function(){
-	    return false;
-	});
-	
-	$("#cells_table td").each(function(){
-		$(this).click(function(){
-			choseTd(this);
-		});
-	});
-	
-	$("#choseCellPart").click(function(){
-		$("#choseCellPart").attr("flag","Y");
-		moveMergeCell();
-		$("#cells_table td[chose='Y']").css("background","");
-		$("#cells_table td[chose='Y']").attr("chose","N");
-	});
-	
-	$("#choseCellContent").click(function(){
-		$("#choseCellPart").attr("flag","N");
-		$("#cells_table").find('td').removeClass('selected');
-	});
-	
-	$("#changeToTwo").click(function(){
-		changeToTwo();
-	});
 });
 
 
@@ -48,15 +22,14 @@ function reloadCells(){
 	var strs="";
 	$("#cells_table_body").empty();
 	for ( var i = 0; i < row_num; i++) {
-		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1' style='height:23px;'>";
+		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1'>";
 			for ( var j = 0; j < col_num; j++) {
-				strs+="<td style='text-align:center; width:180px;height:23px' location='tr_"+i+"_td_"+j+"'  colspan='1' rowspan='1' categery='cells_td'  chose='N' >" 
-					+"</td>";
+				strs+="<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' isHead='Y'></td>";
 			}
 		strs+="</tr>";
 	}
 	$("#cells_table_body").append(strs);
-//	reloadCellsMenu();
+	moveMergeCell();
 }
 
 function cleanSql(){
@@ -75,6 +48,7 @@ function cleanSql(){
 	joinTables = [];
 	sheetjoinTables = [];
 }
+
 
 //弹出shett表格编选页
 function editShettTable(){
@@ -188,7 +162,8 @@ function saveCellContent(){
 }
 
 function choseTd(e){
-	if($("#choseCellPart").attr("flag") == "N"){
+		$("#cells_table").find('td').removeClass('selected');
+		
 		$("td[chose='Y']").css("background","");
 		$("td[chose='Y']").attr("chose","N");
 		$(e).css("background","#adb6c3");
@@ -226,7 +201,6 @@ function choseTd(e){
 		$("#editColumn").val($(e).attr("column"));
 		$("#data_table").trigger("liszt:updated");
 		$("#data_column").trigger("liszt:updated");
-	}
 }
 
 function saveCellToSql(){
@@ -248,35 +222,17 @@ function saveCellToSql(){
 	$("#dataSql_input").val(sqlStr);
 }
 
-
-//删除最后一行
-function delete_row_v3(){
-	var Maxtr=$("#cells_table tbody tr").length;
-	$("#cells_table tbody tr:eq("+(Maxtr-1)+")").remove();
-	row_num--;
-}
-
-//删除最后一列
-function delete_col_v3(){
-	var Maxtr=$("#cells_table tbody tr").length;
-	for ( var i = 0; i < Maxtr; i++) {
-		var Maxtd=$("#cells_table tbody tr:eq("+i+") td").length;
-		$("#cells_table tbody tr:eq("+i+") td:eq("+(Maxtd-1)+")").remove();
-	}
-	col_num--;
-}
-
 //添加整行
 function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
 	for ( var j = 0; j <col_num ; j++) {
-		strs+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+row_num+"_td_"+j+"'  colspan='1' rowspan='1' onclick='choseTd(this);' ></td>";
+		strs+="<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
 	row_num++;
-//	reloadCellsMenu();
+	moveMergeCell();
 }
 
 //添加整列
@@ -284,15 +240,48 @@ function addCellTableCol_v3(){
 	var strs="";
 	for ( var i = 0; i < row_num; i++) {
 		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
-		trStr+="<td categery='cells_td' style='text-align:center;  width:180px;height:23px' location='tr_"+i+"_td_"+col_num+"'  colspan='1' rowspan='1' onclick='choseTd(this);' ></td>";
+		trStr+="<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
 	$("#cells_table_body").empty();
 	$("#cells_table_body").append(strs);
 	col_num++;
+	moveMergeCell();
 }
 
+//拆分单元格
+function splitCell(){
+	  var tds = $("#cells_table").find('td[colspan],td[rowspan]'), v,vc;
+      if (tds.length) {
+          tds.filter('[colspan]').each(function () {
+              v = (parseInt($(this).attr('colspan')) || 1) - 1;
+              if (v > 0) for (var i = 0; i < v; i++)
+            	  $(this).after("<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
+          }).end().filter('[rowspan]').each(function () {
+              v = parseInt($(this).attr('rowspan')) || 1;
+              vc = parseInt($(this).attr('colspan')) || 1;
+              if (v > 1) {
+                  for (var i = 1; i < v; i++) {
+                      var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex]);
+                     	for (var j = 0; j < vc; j++)
+                     		td.before("<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
+                  }
+              }
+          });
+      }
+	
+	$("#cells_table td[chose='Y']").attr("rowspan","1");
+	$("#cells_table td[chose='Y']").attr("colspan","1");
+	moveMergeCell();
+}
+
+//删除选择行
+function rmvRow(){
+	$("input[name='rowRadio']:checked").each(function(){
+		alert($(this).val()+"");
+	});
+}
 
 
 //---------------------------------保存新增---------------------------------------------------------------------
@@ -528,9 +517,6 @@ function loadEditData(){
 				
 			$("#cells_table_body").append(strs);
 			$("#cells_table_div").show();
-//			reloadCellsMenu();
-			moveMergeCell();
-			
 		});
 }
 
@@ -609,7 +595,6 @@ function testExport(){
 	window.location.href =url;
 }
 
-
 //null值处理
 function formatNull(str, rep, format) {
 	if (format == undefined)
@@ -621,60 +606,4 @@ function formatNull(str, rep, format) {
 			return rep;
 	}
 	return str + format;
-}
-
-//---------------------------------------拆分单元格------------------------------------------------
-function changeToTwo(){
-	var cell=$("#cells_table td[chose='Y']");
-	if (cell.length <1) {
-		layer.alert("请先选择需要合并的表格");
-		return;
-	}
-	var col;
-	var row;
-	alert(cell.html());
-	addHideCell();
-	$("#cells_table tr").each(function(i){
-		$("#cells_table tr:eq("+i+") td").each(function(y){
-			if ($(this).attr("chose") == "Y") {
-				col=y;
-				row=i;
-			}
-		});
-	});
-	alert("col"+col+"=========row"+row);
-	$("#cells_table tr").each(function(i){
-		$("#cells_table tr:eq("+i+") td").each(function(y){
-			if (i==row && y==col) {
-				$(this).after("<td style='text-align:center; width:180px;height:23px' colspan='1' rowspan='1' categery='cells_td'  chose='N' >");
-				return;
-			}
-			if (y== col) {
-				$(this).attr("colspan",2);
-			}
-		});
-	});
-}
-
-//补全存在合并的单元格
-function addHideCell(){
-	 var tds = $("#cells_table").find('td[colspan],td[rowspan]'), v,vc;
-     if (tds.length) {
-         tds.filter('[colspan]').each(function () {
-             v = (parseInt($(this).attr('colspan')) || 1) - 1;
-             if (v > 0)
-            	 for (var i = 0; i < v; i++) 
-            		 $(this).after('<td class="hide"></td>');
-         }).end().filter('[rowspan]').each(function () {
-             v = parseInt($(this).attr('rowspan')) || 1;
-             vc = parseInt($(this).attr('colspan')) || 1;
-             if (v > 1) {
-                 for (var i = 1; i < v; i++) {
-                     var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex]);
-                     for (var j = 0; j < vc; j++) 
-                    	 td.before('<td class="hide"></td>')
-                 }
-             }
-         });
-     }
 }

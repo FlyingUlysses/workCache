@@ -35,52 +35,54 @@
 											    	 			</c:otherwise>
 											    	 		</c:choose>
 										            </select>
-										            <input type="text" id="partName_content" placeholder="请输入模板名称……" value="${part.name }" style=" width: 43%; float: right;" />
+										            <input type="text" id="partName_content" placeholder="请输入模板名称……" value="${part.name }" style=" width: 45%; float: right;" />
 											</div>
 											 <div class="input-wrap">
 												         <c:choose>
 												         	<c:when test="${part.isFixed ==1 }">
 														    	 <div class="tLable"><span style="width: 42%;">sheet排序：</span><span style="width: 46%; float: right;" id ="sheetName_title" >sheet名称：</span></div>
 														         <input type="number" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 43%;"/>
-												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;" onblur="getAllSheet();"  />
+												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 45%; float: right;" onblur="getAllSheet();"  />
 												         	</c:when>
 												         	<c:otherwise>
 														    	 <div class="tLable"><span style="width: 42%;">sheet排序：</span><span style="width: 46%; float: right; display: none" id ="sheetName_title" >sheet名称：</span></div>
 														         <input type="number" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 43%;"/>
-												         		 <input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 43%; float: right;display:none;"  onblur="getAllSheet();"  />
+												         		 <input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 45%; float: right;display:none;"  onblur="getAllSheet();"  />
 												         	</c:otherwise>
 												         </c:choose>
 											</div>
-										    <div class="input-wrap">
-										    	<div class="tLable">sheetSQL：
-										    		<div style="float: right">
-										    				<button id="choseShettTable" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="editShettTable();">
-											    		 		<i class="icon-save"></i>&nbsp;
-											    				<span class="ladda-label" style="font-size: 12px;">选择数据表</span>
-											    			</button>
-											    	 		<button id="test_sheetSql" type="button" style="text-align: right;margin-bottom: 5px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="testSheetSql();">
-												    		 <i class="icon-save"></i>&nbsp;
-												    		<span class="ladda-label" style="font-size: 10px;">测试Sql</span>
-												    		</button>
-												    	</div>
-										    	</div>
-										    	 <textarea id="sheetSql_input" class="txt" rows="2" style="width: 98%">${part.sheet_sql }</textarea>
-										    </div>
-										    <div class="input-wrap">
-										    	 <div class="tLable">dataSQL：
-										    	 		<div style="float: right">
-										    	 			<button id="choseDataTable" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="choseDataTable();">
-											    		 		<i class="icon-save"></i>&nbsp;
-											    				<span class="ladda-label" style="font-size: 12px;">选择数据表</span>
-											    			</button>
-											    	 		<button id="test_dataSql" type="button" style="text-align: right;margin-bottom: 5px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="testDataSql();">
-												    		 <i class="icon-save"></i>&nbsp;
-												    		<span class="ladda-label" style="font-size: 10px;">测试Sql</span>
-												    		</button>
-												    	</div>
+											<div  class="input-wrap">
+											    <div class="span6">
+											    	<div class="tLable">sheetSQL：
+											    		<div style="float: right">
+											    				<button id="choseShettTable" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="editShettTable();">
+												    		 		<i class="icon-save"></i>&nbsp;
+												    				<span class="ladda-label" style="font-size: 12px;">选择数据表</span>
+												    			</button>
+												    	 		<button id="test_sheetSql" type="button" style="text-align: right;margin-bottom: 5px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="testSheetSql();">
+													    		 <i class="icon-save"></i>&nbsp;
+													    		<span class="ladda-label" style="font-size: 10px;">测试Sql</span>
+													    		</button>
+													    	</div>
+											    	</div>
+											    	 <textarea id="sheetSql_input" class="txt" rows="5" style="width: 98%">${part.sheet_sql }</textarea>
 											    </div>
-										    	 <textarea  id="dataSql_input"  class="txt" rows="3" style="width:98%">${part.data_sql }</textarea>
-										    </div>
+											    <div class="span6">
+											    	 <div class="tLable">dataSQL：
+											    	 		<div style="float: right">
+											    	 			<button id="choseDataTable" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="choseDataTable();">
+												    		 		<i class="icon-save"></i>&nbsp;
+												    				<span class="ladda-label" style="font-size: 12px;">选择数据表</span>
+												    			</button>
+												    	 		<button id="test_dataSql" type="button" style="text-align: right;margin-bottom: 5px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="testDataSql();">
+													    		 <i class="icon-save"></i>&nbsp;
+													    		<span class="ladda-label" style="font-size: 10px;">测试Sql</span>
+													    		</button>
+													    	</div>
+												    </div>
+											    	 <textarea  id="dataSql_input"  class="txt" rows="5" style="width:98%">${part.data_sql }</textarea>
+											    </div>
+											 </div>
 										    <div  style="text-align: right; margin-top: 10px;" id="create_button_div" >
 											    <button id="cleanSql" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="cleanSql();">
 											    		 <i class="icon-save"></i>&nbsp;
@@ -120,18 +122,38 @@
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="saveCellToSql();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" ">保存至sql</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加行</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">增加列</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_row_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除最后行</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_col_v3();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除最后列</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="mergeCellButton"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">合并单元格</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" flag='N' class="btn btn-warning" id="choseCellPart"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">编辑样式</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="choseCellContent"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">编辑内容</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="changeToTwo"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">拆分为二</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="splitCell();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">拆分</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="rmvRow();"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">删除</span></button>
 					               	  </div>
 					            </div>
 								<div class="widget-body">
-						                <table id="cells_table" class="table table-bordered table-hover" >
-											<tbody id="cells_table_body"></tbody>
-						               </table>
+										<div id="xCell_div" style="height: 30px;padding-left:60px;">
+											<div style="width: 128px;height:29px;text-align: center;border-top: 1px solid #ddd;border-left: 1px solid #ddd;border-right: 1px solid #ddd;display:inline-block;">x1</div>
+										</div>
+										<div style="overflow-x:auto;">
+											<div id="yCell_div" style="float:left;width:60px;">
+												<div style="height:30px; ">
+													<div style="text-align: center;"class="span6">
+														<input  name='rowRadio' type='checkbox' value='y1' num='y1' />
+													</div>
+													<div style="text-align: center;border-top: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;"class="span6">y1</div>
+												</div>
+												<div style="height:30px;">
+													<div style="text-align: center;"class="span6">
+														<input name='rowRadio' type='checkbox' value='y2' num='y2' />
+													</div>
+													<div style="text-align: center;border-top: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;"class="span6">y1</div>
+												</div>
+											</div>
+											<div style="overflow-x:auto; margin-left:60px;">
+												<table id="cells_table" class=" table-bordered " style="">
+													<tbody id="cells_table_body"></tbody>
+								               </table>
+											</div>
+											 
+										</div>
+						               
 								</div>
 						  </div>
 					</div>

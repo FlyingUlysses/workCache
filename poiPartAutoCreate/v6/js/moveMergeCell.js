@@ -113,13 +113,15 @@ function moveMergeCell () {
        }
        
        function onMousedown(e) {
+    	   tb.find("td[chose='Y']").css("background","");
+    	   tb.find("td[chose='Y']").attr("chose","N");
+    	   
            var o = e.target;
-           if (o.tagName == 'TD') {
+           if (o.tagName == 'TD' && $(o).attr("isHead")=='Y') {
                startTD = o;
                tb.bind({ mouseup: onMouseup, mousemove: onMousemove });
            }
        }
-       if($("#choseCellPart").attr("flag")=="Y")
-    	   tb.mousedown(onMousedown);
+     tb.mousedown(onMousedown);
    });
 };
