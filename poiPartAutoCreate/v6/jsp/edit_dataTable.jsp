@@ -5,7 +5,7 @@
 </style>
 <body>
 	<div style="display: inline;">
-			<div class="span5" id="data_baseTables_div" style="width: 480px;">
+			<div class="span5" id="data_baseTables_div" style="width: 450px;">
 							<div class="widget green" >
 									<div class="widget-title" id ="role_title" >
                          				 <h4><i class="icon-align-left">选择表格</i></h4>
@@ -22,8 +22,7 @@
 						                      	  <th style="width: 12px; vertical-align: middle;"></th>
 						                          <th style="width: 120px" >编码</th>
 						                          <th >表名称</th>
-						                          <th style="width: 80px;text-align: center;" >创建时间</th>
-						                          <th style="width: 80px; text-align: center;">操作</th>
+						                          <th style="width: 120	px; text-align: center;">操作</th>
 						                      </tr>
 						                 </thead>
 						                 <tbody id="dataRowBody"></tbody>
@@ -35,7 +34,7 @@
 			                </div>
 			            </div>
 	     
-	     <div  style="float: right;width: 480px;margin-right: 10px">
+	     <div  style="float: right;width: 510px;margin-right: 10px">
 		      <div class="widget green"  >
 				   	<div class="widget-title" id ="role_title" >
 						    <h4><i class="icon-align-left">表格关系编辑</i></h4>

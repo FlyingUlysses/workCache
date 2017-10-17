@@ -1,7 +1,7 @@
 //---------------------------sql模板------------------------------------------
 var SHEET_SQL_TEMPLATE=" select #id id,#name name from #tableName #joinTable #where";
 var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id  #where #filter ";
-var row_num=2;
+var row_num=3;
 var col_num=7;
 var sql_test_status = 0 ;//sql语句测试状态，初始为0，sheetsql通过为1，datasql通过为2,全部通过为3
 $(function() {
@@ -22,33 +22,26 @@ function reloadCells(){
 	var strs="";
 	$("#cells_table_body").empty();
 	for ( var i = 0; i < row_num; i++) {
-		strs+="<tr location='tr_"+i+"' colspan='1' rowspan='1'>";
+		strs+="<tr location='tr_"+i+"'>";
 			for ( var j = 0; j < col_num; j++) {
-				strs+="<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' isHead='Y'></td>";
+				if (i ==0) {
+					if (j==0) 
+						strs+="<th style='text-align:center; width:25px;height:27px;' colspan='1' rowspan='1'></th>";
+					else
+						strs+="<th style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1'>x"+j+"</th>";
+				}
+				else{
+					if (j==0) {
+						strs+= "<th width='25px'><input  name='rowRadio' type='checkbox' value='"+i+"'  /></th>";
+					}else
+						strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' isHead='Y'></td>";
+				}
 			}
 		strs+="</tr>";
 	}
 	$("#cells_table_body").append(strs);
 	moveMergeCell();
 }
-
-function cleanSql(){
-	$("#sheetSql_input").val("");
-	$("#dataSql_input").val("");
-	$("#sheet_table").val("");
-	$("#sheet_table_id").val("");
-	$("#sheet_table_name").val("");
-	$("input[name='sheet_rowRadio']").attr("checked",''); 
-	$("input[name='data_rowRadio']").attr("checked",''); 
-	reloadCells();
-	sheet_sql_temp = SHEET_SQL_TEMPLATE;
-	data_sql_temp = DATA_SQL_TEMPLATE;
-	sheetTableCode = "";
-	tableCode = "";
-	joinTables = [];
-	sheetjoinTables = [];
-}
-
 
 //弹出shett表格编选页
 function editShettTable(){
@@ -63,7 +56,7 @@ function editShettTable(){
 //sheet表格编辑页调用保存sheetsql
 function saveSheetTables(sql){
 	$("#sheetSql_input").empty();
-	$("#sheetSql_input").val(sql);
+	$("#sheetSql_input").append(sql);
 }
 
 
@@ -82,7 +75,7 @@ function saveDataTables(sql,map){
 	columnsMap=map;
 	$("#dataSql_input").empty();
 	DATA_SQL_TEMPLATE =sql;
-	$("#dataSql_input").val(sql);
+	$("#dataSql_input").append(sql);
 }
 
 var sheetCat="categery";//sheet分类
@@ -159,6 +152,7 @@ function saveCellContent(){
 	$("td[chose='Y']").attr("column",$("#editColumn").val());
 	$("td[chose='Y']").attr("reName",$("#data_reColumn").val());
 	$("td[chose='Y']").html($("#cell_reColumn").val());
+	saveCellToSql();
 }
 
 function choseTd(e){
@@ -226,7 +220,10 @@ function saveCellToSql(){
 function addCellTableRow_v3(){
 	var strs=$("#cells_table_body").html()+" <tr>";
 	for ( var j = 0; j <col_num ; j++) {
-		strs+="<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
+		if (j==0) 
+			strs+= "<th width='25px'><input  name='rowRadio' type='checkbox' value='"+(row_num)+"'  /></th>";
+		else 
+			strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
@@ -240,7 +237,10 @@ function addCellTableCol_v3(){
 	var strs="";
 	for ( var i = 0; i < row_num; i++) {
 		var trStr="<tr>"+$("#cells_table_body tr:eq("+i+")").html()+"";
-		trStr+="<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
+		if (i==0) 
+			trStr+="<th style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1'>x"+(col_num)+"</th>";
+		else
+			trStr+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
@@ -257,7 +257,7 @@ function splitCell(){
           tds.filter('[colspan]').each(function () {
               v = (parseInt($(this).attr('colspan')) || 1) - 1;
               if (v > 0) for (var i = 0; i < v; i++)
-            	  $(this).after("<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
+            	  $(this).after("<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
           }).end().filter('[rowspan]').each(function () {
               v = parseInt($(this).attr('rowspan')) || 1;
               vc = parseInt($(this).attr('colspan')) || 1;
@@ -265,7 +265,7 @@ function splitCell(){
                   for (var i = 1; i < v; i++) {
                       var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex]);
                      	for (var j = 0; j < vc; j++)
-                     		td.before("<td style='text-align:center; width:127px;height:27px;border-bottom:1px solid #ddd;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
+                     		td.before("<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
                   }
               }
           });
@@ -279,8 +279,10 @@ function splitCell(){
 //删除选择行
 function rmvRow(){
 	$("input[name='rowRadio']:checked").each(function(){
-		alert($(this).val()+"");
+		var row =$(this).val();
+		$("#cells_table tr:eq("+$(this).val()+")").remove();
 	});
+	row_num --;
 }
 
 
@@ -517,6 +519,7 @@ function loadEditData(){
 				
 			$("#cells_table_body").append(strs);
 			$("#cells_table_div").show();
+			moveMergeCell();
 		});
 }
 

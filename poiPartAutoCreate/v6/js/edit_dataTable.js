@@ -1,5 +1,8 @@
 var page = { page: 1,limit: 9 };
-var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id  #where #filter ";
+var DATA_SQL_TEMPLATE=" select #columns " +
+		" \n from #baseTable" +
+		"  #joinTable " +
+		" \n where #sheet=#id  #where #filter ";
 var table_name ="";
 var joinTables =[];
 var joinTableColumn =0;
@@ -43,10 +46,9 @@ function loadDataPages(){
 				 strs += "<tr onclick='dataPagesClick(" + num + ");'>"
 					 + "<td style='text-align: center;'><input class='checkboxes' name='data_rowRadio' type='radio' value='t5_" + num + "' /></td>"
 					 + "<td style='vertical-align: middle;' >" + item.code + "</td><td style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
-					 + "<td style='text-align: center;'>" + formatNull(item.create_time) + "</td>"
 					 + "<td style='text-align: center;'>"
-					 + 	"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"choseJoinTable('"+ item.code +"');\"><i class='icon-plus'></i></button>  "
-					 +"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"choseBaseTable('"+ item.code +"');\"><i class='icon-pencil	'></i></button></td></tr>";
+					 + 	"<button  class='btn btn-primary' onclick=\"choseJoinTable('"+ item.code +"');\"><i class='icon-plus'></i>从</button>  "
+					 +"<button  class='btn btn-primary' onclick=\"choseBaseTable('"+ item.code +"');\"><i class='icon-pencil'></i>主</button></td></tr>";
 				 num++;
 			 });
 				 $("#dataRowBody").append(strs);
@@ -100,7 +102,7 @@ function choseJoinTable(code){
 	if(flag){
 		var strs ="";
 		joinTableColumn++;
-		strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+code+"' style='width: 80px;' readonly='readonly' ></div>"
+		strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+code+"' style='width: 110px;' readonly='readonly' ></div>"
 		+" <div style='display: inline;'><span>别名:</span><input name='joinTable_reName' value='t"+ joinTableColumn +"' style='width: 80px;'></div>";
 		$.each(joinTables,function(i,item){
 			if (item.table_name == code) {
@@ -174,7 +176,7 @@ function createSql(){
 				joinTable.link=$(this).val();
 			});
 			if (noLinkFlag) 
-				jointable_str += " left join "+joinTable.table_name+" "+joinTable.re_table+" on "+joinTable.link+" ";
+				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_table+" on "+joinTable.link+" ";
 			else
 				noLinkJoinTable_str +=","+joinTable.table_name+" " +joinTable.re_table+" ";
 			joinTable_array.push(joinTable);

@@ -117,7 +117,7 @@ function moveMergeCell () {
     	   tb.find("td[chose='Y']").attr("chose","N");
     	   
            var o = e.target;
-           if (o.tagName == 'TD' && $(o).attr("isHead")=='Y') {
+           if (o.tagName == 'TD') {
                startTD = o;
                tb.bind({ mouseup: onMouseup, mousemove: onMousemove });
            }
