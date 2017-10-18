@@ -80,6 +80,10 @@
 											    </div>
 											 </div>
 										    <div  style="text-align: right; margin-top: 10px;" id="create_button_div" >
+											    <button id="testExport" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="testExport();">
+											    	 <i class="icon-save"></i>&nbsp;
+										    		<span class="ladda-label" style="font-size: 12px;">测试导出</span>
+										    	</button>
 										    	<button id="saveAll" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="savePartAndCells();">
 										    		 <i class="icon-save"></i>&nbsp;
 										    		<span class="ladda-label" style="font-size: 12px;">保存</span>
