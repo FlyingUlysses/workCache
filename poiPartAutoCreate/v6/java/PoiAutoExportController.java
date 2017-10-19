@@ -283,7 +283,7 @@ public class PoiAutoExportController extends Controller{
      * @throws Exception 
      * @Description:
      */
-	public void testExportExcel()  {
+	public void testExportPart()  {
 		try {
 			String fileName = java.net.URLEncoder.encode(DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")+"测试导出.xls", "utf-8");
 			getResponse().reset();
@@ -291,10 +291,8 @@ public class PoiAutoExportController extends Controller{
 			getResponse().setContentType("application/msexcel;charset=UTF-8");
 			OutputStream os = null;
 			try {
-				String sheetSQL = "";
-				String rowFilter = "";
 				os = getResponse().getOutputStream();
-				PoiMergeExporter.getInstance().version("2003").cellWidth(2200).exportPart(getParaToInt("id"), sheetSQL, rowFilter).write(os);
+				PoiMergeExporter.getInstance().version("2003").cellWidth(2200).exportPart(getParaToInt("id")).write(os);
 			} catch (Exception e) {
 				throw new RenderException(e);
 			} finally {

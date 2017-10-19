@@ -28,7 +28,6 @@
 		                      <tr>
 		                          <th  style="width: 17%" >excel编码</th>
 		                          <th style="width: 17%">数据库表名称</th>
-		                          <th style="text-align: center;">备注信息</th>
 		                          <th style="width: 17%; text-align: center;">创建时间</th>
 		                          <th style="width: 80px; text-align: center;">操作excel</th>
 		                          <th style="width: 13%;text-align: center;">模板</th>

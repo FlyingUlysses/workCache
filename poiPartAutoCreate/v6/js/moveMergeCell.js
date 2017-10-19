@@ -69,7 +69,6 @@ function moveMergeCell () {
                MMRC.endCellIndex = Math.max(MMRC.endCellIndex, rc.maxc || rc.c);
                rangeChange = rangeChange || MMRC.endCellIndex != t;
            });
-           //注意这里如果用代码选中过合并的单元格需要重新执行选中操作
            if (rangeChange) addSelectedClass();
        }
        function onMousemove(e) {//鼠标在表格单元格内移动事件
@@ -100,7 +99,7 @@ function moveMergeCell () {
                        return (addBR ? '<br>' : '') + this.innerHTML
                    }).get().join(',');
                tds.filter(':gt(0)').remove(); 
-               //合并内容,不需要该功能
+               //合并表格内容,暂不需要该功能
                //firstTD.append(',' + html.replace(/，(<br>)/g, '$1'));
 
                //更新合并的第一个单元格的缓存rc数据为所跨列和行

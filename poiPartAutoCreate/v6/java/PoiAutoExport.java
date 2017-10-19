@@ -80,7 +80,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
      * 根据选择sheet主表查询sheet字段信息
      */
     public List<Record> getSheetColumns(String tableName) {
-        List<Record> tables = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableName);
+        List<Record> tables = Db.find("SELECT COLUMN_NAME name FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableName);
         return tables;
     }
 

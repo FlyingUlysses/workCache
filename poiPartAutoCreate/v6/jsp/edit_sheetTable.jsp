@@ -5,7 +5,7 @@
 </style>
 <body>
 	<div style="display: inline;">
-		 <div class="span5" id="sheet_baseTables_div"  style="width: 480px;">
+		 <div class="span5" id="sheet_baseTables_div"  style="width: 450px;">
 					<div class="widget green" >
 							<div class="widget-title" id ="role_title" >
 	                      				 <h4><i class="icon-align-left">选择表格</i></h4>
@@ -19,11 +19,10 @@
 	                          <table class="table table-striped table-bordered table-hover" >
 				                  <thead>
 				                      <tr>
-			                      	 	  <th style="width: 12px; vertical-align: middle;"></th>
-				                          <th style="width: 120px" >编码</th>
-				                          <th >表名称</th>
-				                          <th style="width: 80px;text-align: center;" >创建时间</th>
-				                          <th style="width: 80px; text-align: center;">操作</th>
+			                      	 	 <th style="width: 12px; vertical-align: middle;"></th>
+					                          <th style="width: 120px" >编码</th>
+					                          <th >表名称</th>
+					                          <th style="width: 120	px; text-align: center;">操作</th>
 				                      </tr>
 				                 </thead>
 				                 <tbody id="sheetRowBody"></tbody>
@@ -35,37 +34,90 @@
 	                </div>
 	     </div>
 	     
-	     <div  style="float: right;width: 290px;margin-right: 10px">
+	     
+	       <div  style="float: right;width: 510px;margin-right: 10px">
 		      <div class="widget green"  >
-				   	<div class="widget-title" id ="role_title" >
-						    <h4><i class="icon-align-left">sheet字段选择</i></h4>
+					 <div class="widget-body">
+					 	<div style="margin-bottom: 10px;">
+			  				  当前主表：
+			  				  <div class="input-wrap">
+							  		<div style="display: inline;margin-left: 20px;">
+								  		<span>表名:</span>
+								  		<input id="baseTable_name" placeholder="请选择表格.." style="width: 120px;" >
+								  	</div>
+							  		<div style="display: inline;">
+								  		<span>别名:</span>
+								  		<input id="baseTable_reName" placeholder="请选择表格.." style="width: 120px;">
+								  	</div>
+							 </div>
+						</div>
+						 附属表格：
+						 <div id="joinTable_div">
+								 <div class="input-wrap">
+								  		<div style="display: inline;margin-left: 20px;">
+									  		<span>表名:</span>
+									  		<input value="" placeholder="请选择表格.." style="width: 80px;" >
+									  	</div>
+								  		<div style="display: inline;">
+									  		<span>别名:</span>
+									  		<input value="" placeholder="请选择表格.." style="width: 80px;">
+									  	</div>
+									  	<div style="display: inline;">
+									  		<span>连接条件:</span>
+									  		<input value="" placeholder="请选择表格.." style="width: 120px;">
+									  	</div>
+								 </div>
+							</div>
+						 
 					</div>
-					<br>
-			  		<div class="input-wrap">
-			  			<div class="tLable"><span >sheet表名：</span></div>
-			            	<select  id="sheet_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns();" required>
-      						</select>
-				  </div>
-				  <div class="input-wrap">
-			  			<div class="tLable"><span >ID字段：</span></div>
-				            <select  id="sheet_table_id"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="selectSheetId();" style="width: 98%" required>
-	      					</select>
-				  </div>
-				  <div class="input-wrap">
-			  			<div class="tLable"><span >name字段：</span></div>
-				            <select  id="sheet_table_name"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1"  onchange="selectSheetName();" style="width: 98%" required>
-	      					</select>
-				 </div>
+			      	<div  style="text-align: right; margin-top: 10px;"  >
+						 <button id="save" type="button" style="margin-right: 6px;margin-bottom: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveTable();">
+				    		<span class="ladda-label" style="font-size: 12px;">确定</span>
+				    	</button>
+				    </div>
 			 </div>
-			 
-			 <div  style="text-align: right; margin-top: 10px;"  >
-				 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="save();">
-		    		 <i class="icon-save"></i>&nbsp;
-		    		<span class="ladda-label" style="font-size: 12px;">保存</span>
-		    	</button>
-		    </div>
-		    
 		</div>
+	     
+	     
+	     <div  style="float: right;width: 510px;margin-right: 10px">
+		      <div class="widget green"  >
+		      		 <div class="widget-body">
+					<table>
+			  			<tr><td>sheet表名：</td>
+			            	<td width="150px">
+				            	<select  id="id_table"  data-placeholder="请先确定表格关系..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns(this);" required>
+	      						</select>
+      						</td>
+      						<td ><div style="margin-left: 25px">id字段：</div></td>
+				  			<td width="150px">
+					            <select  id="sheet_table_id"  data-placeholder="清先选择表格..." class="chzn-select" tabindex="-1" onchange="selectSheetId();" style="width: 98%" required>
+		      					</select>
+		      				</td>
+      					</tr>
+      					
+				  		<tr><td>sheet表名：</td>
+				            	<td width="150px">
+					            	<select  id="name_table"  data-placeholder="请先确定表格关系..." class="chzn-select" tabindex="-1" style="width: 98%" onchange="loadSheetColumns(this);" required>
+		      						</select>
+	      						</td>
+				  				<td><div style="margin-left: 25px">name字段：</div></td>
+				  				<td width="150px">
+						            <select  id="sheet_table_name"  data-placeholder="清先选择表格..." class="chzn-select" tabindex="-1"  onchange="selectSheetName();" style="width: 98%" required>
+			      					</select>
+			      				</td>
+			      		</tr>
+				 </table>
+			 </div>
+		 </div>
+			 
+			 
+		 <div  style="text-align: right; margin-top: 10px;"  >
+			 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="save();">
+	    		 <i class="icon-save"></i>&nbsp;
+	    		<span class="ladda-label" style="font-size: 12px;">保存</span>
+	    	</button>
+	    </div>
+	    
 	</div>
 	<input type="hidden" id="sheetSql_input" value=""/>
 	<script type="text/javascript">

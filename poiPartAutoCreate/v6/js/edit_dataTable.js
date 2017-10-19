@@ -117,6 +117,16 @@ function choseJoinTable(code){
 }
 
 function save(){
+	var flag=false;
+	$("input[name='joinTable_link']").each(function(){
+		if ($(this).val()==null || $(this).val() == undefined || $(this).val() == "") {
+			flag=true;
+		}
+	});
+	if (flag) {
+		layer.alert("您还有表格关系未进行处理，请手动处理！");
+		return;
+	}
 	if($("#baseTable_name").val()==""){
 		layer.alert("清先选择主表！");
 		return;
@@ -175,10 +185,10 @@ function createSql(){
 			$(this).find("input[name='joinTable_link']").each(function(){
 				joinTable.link=$(this).val();
 			});
-			if (noLinkFlag) 
+			if (joinTable.link && joinTable.link != undefined && joinTable.link != "") 
 				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_table+" on "+joinTable.link+" ";
 			else
-				noLinkJoinTable_str +=","+joinTable.table_name+" " +joinTable.re_table+" ";
+				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_table+" on #criteria ";
 			joinTable_array.push(joinTable);
 		});
 		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#noLinkJoinTable", noLinkJoinTable_str);

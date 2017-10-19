@@ -75,7 +75,6 @@ function reloadRecord(){
 					}
 				 strs += "<tr >"
 					 + "<td rowspan='"+row+"' "+type+"  style='vertical-align: middle;' >" + item.type + "</td><td rowspan='"+row+"' "+type+" style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
-					 + "<td rowspan='"+row+"' "+type+" style='vertical-align: middle;'>" + formatNull(item.desc) + "</td>"
 					 + "<td rowspan='"+row+"' "+type+" style='vertical-align: middle;text-align: center;' >" + formatNull(item.create_time) + "</td>"
 					 +"<td rowspan='"+row+"' "+type+" style='vertical-align: middle;' ><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editExcel('"+ item.id +"');\"><i class='icon-pencil'></i></button>  "
 					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvExcel?id=" + item.id + "\");'><i class='icon-trash'></i></button></td>";
@@ -129,9 +128,13 @@ function editPartAndCell(id){
 }
 
 function revPart(url){
-	$.post(url,function(data,status){
-		layer.alert(data.message);
-		reloadRecord();
+	layer.confirm('是否确认删除此记录？', {
+		btn: ['确定','取消']
+	},function(){
+		$.post(url,function(data,status){
+			layer.alert(data.message);
+			reloadRecord();
+		});
 	});
 }
 

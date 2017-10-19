@@ -47,7 +47,7 @@ function reloadCells(){
 function editShettTable(){
 	showModel({
 		title : "sheet表格编辑",
-		width : "810px",
+		width : "1000px",
 		height : "510px",
 		url : _basePath + "/poiAutoExport/editSheetTable" 
 	});
@@ -56,7 +56,7 @@ function editShettTable(){
 //sheet表格编辑页调用保存sheetsql
 function saveSheetTables(sql){
 	$("#sheetSql_input").empty();
-	$("#sheetSql_input").append(sql);
+	$("#sheetSql_input").val(sql);
 }
 
 
@@ -75,7 +75,7 @@ function saveDataTables(sql,map){
 	columnsMap=map;
 	$("#dataSql_input").empty();
 	DATA_SQL_TEMPLATE =sql;
-	$("#dataSql_input").append(sql);
+	$("#dataSql_input").val(sql);
 }
 
 var sheetCat="categery";//sheet分类
@@ -89,7 +89,9 @@ function selectSheet(){
 	if (sheetCat == "all") {
 		$("#sheetName_title").show();
 		$("#sheetName_content").show();
+		$("#choseShettTable").hide();
 	}else{
+		$("#choseShettTable").show();
 		$("#sheetName_title").hide();
 		$("#sheetName_content").hide();
 		
@@ -254,6 +256,7 @@ function addCellTableCol_v3(){
 function splitCell(){
 	  var tds = $("#cells_table").find('td[colspan],td[rowspan]'), v,vc;
       if (tds.length) {
+    	  $("#cells_table").find('td.hide').remove();
           tds.filter('[colspan]').each(function () {
               v = (parseInt($(this).attr('colspan')) || 1) - 1;
               if (v > 0) for (var i = 0; i < v; i++)
@@ -276,6 +279,29 @@ function splitCell(){
 	moveMergeCell();
 }
 
+//补全单元格
+function addHideCell(){
+	 var tds = $("#cells_table").find('td[colspan],td[rowspan]'), v,vc;
+     if (tds.length) {
+   	  $("#cells_table").find('td.hide').remove();
+         tds.filter('[colspan]').each(function () {
+             v = (parseInt($(this).attr('colspan')) || 1) - 1;
+             if (v > 0) for (var i = 0; i < v; i++)
+           	  $(this).after("<td class='hide' ></td>");
+         }).end().filter('[rowspan]').each(function () {
+             v = parseInt($(this).attr('rowspan')) || 1;
+             vc = parseInt($(this).attr('colspan')) || 1;
+             if (v > 1) {
+                 for (var i = 1; i < v; i++) {
+                     var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex]);
+                    	for (var j = 0; j < vc; j++)
+                    		td.before("<td class='hide' ></td>");
+                 }
+             }
+         });
+     }
+}
+
 //删除选择行
 function rmvRow(){
 	$("input[name='rowRadio']:checked").each(function(){
@@ -283,6 +309,21 @@ function rmvRow(){
 		$("#cells_table tr:eq("+$(this).val()+")").remove();
 	});
 	row_num --;
+}
+
+//删除最后一列
+function delete_col(){
+	var Maxtr=$("#cells_table tbody tr").length;
+	for ( var i = 0; i < Maxtr; i++) {
+		if (i==0) {
+			var Maxtd=$("#cells_table tbody tr:eq("+i+") th").length;
+			$("#cells_table tbody tr:eq(0) th:eq("+(Maxtd-1)+")").remove();
+		}else{
+			var Maxtd=$("#cells_table tbody tr:eq("+i+") td").length;
+			$("#cells_table tbody tr:eq("+i+") td:eq("+(Maxtd-1)+")").remove();
+		}
+	}
+	col_num--;
 }
 
 
@@ -353,17 +394,17 @@ function savePartAndCells(){
 		return;
 	}
 	var cells=[];
+	addHideCell();
 	$("#cells_table tbody tr").each(function(i,item){
 		$("#cells_table tbody tr:eq("+i+") td").each(function(j,item){
 			var td=$(item);
-			var	 cellName=td.text();
+			var	cellName=td.text();
 			if(cellName && cellName != undefined && cellName !=""){
-					var  location=td.attr("location")+"";
 					var	 property=td.attr("rename");
-					var	 startRow=location.substring(location.indexOf("tr_"), location.indexOf("_td")).replace("tr_", "");
-					var	 endRow=parseInt(startRow, 10)+parseInt(td.attr("rowspan"), 10)-1;
-					var  startColumn=location.substring(location.indexOf("td_")).replace("td_", "");
-					var  endColumn =parseInt(startColumn, 10)+parseInt(td.attr("colspan"), 10)-1;
+					var	 startRow=$(this).parent().index()-1;
+					var	 endRow=$(this).parent().index()-1+parseInt(td.attr("rowspan"), 10)-1;
+					var  startColumn=$(this).index()-1;
+					var  endColumn =$(this).index()-1+parseInt(td.attr("colspan"), 10)-1;
 					var cell={
 							cellName:cellName,
 							property:property,
@@ -377,6 +418,8 @@ function savePartAndCells(){
 		});
 		
 	});
+	$("#cells_table").find('td.hide').remove();
+	
 	var result={
 			sheet_cat:sheetCat,
 			excel_id:$("#excel_id").val(),
@@ -393,7 +436,10 @@ function savePartAndCells(){
 	var url = _basePath + "/poiAutoExport/savePartAndCells";
 	$.post(url, result, function(res, status) {
 		if(res.success){
-			top.closeCurrentTab();
+			alert(JSON.stringify(res));
+			$("#part_id").val(res.data.id);
+			$("#testExport_div").css("display","inline");
+			$("#testExport_div").show();
 		}
 		layer.alert(res.message);
 	});
@@ -460,7 +506,7 @@ function loadEditData(){
 							}
 							ColumnNum_temp++;
 							if (item.ismerge == "Y") {
-								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' location='tr_"+num_row+"_td_"+j+"'  " 
+								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' " 
 								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+formatNull(item.property)+"' >"+formatNull(item.cellname)+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
@@ -475,7 +521,7 @@ function loadEditData(){
 									}
 								}
 							}else if (item.ismerge == "N") {
-								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' location='tr_"+num_row+"_td_"+j+"'  " 
+								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' " 
 								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+formatNull(item.property)+"' >"+formatNull(item.cellname)+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
@@ -539,6 +585,10 @@ function testSheetSql(){
 		layer.alert("sql语句没有不能为空！");
 		return;
 	} 
+	if (sql.indexOf("#criteria") >=0){
+		layer.alert("请先处理手动处理sql语句中未明确的表格连接！");
+		return;
+	} 
 	if (sql.indexOf("#where") >=0){
 		layer.alert("请先处理手动处理sql语句中的where条件！");
 		return;
@@ -561,6 +611,10 @@ function testDataSql(){
 	var sql =$("#dataSql_input").val()+"";
 	if (sql==""){
 		layer.alert("sql语句没有不能为空！");
+		return;
+	} 
+	if (sql.indexOf("#criteria") >=0){
+		layer.alert("请先处理手动处理sql语句中未明确的表格连接！");
 		return;
 	} 
 	if (sql.indexOf("#filter") >=0)
@@ -594,7 +648,7 @@ function testDataSql(){
  * 测试导出
  */
 function testExport(){
-	var url=_basePath + "/poiAutoExport/testExportExcel?id="+$("#part_id").val()+"&excel_id="+$("#excel_id").val();
+	var url=_basePath + "/poiAutoExport/testExportPart?id="+$("#part_id").val()+"&excel_id="+$("#excel_id").val();
 	window.location.href =url;
 }
 
