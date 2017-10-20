@@ -1,4 +1,4 @@
-var page = { page: 1,limit: 12 };
+var page = { page: 1,limit: 13 };
 var tableCodeTemp="";
 $(function() {
 	$("#toTest").click(function(){
@@ -53,10 +53,10 @@ function reloadRecord(){
 		var data = res.data;
 		if(data != null && data.length > 0){
 			 var strs = "";
-			 var row=1;
+			 var row=0;
 			 var type="";
 			 $.each(data,function(i,item){
-				 	row=1;
+				 	row=0;
 				 	type="";
 				 	if (item.part_id != null) 
 				 		row ++;
@@ -73,29 +73,22 @@ function reloadRecord(){
 								data[j].desc="";
 							}
 					}
-				 strs += "<tr >"
+				 strs += "<tr onclick='rowClick(" + item.id + ");'>"
+				 	 + "<td style='text-align: center;'><input class='checkboxes' name='rowRadio' type='radio' value='t1_" + item.id + "' /></td>"
 					 + "<td rowspan='"+row+"' "+type+"  style='vertical-align: middle;' >" + item.type + "</td><td rowspan='"+row+"' "+type+" style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
 					 + "<td rowspan='"+row+"' "+type+" style='vertical-align: middle;text-align: center;' >" + formatNull(item.create_time) + "</td>"
-					 +"<td rowspan='"+row+"' "+type+" style='vertical-align: middle;' ><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editExcel('"+ item.id +"');\"><i class='icon-pencil'></i></button>  "
-					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvExcel?id=" + item.id + "\");'><i class='icon-trash'></i></button></td>";
+					 +"<td rowspan='"+row+"' "+type+" style='vertical-align: middle;text-align: center;' ><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editExcel('"+ item.id +"');\"><i class='icon-pencil'></i></button>  "
+					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='revRecord(\"" + _basePath + "/poiAutoExport/rmvExcel?id=" + item.id + "\");'><i class='icon-trash'></i></button> " 
+					 +"<button style='padding: 1px 12px;' class='btn btn-primary'  onclick='exportExcel(" + item.id + ");'><i class='icon-download'></i></button> " 
+					 +"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>"
+					 +"<td  style='text-align: center;'>" + formatNull(item.part_name) + "</td>"
+				 	 + "<td  style='text-align: center;'>" + formatNull(item.part_create_time) + "</td><td style='text-align: center;'>";
 					 if(item.part_id !=null){
-						 strs+="<td  style='text-align: center;'>" + formatNull(item.part_name) + "</td>"
-							 + "<td style='text-align: center;'>"
-							 + 		"<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
-							 + 		"  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
-							 + 			" onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button></td></tr>";
-						 
-						 if ((i<data.length -1 && item.type!=data[i+1].type && data[i+1].type != "") || i==data.length-1) {
-							 strs += "<tr><td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
-									 +"<td style='text-align: center;' colspan ='2'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
-									 +"<td hidden></td></tr>";
-						 }
+						 strs+="<button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPartAndCell('"+ item.part_id +"');\"><i class='icon-pencil'></i></button>  " 
+							 + "  <button id='rvBtn_" + item.id + "' style='padding: 1px 12px;' class='btn btn-danger ladda-button' data-style='zoom-in'"
+							 + " onclick='revPart(\"" + _basePath + "/poiAutoExport/rmvPart?id=" + item.part_id + "\");'><i class='icon-trash'></i></button>";
 					 }
-					 if (item.part_id == null) {
-						strs+="<td hidden></td><td hidden></td><td hidden></td><td hidden></td><td hidden></td>" 
-							 +"<td style='text-align: center;' colspan ='2'><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editPart('"+ item.id +"');\"><i class='icon-plus'></i></button></td>" 
-							 +"<td hidden></td></tr>";
-					 }
+				strs+="</td></tr>";
 			 });
 			 $("#rowBody").append(strs);
 		 }
@@ -141,4 +134,9 @@ function revPart(url){
 function toTest(){
 	var url=_basePath + "/poiAutoExport/toTest";
 	top.addTab("toTest","测试合并",url);
+}
+
+function exportExcel(id){
+	var url=_basePath + "/poiAutoExport/testExportExcel?id="+id;
+	window.location.href =url;
 }

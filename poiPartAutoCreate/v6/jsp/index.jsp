@@ -18,7 +18,7 @@
                	  	<input id="excelCode_input"  type="text" placeholder="输入编码进行搜索……" style="width: 145px;">
                	  	<input id="excelname_input"  type="text" placeholder="输入表名进行搜索……" style="width: 145px;">
                	  	<button id="findBut" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-search"></i>&nbsp;<span style="font-size: 12px;">查询</span></button>
-               	  	<button id="addExcel" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">新增</span></button>
+               	  	<button id="addExcel" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;">新增Excel</span></button>
                	  	<button id="toTest" type="button" style="margin-bottom: 10px;" class="btn btn-warning"><i class="icon-plus"></i>&nbsp;<span style="font-size: 12px;" onclick="toTest();">跳转测试</span></button>
                	  </div>
             </div>
@@ -26,12 +26,14 @@
 	                <table class="table table-striped table-bordered table-hover">
 		                  <thead>
 		                      <tr>
+		                      	  <th style="width: 12px; vertical-align: middle;"></th>
 		                          <th  style="width: 17%" >excel编码</th>
 		                          <th style="width: 17%">数据库表名称</th>
-		                          <th style="width: 17%; text-align: center;">创建时间</th>
-		                          <th style="width: 80px; text-align: center;">操作excel</th>
-		                          <th style="width: 13%;text-align: center;">模板</th>
-		                          <th style="width: 120px; text-align: center;">操作模板</th>
+		                          <th style="width: 13%; text-align: center;">Excel创建时间</th>
+		                          <th style="text-align: center;">操作excel</th>
+		                          <th style="width: 13%;text-align: center;">模板名称</th>
+		                          <th style="width: 10%;text-align: center;">模板创建时间</th>
+		                          <th style="width: 10%; text-align: center;">操作模板</th>
 		                      </tr>
 		                 </thead>
 		                 <tbody id="rowBody"></tbody>

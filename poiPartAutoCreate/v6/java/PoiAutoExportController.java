@@ -29,16 +29,6 @@ import com.yawa.util.model.ResponseData;
  */
 public class PoiAutoExportController extends Controller{
     
-	  /**
-     * 跳转测试
-     * @Description:
-     */
-    public void toTest(){
-        render("toTest.jsp");
-    }
-    
-    
-    
     /**
      * 跳转首页
      * @Description:
@@ -137,6 +127,41 @@ public class PoiAutoExportController extends Controller{
             renderJson(new ResponseData(false, "保存发生异常，异常操作如下: " + e.getMessage()));
         }
     }
+    
+    /**
+     * 测试导出Excel
+     * @param partId
+     * @return
+     * @throws Exception 
+     * @Description:
+     */
+	public void testExportExcel()  {
+		Excel excel = Excel.me.findById(getParaToInt("id"));
+		try {
+			String fileName = java.net.URLEncoder.encode(DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")+"测试导出Excel.xls", "utf-8");
+			getResponse().reset();
+			getResponse().setHeader("Content-disposition","attachment; filename=" + fileName);
+			getResponse().setContentType("application/msexcel;charset=UTF-8");
+			OutputStream os = null;
+			try {
+				os = getResponse().getOutputStream();
+				PoiMergeExporter.getInstance().version("2003").cellWidth(2200).testExportExcel(excel.getStr("busiType"), " ", " ").write(os);
+			} catch (Exception e) {
+				throw new RenderException(e);
+			} finally {
+				try {
+					if (os != null) {
+						os.flush();
+						os.close();
+					}
+				} catch (IOException e) {}
+			}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	renderNull();
+	}
+    
     
     /**
      * 删除选定part
@@ -277,7 +302,7 @@ public class PoiAutoExportController extends Controller{
     
     
     /**
-     * 测试表格生成
+     * 测试导出part模板
      * @param partId
      * @return
      * @throws Exception 
@@ -285,14 +310,14 @@ public class PoiAutoExportController extends Controller{
      */
 	public void testExportPart()  {
 		try {
-			String fileName = java.net.URLEncoder.encode(DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")+"测试导出.xls", "utf-8");
+			String fileName = java.net.URLEncoder.encode(DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")+"测试导出Part.xls", "utf-8");
 			getResponse().reset();
 			getResponse().setHeader("Content-disposition","attachment; filename=" + fileName);
 			getResponse().setContentType("application/msexcel;charset=UTF-8");
 			OutputStream os = null;
 			try {
 				os = getResponse().getOutputStream();
-				PoiMergeExporter.getInstance().version("2003").cellWidth(2200).exportPart(getParaToInt("id")).write(os);
+				PoiMergeExporter.getInstance().version("2003").cellWidth(2200).testExportPart(getParaToInt("id")).write(os);
 			} catch (Exception e) {
 				throw new RenderException(e);
 			} finally {

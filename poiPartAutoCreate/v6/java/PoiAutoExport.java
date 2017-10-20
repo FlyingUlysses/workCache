@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+
 import com.alibaba.fastjson.JSONObject;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Model;
@@ -20,8 +21,6 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
     
     public static final String TABLE_SCHEMA="ngms";
 
-    
-    
     public Page<Record> getPages(Integer page, Integer limit, String table_name, String table_code) {
         String filter="";
         if (StringUtils.isNotBlank(table_name)) {

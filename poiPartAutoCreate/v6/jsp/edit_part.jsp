@@ -96,7 +96,7 @@
 											    </c:otherwise>
 										    </c:choose>
 												    <button id="testExport" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="testExport();">
-												    	 <i class="icon-save"></i>&nbsp;
+												    	 <i class="icon-download"></i>&nbsp;
 											    		<span class="ladda-label" style="font-size: 12px;">测试导出</span>
 											    	</button>
 											    </div>
