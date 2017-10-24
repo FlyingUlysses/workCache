@@ -31,7 +31,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
             filter+=" and TABLE_NAME like '%"+table_code+"%' ";
         }
         Long count = Db.queryLong("select count(1) from information_schema.tables where table_schema=? "+filter,TABLE_SCHEMA);
-        String sql="select TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time from information_schema.tables where table_schema=? "+filter+" limit ?,?";
+        String sql="select TABLE_NAME code,TABLE_COMMENT name,CREATE_TIME from information_schema.tables where table_schema=? "+filter+" limit ?,?";
         return new Page<Record>(page, limit, count, Db.find(sql,TABLE_SCHEMA,(page - 1) * limit,limit));
     }
 
@@ -97,21 +97,32 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
     	List<String> reNames = new ArrayList<String>();
         ExcelPart part = ExcelPart.me.findById(partId);
         String tablesStr = part.getStr("data_tables");
-        String[] table = tablesStr.split(",");
-        for (String str : table) {
-        	if (str.contains("#")) {
-        		str = str.trim();
-				tableNames.add(str.trim().substring(0,str.indexOf('#')));
-				reNames.add(str.trim().substring(str.indexOf('#')+1));
+        if(tablesStr != null ){
+	        String[] table = tablesStr.split(",");
+	        for (String tableStr : table) {
+	        	if (tableStr.contains("#")) {
+	        		String[] strs = tableStr.split("#");
+	        			tableNames.add(strs[0]);
+	        			reNames.add(strs[1]);
+				}
 			}
-		}
-        LinkedHashMap<String, Object> tables = getDataColumns(tableNames,reNames);
-        map.put("tables", tables);
+	        LinkedHashMap<String, Object> tables = getDataColumns(tableNames,reNames);
+	        map.put("tables", tables);
+	        map.put("tables_str",part.getStr("data_tables"));
+        }
         
         List<Record> cellList = Db.find("SELECT * FROM excel_cells t where t.template =? order by t.startRow,t.startColumn ",part.getInt("template"));
         int maxColumn =0;
         int maxRow = 0;
         for (Record cell : cellList) {
+        	String native_strs = cell.getStr("native_name");
+        	if (StringUtils.isNotBlank(native_strs)) {
+        		String[] strs = native_strs.split("#");
+        		if (strs.length>0) {
+        			cell.set("native_column", strs[0]);
+        			cell.set("table", strs[1]);
+				}
+			}
         	if (cell.getStr("isMerge") =="Y") {
         		if (cell.getInt("endColumn")>maxColumn) 
         			maxColumn = cell.getInt("endColumn");
@@ -139,11 +150,17 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
 	public LinkedHashMap<String, Object> getDataColumns(List<String> tableNames,List<String> reNames) {
 		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
 			for (int i = 0; i <tableNames.size(); i++) {
-					List<Record> tableTemp = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableNames.get(i));
+				List<Record> tableTemp = Db.find("SELECT COLUMN_NAME ,COLUMN_COMMENT remarks FROM information_schema.COLUMNS t WHERE table_schema=? AND table_name =?  ",TABLE_SCHEMA,tableNames.get(i));
+				if (tableTemp.size()>0) {
 					for (Record column : tableTemp) {
 						column.set("re_table",reNames.get(i));
 					}
-					map.put(tableNames.get(i), tableTemp);
+					String subName = tableNames.get(i);
+					if (subName.length() >18) 
+						subName = subName.substring(0,16)+"...";
+					map.put(reNames.get(i)+"  "+subName, tableTemp);
+				}	
+					
 			}
 		return map;
 	}

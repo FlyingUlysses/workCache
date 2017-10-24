@@ -48,13 +48,15 @@ function editShettTable(){
 	showModel({
 		title : "sheet表格编辑",
 		width : "1000px",
-		height : "510px",
-		url : _basePath + "/poiAutoExport/editSheetTable" 
+		height : "530px",
+		url : _basePath + "/poiAutoExport/editSheetTable?id="+ $("#part_id").val()
 	});
 }
 
 //sheet表格编辑页调用保存sheetsql
-function saveSheetTables(sql){
+var sheetTables_str="";
+function saveSheetTables(sql,tables){
+	sheetTables_str=tables;
 	$("#sheetSql_input").empty();
 	$("#sheetSql_input").val(sql);
 }
@@ -64,15 +66,25 @@ function choseDataTable(){
 	showModel({
 		title : "Data表格编辑",
 		width : "1000px",
-		height : "510px",
-		url : _basePath + "/poiAutoExport/editDataTable" 
+		height : "530px",
+		url : _basePath + "/poiAutoExport/editDataTable?id="+$("#part_id").val()
 	});
 }
 
 var columnsMap =null;
+var tablesStr="";
 //sheet表格编辑页调用保存sheetsql
 function saveDataTables(sql,map){
+	tablesStr="";
 	columnsMap=map;
+	var data_tables=map["tables"];
+	$.each(data_tables,function(i,item){
+		if (item.link && item.link != undefined && item.link != "") 
+			tablesStr+=item.table_name+"#"+item.re_name+"#"+item.link+",";
+		else
+			tablesStr+=item.table_name+"#"+item.re_name+",";
+	});
+	delete map["tables"];
 	$("#dataSql_input").empty();
 	DATA_SQL_TEMPLATE =sql;
 	$("#dataSql_input").val(sql);
@@ -140,7 +152,15 @@ function loadReName(){
 			$.each(item,function(j,temp){
 				if ($("#data_column").val() == temp.column_name) {
 					$("#editColumn").val(temp.re_table+"."+temp.column_name);
-					$("#data_reColumn").val(temp.column_name);
+					var i=1;
+					var column_name_temp =temp.column_name;
+					$("td").each(function(){
+						var reColumnTemp = $(this).attr("rename")+"";
+						if (reColumnTemp && reColumnTemp != undefined && reColumnTemp != "" && reColumnTemp ==column_name_temp ) {
+							column_name_temp=temp.column_name+(i++);
+						}
+					});
+					$("#data_reColumn").val(column_name_temp);
 					$("#cell_reColumn").val(temp.remarks);
 				}
 			});
@@ -152,8 +172,8 @@ function saveCellContent(){
 	$("td[chose='Y']").attr("tableName",$("#data_table").val());
 	$("td[chose='Y']").attr("hasEdit",'Y');
 	$("td[chose='Y']").attr("column",$("#editColumn").val());
-	$("td[chose='Y']").attr("reName",$("#data_reColumn").val());
 	$("td[chose='Y']").html($("#cell_reColumn").val());
+	$("td[chose='Y']").attr("reName",$("#data_reColumn").val());
 	saveCellToSql();
 }
 
@@ -169,7 +189,6 @@ function choseTd(e){
 		$("#data_column").empty();
 		$("#data_reColumn").val("");
 		$("#cell_reColumn").val("");
-		
 		
 		$("#data_reColumn").val($(e).attr("rename"));
 		$("#cell_reColumn").val($(e).html());
@@ -400,12 +419,14 @@ function savePartAndCells(){
 			var	cellName=td.text();
 			if(cellName && cellName != undefined && cellName !=""){
 					var	 property=td.attr("rename");
+					var  native_name=td.attr("column")+"#"+td.attr("tablename");
 					var	 startRow=$(this).parent().index()-1;
 					var	 endRow=$(this).parent().index()-1+parseInt(td.attr("rowspan"), 10)-1;
 					var  startColumn=$(this).index()-1;
 					var  endColumn =$(this).index()-1+parseInt(td.attr("colspan"), 10)-1;
 					var cell={
 							cellName:cellName,
+							native_name:native_name,
 							property:property,
 							startRow:startRow,
 							endRow:endRow,
@@ -421,6 +442,8 @@ function savePartAndCells(){
 	
 	var result={
 			sheet_cat:sheetCat,
+			tablesStr:tablesStr,
+			sheetTablesStr:sheetTables_str,
 			excel_id:$("#excel_id").val(),
 			part_id:$("#part_id").val(),
 			template_id:$("#template_id").val(),
@@ -476,7 +499,10 @@ function loadEditData(){
 		$.post(url,page,function(res,status ){
 			//生成表头样式
 			var cellList=res.cellList;
-			columnsMap=res.tables;
+			if(res.tables && res.tables!=undefined && res.tables != ""){
+				columnsMap=res.tables;
+				tablesStr=res.tables_str;
+			}
 			//加载cell
 			$("#cells_table_body").empty();
 				row_num =cellList[cellList.length-1].maxrow+1;
@@ -515,7 +541,7 @@ function loadEditData(){
 							ColumnNum_temp++;
 							if (item.ismerge == "Y") {
 								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' " 
-								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+formatNull(item.property)+"' >"+formatNull(item.cellname)+"</td>";
+								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+formatNull(item.property)+"' column='"+formatNull(item.native_column)+"' tablename='"+formatNull(item.table)+"' >"+formatNull(item.cellname)+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
@@ -530,7 +556,7 @@ function loadEditData(){
 								}
 							}else if (item.ismerge == "N") {
 								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' " 
-								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+formatNull(item.property)+"' >"+formatNull(item.cellname)+"</td>";
+								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+formatNull(item.property)+"' column='"+formatNull(item.native_column)+"' tablename='"+formatNull(item.table)+"' >"+formatNull(item.cellname)+"</td>";
 								
 								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
 									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].startcolumn-1 ); tmepInt++) {

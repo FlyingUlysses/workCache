@@ -1,4 +1,4 @@
-var page = { page: 1,limit: 9 };
+var page = { page: 1,limit: 8 };
 var DATA_SQL_TEMPLATE=" select #columns " +
 		" \n from #baseTable" +
 		"  #joinTable " +
@@ -45,7 +45,7 @@ function loadDataPages(){
 			 $.each(data,function(i,item){
 				 strs += "<tr onclick='dataPagesClick(" + num + ");'>"
 					 + "<td style='text-align: center;'><input class='checkboxes' name='data_rowRadio' type='radio' value='t5_" + num + "' /></td>"
-					 + "<td style='vertical-align: middle;' >" + item.code + "</td><td style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
+					 + "<td style='vertical-align: middle;' >" + item.code + "</td>"
 					 + "<td style='text-align: center;'>"
 					 + 	"<button  class='btn btn-primary' onclick=\"choseJoinTable('"+ item.code +"');\"><i class='icon-plus'></i>从</button>  "
 					 +"<button  class='btn btn-primary' onclick=\"choseBaseTable('"+ item.code +"');\"><i class='icon-pencil'></i>主</button></td></tr>";
@@ -60,6 +60,19 @@ function dataPagesClick(num){
 }
 
 function choseBaseTable(code){
+	if ($("input[name='joinTable_link']").length !=undefined && $("input[name='joinTable_link']").length>0) {
+		layer.confirm('设置主表将清除已经添加了的附属表格信息，是否确认设置',{
+			btn:['确认','取消']
+		},function(){
+			addBase(code);
+		});
+	}else{
+		addBase(code);
+	}
+}
+
+//添加主表
+function addBase(code){
 	var url = _basePath + "/poiAutoExport/choseBaseTable";
 	page.baseTable=code;
 	table_name =code;
@@ -78,43 +91,39 @@ function choseBaseTable(code){
 			});
 		}
 	});
+	layer.closeAll('dialog');
 }
 
+//添加附属关系表
 function choseJoinTable(code){
-	if (table_name == "") {
-		layer.alert("请先选定当前主表！");
-		return;
-	}
-	if (code == table_name) {
-		layer.alert("添加失败，所选表格为主表！");
-		return;
-	}
-	if (joinTableColumn == 0) {
-		$("#joinTable_div").empty();
-	}
-	var flag=true;
-	$("input[name='joinTable_name']").each(function(){
-		if ($(this).val() == code) {
-			layer.alert("附表已存在，请勿重复添加！");
-			flag =false;
-		}
-	});
-	if(flag){
 		var strs ="";
-		joinTableColumn++;
-		strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+code+"' style='width: 110px;' readonly='readonly' ></div>"
-		+" <div style='display: inline;'><span>别名:</span><input name='joinTable_reName' value='t"+ joinTableColumn +"' style='width: 80px;'></div>";
-		$.each(joinTables,function(i,item){
-			if (item.table_name == code) {
-				strs+=" <div style='display: inline;' ><span>连接条件:</span><input name='joinTable_link' value='t."+item.column_name+"=t"+joinTableColumn+"."+item.re_column+"' style='width: 110px;'></div></div>";
-				flag = false;
-			}
-		});
-		if(flag)
-			strs+=" <div style='display: inline;' ><span>连接条件:</span><input value='' style='width: 110px;' name='joinTable_link'></div></div>";
+		var num = $("input[name='joinTable_link']").length+1;
+		strs+="<div name='join_table_columns' style='margin-top: 3px;'><div style='display: inline-block;'><span>别名:</span><input value='t"+formatNull(num)+"' name='joinTable_reName' placeholder='请输入别名..' style='width: 60px;'></div>"
+			+ "<div style='display: inline-block;margin-left:3px;'><span>表名:</span><input value='"+formatNull(code)+"' placeholder='请输入表名..' name='joinTable_name' style='width: 185px;' ></div>";
+		if (joinTables && joinTables.length>0) {
+			$.each(joinTables,function(i,item){
+				if (item.table_name == code) {
+					strs+=" <div style='display: inline-block;margin-left:3px;' ><span>连接条件:</span><input name='joinTable_link' value='t."+item.column_name+"=t"+num+"."+item.re_column+"' style='width: 185px;'></div>";
+				}
+			});
+		}
+		if (!(strs.indexOf("name='joinTable_link'") >= 0)) {
+			strs+=" <div style='display: inline-block;margin-left:3px;' ><span>连接条件:</span><input name='joinTable_link' value='' placeholder='请输入连接条件..'  style='width: 185px;'></div>";
+		}
+		strs+="<div style='display: inline-block;margin-left:6px;' ><button  type='button' onclick='rmvLink(this);'><i class='icon-minus'></i></button></div></div>";
 		$("#joinTable_div").append(strs);
-	}
 }
+
+//删除指定附属关系表
+function rmvLink(e){
+	layer.confirm('是否删除该附属表格?',{
+		btn:["删除","取消"]
+	},function(){
+		$(e).parent().parent().remove();
+		layer.closeAll('dialog');
+	});
+}
+
 
 function save(){
 	var flag=false;
@@ -128,7 +137,7 @@ function save(){
 		return;
 	}
 	if($("#baseTable_name").val()==""){
-		layer.alert("清先选择主表！");
+		layer.alert("清先编辑主表！");
 		return;
 	}
 	var index = parent.layer.getFrameIndex(window.name);
@@ -136,19 +145,20 @@ function save(){
 	var joinTables_str="";
 	var joinTables_reName="";
 	$("input[name='joinTable_name']").each(function(){
-		joinTables_str+=$(this).val()+",";
+		joinTables_str+=$(this).val()+"#";
 	});
 	$("input[name='joinTable_reName']").each(function(){
-		joinTables_reName+=$(this).val()+",";
+		joinTables_reName+=$(this).val()+"#";
 	});
 	var req ={
-			baseTable:table_name+"",
+			baseTable:$("#baseTable_name").val()+"",
 			joinTables:joinTables_str,
 			joinReName:joinTables_reName,
 			baseReName:$("#baseTable_reName").val()+""
 	};
 	$.post(url,req,function(res,status){
 		var joinTable_array=createSql();
+		res["tables"]=joinTable_array;
 		parent.saveDataTables(DATA_SQL_TEMPLATE,res);
 		parent.layer.close(index);
 	});
@@ -156,11 +166,12 @@ function save(){
 
 
 function createSql(){
-	var joinTable_array =[];
-	var base_table ={
-			table_name:$("#baseTable_name").val(),
-			re_name:$("#baseTable_reName").val()
-		};
+		var tables =[];
+		var base_table ={
+				table_name:$("#baseTable_name").val(),
+				re_name:$("#baseTable_reName").val()
+			};
+		tables.push(base_table);
 		DATA_SQL_TEMPLATE=DATA_SQL_TEMPLATE.replace("#baseTable",base_table.table_name+" "+base_table.re_name+" #noLinkJoinTable" );
 		var jointable_str="";
 		var noLinkJoinTable_str="";
@@ -180,19 +191,32 @@ function createSql(){
 				joinTable.table_name=$(this).val();
 			});
 			$(this).find("input[name='joinTable_reName']").each(function(){
-				joinTable.re_table=$(this).val();
+				joinTable.re_name=$(this).val();
 			});
 			$(this).find("input[name='joinTable_link']").each(function(){
 				joinTable.link=$(this).val();
 			});
 			if (joinTable.link && joinTable.link != undefined && joinTable.link != "") 
-				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_table+" on "+joinTable.link+" ";
+				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_name+" on "+joinTable.link+" ";
 			else
-				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_table+" on #criteria ";
-			joinTable_array.push(joinTable);
+				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_name+" on #criteria ";
+			tables.push(joinTable);
 		});
 		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#noLinkJoinTable", noLinkJoinTable_str);
 		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#joinTable",jointable_str);
-		return joinTable_array;
+		return tables;
 }
 
+
+//null值处理
+function formatNull(str, rep, format) {
+	if (format == undefined)
+		format = "";
+	if (str == null || str == undefined) {
+		if (rep == null || rep == undefined || rep == "")
+			return "";
+		else
+			return rep;
+	}
+	return str + format;
+}

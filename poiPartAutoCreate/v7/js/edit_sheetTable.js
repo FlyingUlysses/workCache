@@ -80,39 +80,25 @@ function choseBaseTable(code){
 }
 
 function choseJoinTable(code){
-	if (sheetTableCode == "") {
-		layer.alert("请先选定当前主表！");
-		return;
-	}
-	if (code == sheetTableCode) {
-		layer.alert("添加失败，所选表格为主表！");
-		return;
-	}
+	joinTableColumn = $("div[name='join_table_columns']").length;
 	if (joinTableColumn == 0) {
 		$("#joinTable_div").empty();
 	}
 	var flag=true;
-	$("input[name='joinTable_name']").each(function(){
-		if ($(this).val() == code) {
-			layer.alert("附表已存在，请勿重复添加！");
-			flag =false;
+	var strs ="";
+	joinTableColumn++;
+	strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+formatNull(code)+"' style='width: 110px;'  ></div>"
+	+" <div style='display: inline;margin-left:3px;'><span>别名:</span><input name='joinTable_reName' value='t"+ joinTableColumn +"' style='width: 80px;'></div>";
+	$.each(joinTables,function(i,item){
+		if (item.table_name == code) {
+			strs+=" <div style='display: inline;' ><span>连接条件:</span><input name='joinTable_link' value='t."+formatNull(item.column_name)+"=t"+joinTableColumn+"."+formatNull(item.re_column)+"' style='width: 110px;'></div>";
+			flag = false;
 		}
 	});
-	if(flag){
-		var strs ="";
-		joinTableColumn++;
-		strs +=" <div class='input-wrap' name='join_table_columns'><div style='display: inline;margin-left: 20px;'><span>表名:</span><input name='joinTable_name' value='"+code+"' style='width: 110px;' readonly='readonly' ></div>"
-		+" <div style='display: inline;'><span>别名:</span><input name='joinTable_reName' value='t"+ joinTableColumn +"' style='width: 80px;'></div>";
-		$.each(joinTables,function(i,item){
-			if (item.table_name == code) {
-				strs+=" <div style='display: inline;' ><span>连接条件:</span><input name='joinTable_link' value='t."+item.column_name+"=t"+joinTableColumn+"."+item.re_column+"' style='width: 110px;'></div></div>";
-				flag = false;
-			}
-		});
-		if(flag)
-			strs+=" <div style='display: inline;' ><span>连接条件:</span><input value='' style='width: 110px;' name='joinTable_link'></div></div>";
-		$("#joinTable_div").append(strs);
-	}
+	if(flag)
+		strs+=" <div style='display: inline;' ><span>连接条件:</span><input value='' style='width: 110px;' name='joinTable_link'></div>";
+	strs+="<div style='display: inline-block;margin-left:6px;' ><button  type='button' onclick='rmvLink(this);'><i class='icon-minus'></i></button></div></div>";
+	$("#joinTable_div").append(strs);
 }
 
 //保存表格映射关系
@@ -212,7 +198,11 @@ function save(){
 	var res=validate();
 	var index = parent.layer.getFrameIndex(window.name);
 	if(res.flag){
-		parent.saveSheetTables(sql);
+		var tables_str=$("#baseTable_name").val()+"#"+$("#baseTable_reName").val()+",";
+		$("div[name='join_table_columns']").each(function(){
+			tables_str+=$(this).find("input[name='joinTable_name']").val()+"#"+$(this).find("input[name='joinTable_reName']").val()+"#"+$(this).find("input[name='joinTable_link']").val()+",";
+		});
+		parent.saveSheetTables(sql,tables_str);
 		parent.layer.close(index);
 	}else{
 		layer.alert(res.msg);
@@ -241,4 +231,28 @@ function validate(){
 		return res;
 	}
 	return res;
+}
+
+//删除指定附属关系表
+function rmvLink(e){
+	layer.confirm('是否删除该附属表格?',{
+		btn:["删除","取消"]
+	},function(){
+		$(e).parent().parent().remove();
+		layer.closeAll('dialog');
+	});
+	joinTableColumn--;
+}
+
+//null值处理
+function formatNull(str, rep, format) {
+	if (format == undefined)
+		format = "";
+	if (str == null || str == undefined) {
+		if (rep == null || rep == undefined || rep == "")
+			return "";
+		else
+			return rep;
+	}
+	return str + format;
 }

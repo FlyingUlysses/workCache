@@ -5,7 +5,7 @@
 </style>
 <body>
 	<div style="display: inline;">
-		 <div class="span5" id="sheet_baseTables_div"  style="width: 450px;">
+		 <div class="span5" id="sheet_baseTables_div"  style="width: 410px;">
 					<div class="widget green" >
 							<div class="widget-title" id ="role_title" >
 	                      				 <h4><i class="icon-align-left">选择表格</i></h4>
@@ -35,7 +35,7 @@
 	     </div>
 	     
 	     
-	       <div  style="float: right;width: 510px;margin-right: 10px">
+	       <div  style="float: right;width: 550px;margin-right: 10px">
 		      <div class="widget green"  >
 					 <div class="widget-body">
 					 	<div style="margin-bottom: 10px;">
@@ -43,32 +43,43 @@
 			  				  <div class="input-wrap">
 							  		<div style="display: inline;margin-left: 20px;">
 								  		<span>表名:</span>
-								  		<input id="baseTable_name" placeholder="请选择表格.." style="width: 120px;" >
+								  		<c:choose>
+									  		<c:when test="${list!=null}">
+										  		<input id="baseTable_name" value='${list.get(0).name}' placeholder="请选择表格.." style="width: 120px;" >
+									  		</c:when>
+									  		<c:otherwise>
+										  		<input id="baseTable_name" placeholder="请选择表格.." style="width: 120px;" >
+									  		</c:otherwise>
+								  		</c:choose>
 								  	</div>
 							  		<div style="display: inline;">
 								  		<span>别名:</span>
-								  		<input id="baseTable_reName" placeholder="请选择表格.." style="width: 120px;">
+								  		<c:choose>
+									  		<c:when test="${list!=null}">
+								  				<input id="baseTable_reName" value="${list.get(0).rename }" placeholder="请选择表格.." style="width: 120px;">
+									  		</c:when>
+									  		<c:otherwise>
+								  				<input id="baseTable_reName" value="t" placeholder="请选择表格.." style="width: 120px;">
+									  		</c:otherwise>
+									  	</c:choose>
 								  	</div>
 							 </div>
 						</div>
 						 附属表格：
 						 <div id="joinTable_div">
-								 <div class="input-wrap">
-								  		<div style="display: inline;margin-left: 20px;">
-									  		<span>表名:</span>
-									  		<input value="" placeholder="请选择表格.." style="width: 80px;" >
-									  	</div>
-								  		<div style="display: inline;">
-									  		<span>别名:</span>
-									  		<input value="" placeholder="请选择表格.." style="width: 80px;">
-									  	</div>
-									  	<div style="display: inline;">
-									  		<span>连接条件:</span>
-									  		<input value="" placeholder="请选择表格.." style="width: 120px;">
-									  	</div>
-								 </div>
-							</div>
-						 
+						 	<c:choose>
+							 		<c:when test="${list!=null}">
+							 			<c:forEach items="${list }" begin="1" var="item">
+							 				<div class="input-wrap" name="join_table_columns"><div style="display: inline;margin-left: 20px;"><span>表名:</span><input name="joinTable_name" value="${item.name }" style="width: 110px;"></div> <div style="display: inline;margin-left:3px;"><span>别名:</span><input name="joinTable_reName" value="${item.rename }" style="width: 80px;"></div> <div style="display: inline;"><span>连接条件:</span><input value="${item.link }" style="width: 110px;" name="joinTable_link"></div><div style="display: inline-block;margin-left:6px;"><button type="button" onclick="rmvLink(this);"><i class="icon-minus"></i></button></div></div>
+							 			</c:forEach>
+							 		</c:when>
+							 </c:choose>
+						 </div>
+						  <div  style="text-align: center;margin-top:3px;"  >
+							 	 <button  type="button" class="btn btn-success ladda-button" data-style="zoom-in" onclick="choseJoinTable();">
+			    		 			<i class="icon-plus"></i>
+			    				 </button>
+		    			</div>
 					</div>
 			      	<div  style="text-align: right; margin-top: 10px;"  >
 						 <button id="save" type="button" style="margin-right: 6px;margin-bottom: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveTable();">
@@ -79,7 +90,7 @@
 		</div>
 	     
 	     
-	     <div  style="float: right;width: 510px;margin-right: 10px">
+	     <div  style="float: right;width: 550px;margin-right: 10px">
 		      <div class="widget green"  >
 		      		 <div class="widget-body">
 					<table>

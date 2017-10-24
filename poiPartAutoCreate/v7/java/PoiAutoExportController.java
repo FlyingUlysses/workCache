@@ -5,7 +5,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import com.alibaba.fastjson.JSON;
@@ -215,6 +219,8 @@ public class PoiAutoExportController extends Controller{
         String sheetCat = getPara("sheet_cat");
         String sheetSql = getPara("sheet_sql");
         String dataSql = getPara("data_sql");
+        String tablesStr = getPara("tablesStr");
+        String sheetTablesStr = getPara("sheetTablesStr");
         JSONArray cellArray = JSON.parseArray(getPara("cells"));
         ExcelPart part = new ExcelPart();
             try {
@@ -230,6 +236,8 @@ public class PoiAutoExportController extends Controller{
                 .set("update_time", new Date())
                 .set("state", 1)
                 .set("isFixed", isFixed)
+                .set("data_tables", tablesStr)
+                .set("sheet_tables", sheetTablesStr)
                 .set("sort", partSort);
                 if (partId!=null && templateId!=null) {
                     part = ExcelPart.me.findById(partId);
@@ -242,7 +250,7 @@ public class PoiAutoExportController extends Controller{
                     .set("create_time", new Date());
                     part.save();
                }
-                String sql="INSERT INTO excel_cells (  `template`, `cellname`, `width`, `startRow`, `startColumn`, `isMerge`, `endRow`, `endColumn`,`property`) VALUES ";
+                String sql="INSERT INTO excel_cells (  `template`, `cellname`, `width`, `startRow`, `startColumn`, `isMerge`, `endRow`, `endColumn`,`property`,`native_name`) VALUES ";
                 for (int i = 0; i < cellArray.size(); i++) {
                     JSONObject cell =(JSONObject) cellArray.get(i);
                     String cellName = null;
@@ -252,6 +260,7 @@ public class PoiAutoExportController extends Controller{
                     Integer endRow = null;
                     Integer endColmun = null;
                     String property = null;
+                    String nativeName=null;
                     String isMerge="N";
                     try {cellName= cell.getString("cellName");} catch (Exception e) {}
                     try {startRow = cell.getInteger("startRow");} catch (Exception e) {}
@@ -259,10 +268,11 @@ public class PoiAutoExportController extends Controller{
                     try {endRow = cell.getInteger("endRow");} catch (Exception e) {}
                     try {endColmun = cell.getInteger("endColumn");} catch (Exception e) {}
                     try {property = cell.getString("property");} catch (Exception e) {}
+                    try {nativeName = cell.getString("native_name");} catch (Exception e) {}
                     if (startRow != endRow || startColmun != endColmun) {
                     	isMerge= "Y";
                     }
-                    sql+="("+templateId+",'"+cellName+"',"+width+","+startRow+","+startColmun+",'"+isMerge+"',"+endRow+","+endColmun+",'"+property+"')";
+                    sql+="("+templateId+",'"+cellName+"',"+width+","+startRow+","+startColmun+",'"+isMerge+"',"+endRow+","+endColmun+",'"+property+"','"+nativeName+"')";
                     if (i<cellArray.size()-1) {
                         sql+=",";
                     }
@@ -293,13 +303,45 @@ public class PoiAutoExportController extends Controller{
         renderJsp("edit_part.jsp");
     }
     
-    /*
+    /**
      * 获取编辑页面需要的数据
      */
     public void loadEditData(){
         renderJson(PoiAutoExport.me.loadEditData(getParaToInt("id"),getParaToInt("limit")));
     }
     
+    /**
+     * 跳转sheetSql编辑页
+     * @param partId
+     * @return
+     * @throws Exception 
+     * @Description:
+     */
+	public void editSheetTable(){
+		Integer id = getParaToInt("id");
+		if (id!=null) {
+			ExcelPart part = ExcelPart.me.findById(id);
+			String tablesStr = part.getStr("sheet_tables");
+			String sheet_sql = part.getStr("sheet_sql");
+			if (tablesStr !=null) {
+				String[] tables = tablesStr.split(",");
+				ArrayList<Record> list = new ArrayList<Record>();
+				for (String table : tables) {
+					if (table.length()>0) {
+						String[] str = table.split("#");
+						Record record = new Record();
+						record.set("name", str[0].trim());
+						record.set("reName", str[1].trim());
+						if (str.length>2) 
+							record.set("link", str[2].trim());
+						list.add(record);
+					}
+				}
+				setAttr("list", list);
+			}
+		}
+		render("edit_sheetTable.jsp");
+	}
     
     /**
      * 测试导出part模板
@@ -352,16 +394,6 @@ public class PoiAutoExportController extends Controller{
 		renderJson(new ResponseData(true,"测试成功！sql正常运行。"));
 	}
 	
-	/**
-     * 跳转sheetSql编辑页
-     * @param partId
-     * @return
-     * @throws Exception 
-     * @Description:
-     */
-	public void editSheetTable(){
-		render("edit_sheetTable.jsp");
-	}
 	
 	/**
      * 跳转dataSql编辑页
@@ -371,6 +403,27 @@ public class PoiAutoExportController extends Controller{
      * @Description:
      */
 	public void editDataTable(){
+		Integer id = getParaToInt("id");
+		if (id!=null) {
+			ExcelPart part = ExcelPart.me.findById(id);
+			String tablesStr = part.getStr("data_tables");
+			if (tablesStr !=null) {
+				String[] tables = tablesStr.split(",");
+				ArrayList<Record> list = new ArrayList<Record>();
+				for (String table : tables) {
+					if (table.length()>0) {
+						String[] str = table.split("#");
+						Record record = new Record();
+						record.set("name", str[0].trim());
+						record.set("reName", str[1].trim());
+						if (str.length>2) 
+							record.set("link", str[2].trim());
+						list.add(record);
+					}
+				}
+				setAttr("list", list);
+			}
+		}
 		render("edit_dataTable.jsp");
 	}
 	
@@ -398,9 +451,9 @@ public class PoiAutoExportController extends Controller{
 		String joinTables = getPara("joinTables");
 		String reNamestr = getPara("joinReName");
 		ArrayList<String> tables = new ArrayList<>();
-		tables.addAll(Arrays.asList(joinTables.split(",")));
+		tables.addAll(Arrays.asList(joinTables.split("#")));
 		ArrayList<String> reNames = new ArrayList<>();
-		reNames.addAll(Arrays.asList(reNamestr.split(",")));
+		reNames.addAll(Arrays.asList(reNamestr.split("#")));
 		tables.add(0, getPara("baseTable"));
 		reNames.add(0, getPara("baseReName"));
 		renderJson(PoiAutoExport.me.getDataColumns(tables,reNames));

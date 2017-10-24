@@ -125,9 +125,9 @@
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_col();"></i>&nbsp;<span style="font-size: 12px;">删除尾列</span></button>
 					               	  </div>
 					            </div>
-								<div class="widget-body">
-										<table id="cells_table" class="table table-bordered" style="">
-											<tbody id="cells_table_body"></tbody>
+								<div class="widget-body" style="overflow-y:auto;width:100%;padding:0!important; " >
+										<table id="cells_table" class="table table-bordered">
+											<tbody id="cells_table_body" ></tbody>
 						               </table>
 								</div>
 						  </div>
