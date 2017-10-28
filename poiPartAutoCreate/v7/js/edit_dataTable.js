@@ -157,9 +157,9 @@ function save(){
 			baseReName:$("#baseTable_reName").val()+""
 	};
 	$.post(url,req,function(res,status){
-		var joinTable_array=createSql();
-		res["tables"]=joinTable_array;
-		parent.saveDataTables(DATA_SQL_TEMPLATE,res);
+		var joinTable_array=createTablesArray();
+		setDataSqlTablesLink(joinTable_array);
+		parent.saveDataTables(joinTable_array,res);
 		parent.layer.close(index);
 	});
 }
@@ -175,7 +175,7 @@ function createTablesArray(){
 		table={
 			name:$(this).find("input[name='joinTable_name']").val(),	
 			re_name:$(this).find("input[name='joinTable_reName']").val(),	
-			name:$(this).find("input[name='joinTable_link']").val()	
+			link:$(this).find("input[name='joinTable_link']").val()	
 		};
 		tables.push(table);
 	});
@@ -191,8 +191,8 @@ function setDataSqlTablesLink(tables){
 				str += " " +item.name +" "+ item.re_name +" ";
 				data_sql=data_sql.replace("#baseTable", str);
 				str ="";
-			}
-			str +=" \n left join "+item.name +" "+item.re_name +" on "+item.link+" ";
+			}else
+				str +=" \n left join "+item.name +" "+item.re_name +" on "+item.link+" ";
 		});
 		data_sql=data_sql.replace("#joinTable",str);
 	}
