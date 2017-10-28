@@ -27,12 +27,12 @@
 		                  <thead>
 		                      <tr>
 		                      	  <th style="width: 12px; vertical-align: middle;"></th>
-		                          <th  style="width: 17%" >excel编码</th>
-		                          <th style="width: 17%">数据库表名称</th>
-		                          <th style="width: 13%; text-align: center;">Excel创建时间</th>
+		                          <th  style="width: 15%" >excel编码</th>
+		                          <th style="width: 15%">数据库表名称</th>
+		                          <th style="width: 15%; text-align: center;">Excel创建时间</th>
 		                          <th style="text-align: center;">操作excel</th>
-		                          <th style="width: 13%;text-align: center;">模板名称</th>
-		                          <th style="width: 10%;text-align: center;">模板创建时间</th>
+		                          <th style="width: 15%;text-align: center;">模板名称</th>
+		                          <th style="width: 15%;text-align: center;">模板创建时间</th>
 		                          <th style="width: 10%; text-align: center;">操作模板</th>
 		                      </tr>
 		                 </thead>

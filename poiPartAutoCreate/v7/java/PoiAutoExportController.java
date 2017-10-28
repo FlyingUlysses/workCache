@@ -5,11 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import com.alibaba.fastjson.JSON;
@@ -73,7 +69,7 @@ public class PoiAutoExportController extends Controller{
      * @Description:
      */
     public void getExcelPages(){
-        renderJson(Excel.me.getPages(getPara("excel_code"),getPara("excel_name"),getParaToInt("page"),getParaToInt("limit")));
+        renderJson(PoiAutoExport.me.getExcelPages(getPara("excel_code"),getPara("excel_name"),getParaToInt("page"),getParaToInt("limit")));
     }
     
     
@@ -322,7 +318,6 @@ public class PoiAutoExportController extends Controller{
 		if (id!=null) {
 			ExcelPart part = ExcelPart.me.findById(id);
 			String tablesStr = part.getStr("sheet_tables");
-			String sheet_sql = part.getStr("sheet_sql");
 			if (tablesStr !=null) {
 				String[] tables = tablesStr.split(",");
 				ArrayList<Record> list = new ArrayList<Record>();

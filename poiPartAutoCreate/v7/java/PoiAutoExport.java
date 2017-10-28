@@ -21,6 +21,19 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
     public static final PoiAutoExport me = new PoiAutoExport();
     
     public static final String TABLE_SCHEMA="ngms";
+    
+    public Page<Record> getExcelPages(String code, String name, Integer page, Integer limit) {
+        String filter ="";
+        if(StringUtils.isNotBlank(code))
+            filter+=" and t.busiType like '%"+code+"%' ";
+        if(StringUtils.isNotBlank(name))
+            filter+=" and t.name like '%"+name+"%' ";
+        Long count = Db.queryLong("select count(1) from excels t left join excel_parts t1 on t.id= t1.excel_id where t.state =1 and t1.state =1 "+filter);
+        String sql="select t.id, t.busiType type,t.name,t.create_time,t1.create_time part_create_time,t.desc,t1.id part_id,t1.name part_name from excels t "
+                   +" left join (select * from excel_parts where state =1) t1  on t.id= t1.excel_id "
+                   +" where t.state =1  "+filter+" order by t.create_time desc,t.id desc,t1.sort limit ?,?";
+        return new Page<Record>(page, limit, count, Db.find(sql,(page - 1) * limit,limit));
+    }
 
     public Page<Record> getPages(Integer page, Integer limit, String table_name, String table_code) {
         String filter="";
@@ -31,7 +44,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
             filter+=" and TABLE_NAME like '%"+table_code+"%' ";
         }
         Long count = Db.queryLong("select count(1) from information_schema.tables where table_schema=? "+filter,TABLE_SCHEMA);
-        String sql="select TABLE_NAME code,TABLE_COMMENT name,CREATE_TIME from information_schema.tables where table_schema=? "+filter+" limit ?,?";
+        String sql="select TABLE_NAME code,TABLE_COMMENT name,DATE_FORMAT(CREATE_TIME,'%Y-%m-%d')create_time from information_schema.tables where table_schema=? "+filter+" limit ?,?";
         return new Page<Record>(page, limit, count, Db.find(sql,TABLE_SCHEMA,(page - 1) * limit,limit));
     }
 
@@ -60,7 +73,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         return map;
     }
     
-    /*
+    /**
      * 根据主表表名获取相关分表数据
      */
     public List<Record> getSheetTable(String tableName) {
@@ -76,7 +89,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         return tables;
     }
     
-    /*
+    /**
      * 根据选择sheet主表查询sheet字段信息
      */
     public List<Record> getSheetColumns(String tableName) {
@@ -112,31 +125,9 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         }
         
         List<Record> cellList = Db.find("SELECT * FROM excel_cells t where t.template =? order by t.startRow,t.startColumn ",part.getInt("template"));
-        int maxColumn =0;
-        int maxRow = 0;
-        for (Record cell : cellList) {
-        	String native_strs = cell.getStr("native_name");
-        	if (StringUtils.isNotBlank(native_strs)) {
-        		String[] strs = native_strs.split("#");
-        		if (strs.length>0) {
-        			cell.set("native_column", strs[0]);
-        			cell.set("table", strs[1]);
-				}
-			}
-        	if (cell.getStr("isMerge") =="Y") {
-        		if (cell.getInt("endColumn")>maxColumn) 
-        			maxColumn = cell.getInt("endColumn");
-        		maxRow = cell.getInt("endRow");
-			}else{
-				if (cell.getInt("startColumn")>maxColumn) 
-					maxColumn = cell.getInt("startColumn");
-				maxRow = cell.getInt("startRow");
-			}
-		}
-        cellList.get(cellList.size()-1).set("maxColumn", maxColumn);
-        cellList.get(cellList.size()-1).set("maxRow", maxRow);
+        Record[][] cellTable = formartCelltoTable(cellList);
         
-        map.put("cellList", cellList);
+        map.put("cellList", cellTable);
         return map;
     }
 
@@ -146,7 +137,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
 		return joinTables;
 	}
 
-
+	
 	public LinkedHashMap<String, Object> getDataColumns(List<String> tableNames,List<String> reNames) {
 		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
 			for (int i = 0; i <tableNames.size(); i++) {
@@ -165,7 +156,67 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
 		return map;
 	}
     
-    
+	/**
+	 * 遍历cell数据拼装为一个cell二维数组返回
+	 * @param cellList
+	 * @return 
+	 */
+	public Record[][] formartCelltoTable(List<Record> cellList){
+		Integer rowNum =0;
+		Integer colNum =0;
+		for (Record cell : cellList) {
+        	String native_strs = cell.getStr("native_name");
+        	if (StringUtils.isNotBlank(native_strs)) {
+        		String[] strs = native_strs.split("#");
+        		if (strs.length>1) {
+        			cell.set("native_column", strs[0]);
+        			cell.set("table", strs[1]);
+				}
+			}
+        	if (cell.getStr("ismerge").equals("Y")) {
+        		if (cell.getInt("endColumn")>colNum) 
+        			colNum = cell.getInt("endColumn");
+        		rowNum = cell.getInt("endRow");
+			}else{
+				if (cell.getInt("startColumn")>colNum) 
+					colNum = cell.getInt("startColumn");
+				rowNum = cell.getInt("startRow");
+			}
+		}
+        colNum++;
+        rowNum++;
+		
+		Record[][] cellTable = new Record[rowNum][colNum];
+		setCell(cellList.get(0), cellTable);
+		
+		for (int i = 1; i < cellList.size(); i++) {
+			setCell(cellList.get(i),cellTable);
+		}
+		return cellTable;
+	}
+	
+	
+	/**
+	 * 赋值给cell
+	 * @param cell
+	 * @param cellList
+	 */
+	public void setCell(Record cell,Record[][] cellTable){
+		int row =cell.getInt("startrow");
+		int col =cell.getInt("startcolumn");
+		if(cellTable[row][col] == null)
+			cellTable[row][col]=cell;
+		if (cell.getStr("ismerge").equals("Y")) {
+			for (int i = 0; i <= cell.getInt("endrow") - row; i++) {
+				if (cellTable[row+i][col] == null) 
+					cellTable[row+i][col] = new Record();
+			}
+			for (int i = 0; i <= cell.getInt("endcolumn") - col; i++) {
+				if (cellTable[row][col + i] == null) 
+					cellTable[row][col+ i] = new Record();
+			}
+		}
+	}
     
     
 }

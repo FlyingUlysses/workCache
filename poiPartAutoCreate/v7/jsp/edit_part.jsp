@@ -168,7 +168,7 @@
 										 </tr>
 									</table>
 										 <div  style="text-align: right; margin-top: 10px;"  >
-											 <button id="save" type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveCellContent();">
+											 <button  type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveCellContent();">
 									    		 <i class="icon-save"></i>&nbsp;
 									    		<span class="ladda-label" style="font-size: 12px;">保存</span>
 									    	</button>

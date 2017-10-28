@@ -220,15 +220,17 @@ function choseTd(e){
 
 function saveCellToSql(){
 	var strs ="";
-	var tds=$("#cells_table td[hasEdit='Y']");
+	var tds=$("#cells_table td");
 	$.each(tds,function(i,item){
-		if ($(item).attr("column") && $(item).attr("column") != undefined && $(item).attr("column") !="") {
+		if ($(this).text() && $(this).text() != undefined && $(this).text() != "") {
+			if ($(item).attr("column") && $(item).attr("column") != undefined && $(item).attr("column") !="") {
 				if(i != tds.length-1){
 					strs+=" "+$(item).attr("column")+" "+$(item).attr("rename")+", ";
 					
 				}else{
 					strs+=" "+$(item).attr("column")+" "+$(item).attr("rename")+" ";
 				}
+			}
 		}
 	});
 	var sqlStr = DATA_SQL_TEMPLATE;
@@ -504,100 +506,40 @@ function loadEditData(){
 				tablesStr=res.tables_str;
 			}
 			//加载cell
-			$("#cells_table_body").empty();
-				row_num =cellList[cellList.length-1].maxrow+1;
-				col_num = cellList[cellList.length-1].maxcolumn+1;
-				var num_row =0;
-				var strs="<tr   style='height:23px;'>";
+			if (cellList && cellList.length>0) {
+				$("#cells_table_body").empty();
+				row_num =cellList.length;
+				col_num = cellList[0].length;
+				var strs ="";
+				strs="<tr   style='height:23px;'>";
 				for ( var j = 0; j <= col_num; j++) {
 					if(j==0)
 						strs+="<th style='text-align:center; width:25px;height:27px;' colspan='1' rowspan='1'></th>";
 					else
 						strs+="<th style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1'>x"+j+"</th>";
 				}
-				var rowRadio = 1;
 				strs+="</tr>";
-				strs+="<tr   style='height:23px;'><th width='25px'><input name='rowRadio' type='checkbox' value='"+(rowRadio++)+"'></th>";
-				var ColumnNum_temp=0;
 				$.each(cellList,function(i,item){
-					if (i>0 && cellList[i].startrow != cellList[i-1].startrow) {
-						if (cellList[i-1].endrow - cellList[i-1].startrow >0) {
-							for ( var tempInt = 0; tempInt < (cellList[i-1].endrow - cellList[i-1].startrow); tempInt++) {
-								strs += "<tr></tr>";
-								ColumnNum_temp=0;
+					strs+="<tr   style='height:23px;'><th width='25px'><input name='rowRadio' type='checkbox' value='"+(j++)+"'></th>";
+					$.each(item,function(j,temp){
+						if (temp && temp != undefined) {
+							if (temp.id && temp.id != undefined) {
+								if (temp.ismerge == 'Y') {
+									strs+="<td style='text-align:center; width:127px;height:27px;' colspan='"+(temp.endcolumn - temp.startcolumn+1)+"' rowspan='"+(temp.endrow - temp.startrow +1)+"' categery='cells_td' onclick='choseTd(this);' chose='N' tablename='"+ formatNull( temp.table)+"' column='"+ formatNull(temp.native_column)+"' rename='"+formatNull(temp.property)+"' >"+formatNull(temp.cellname)+"</td>";
+								}else{
+									strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' tablename='"+ formatNull( temp.table)+"' column='"+ formatNull(temp.native_column)+"' rename='"+formatNull(temp.property)+"'  >"+temp.cellname+"</td>";
+								}
 							}
+						}else{
+							strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
 						}
-						num_row=cellList[i].startrow;
-						strs+="<tr   style='height:23px;'><th width='25px'><input name='rowRadio' type='checkbox' value='"+(rowRadio++)+"'></th>";
-					}
-					for ( var j = 0; j < col_num; j++) {
-						if (item.startrow==num_row && item.startcolumn==j) {
-						
-							if (j>0 && ColumnNum_temp == 0 && cellList[i].startcolumn > 0) {
-								for ( var tmepInt = 0; tmepInt < (cellList[i].startcolumn - 0 ); tmepInt++) {
-									strs +="<td></td>";
-								}
-							}
-							ColumnNum_temp++;
-							if (item.ismerge == "Y") {
-								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' " 
-								+"colspan='"+((item.endcolumn - item.startcolumn)+1)+"' rowspan='"+(1+(item.endrow-item.startrow))+"' categery='cells_td' reName='"+formatNull(item.property)+"' column='"+formatNull(item.native_column)+"' tablename='"+formatNull(item.table)+"' >"+formatNull(item.cellname)+"</td>";
-								
-								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].endcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
-									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].endcolumn-1 ); tmepInt++) {
-										strs +="<td></td>";
-									}
-								}
-								
-								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i].startrow != cellList[i+1].startrow ) {
-									for ( var tmepInt = 0; tmepInt < (col_num-1 - cellList[i].endcolumn); tmepInt++) {
-										strs +="<td></td>";
-									}
-								}
-							}else if (item.ismerge == "N") {
-								strs+="<td style='text-align:center; width:180px;height:23px'  onclick='choseTd(this);' chose='N' " 
-								+"colspan='1' rowspan='1'  categery='cells_td' reName='"+formatNull(item.property)+"' column='"+formatNull(item.native_column)+"' tablename='"+formatNull(item.table)+"' >"+formatNull(item.cellname)+"</td>";
-								
-								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i+1].startcolumn != (cellList[i].startcolumn+1) && cellList[i].startrow == cellList[i+1].startrow ) {
-									for ( var tmepInt = 0; tmepInt < (cellList[i+1].startcolumn - cellList[i].startcolumn-1 ); tmepInt++) {
-										strs +="<td></td>";
-									}
-								}
-								
-								if (ColumnNum_temp > 0 && i< cellList.length-2 && cellList[i].startrow != cellList[i+1].startrow ) {
-									for ( var tmepInt = 0; tmepInt < (col_num-1 - cellList[i].startcolumn); tmepInt++) {
-										strs +="<td></td>";
-									}
-								}
-							}
-							
-						}
-					}
-					if (item.ismerge == "Y") {
-						if (item.endcolumn == col_num-1 || i == cellList.length-1) {
-							if (item.endcolumn < item.maxcolumn) {
-								for ( var intTemp = 0; intTemp < item.maxcolumn - item.endcolumn; intTemp++) {
-									strs +="<td></td>";
-								}
-							}
-							strs+="</tr>";
-							ColumnNum_temp=0;
-						}
-					}else {
-						if (item.startcolumn == col_num-1 || i == cellList.length-1) {
-							if (item.startcolumn < item.maxcolumn) {
-								for ( var intTemp = 0; intTemp < item.maxcolumn - item.startcolumn; intTemp++) {
-									strs +="<td></td>";
-								}
-							}
-							strs+="</tr>";
-							ColumnNum_temp=0;
-						}
-					}
+					});
+					strs+="</tr>";
 				});
+				$("#cells_table_body").append(strs);
+				$("#cells_table_div").show();
+			}
 			
-			$("#cells_table_body").append(strs);
-			$("#cells_table_div").show();
 			moveMergeCell();
 			col_num++;
 			row_num++;

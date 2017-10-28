@@ -15,8 +15,8 @@ function moveMergeCell () {
                vc = parseInt($(this).attr('colspan')) || 1;
                if (v > 1) {
                    for (var i = 1; i < v; i++) {
-                       var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex]);
-                       for (var j = 0; j < vc; j++) td.before('<td class="hide"></td>')
+                       var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex-1]);
+                       for (var j = 0; j < vc; j++) td.after('<td class="hide"></td>')
                    }
                }
            });

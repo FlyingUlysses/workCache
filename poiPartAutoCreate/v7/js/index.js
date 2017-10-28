@@ -73,8 +73,8 @@ function reloadRecord(){
 								data[j].desc="";
 							}
 					}
-				 strs += "<tr onclick='rowClick(" + item.id + ");'>"
-				 	 + "<td style='text-align: center;'><input class='checkboxes' name='rowRadio' type='radio' value='t1_" + item.id + "' /></td>"
+				 strs += "<tr onclick='rowClick(" + item.part_id + ");'>"
+				 	 + "<td style='text-align: center;'><input class='checkboxes' name='rowRadio' type='radio' value='t1_" + item.part_id + "' /></td>"
 					 + "<td rowspan='"+row+"' "+type+"  style='vertical-align: middle;' >" + item.type + "</td><td rowspan='"+row+"' "+type+" style='vertical-align: middle;'>" + formatNull(item.name) + "</td>"
 					 + "<td rowspan='"+row+"' "+type+" style='vertical-align: middle;text-align: center;' >" + formatNull(item.create_time) + "</td>"
 					 +"<td rowspan='"+row+"' "+type+" style='vertical-align: middle;text-align: center;' ><button style='padding: 1px 12px;' class='btn btn-primary' onclick=\"editExcel('"+ item.id +"');\"><i class='icon-pencil'></i></button>  "
@@ -95,8 +95,8 @@ function reloadRecord(){
 	});
 }
 
-function rowClick(id){
-	$("input[name='rowRadio'][value='t1_" + id + "']").attr("checked",'checked');
+function rowClick(part_id){
+	$("input[name='rowRadio'][value='t1_" + part_id + "']").attr("checked",'checked');
 	
 }
 
