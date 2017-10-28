@@ -164,49 +164,39 @@ function save(){
 	});
 }
 
-
-function createSql(){
-		var tables =[];
-		var base_table ={
-				table_name:$("#baseTable_name").val(),
-				re_name:$("#baseTable_reName").val()
-			};
-		tables.push(base_table);
-		DATA_SQL_TEMPLATE=DATA_SQL_TEMPLATE.replace("#baseTable",base_table.table_name+" "+base_table.re_name+" #noLinkJoinTable" );
-		var jointable_str="";
-		var noLinkJoinTable_str="";
-		var noLinkFlag =true;
-		$("div[name='join_table_columns']").each(function(){
-			$(this).find("input[name='joinTable_link']").each(function(){
-				if ($(this).val()==undefined || $(this).val() == null || $(this).val()=="") {
-					noLinkFlag =false;
-					return;
-				}
-			});
-		});
-		
-		$("div[name='join_table_columns']").each(function(){
-			var joinTable={};
-			$(this).find("input[name='joinTable_name']").each(function(){
-				joinTable.table_name=$(this).val();
-			});
-			$(this).find("input[name='joinTable_reName']").each(function(){
-				joinTable.re_name=$(this).val();
-			});
-			$(this).find("input[name='joinTable_link']").each(function(){
-				joinTable.link=$(this).val();
-			});
-			if (joinTable.link && joinTable.link != undefined && joinTable.link != "") 
-				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_name+" on "+joinTable.link+" ";
-			else
-				jointable_str += " \n left join "+joinTable.table_name+" "+joinTable.re_name+" on #criteria ";
-			tables.push(joinTable);
-		});
-		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#noLinkJoinTable", noLinkJoinTable_str);
-		DATA_SQL_TEMPLATE = DATA_SQL_TEMPLATE.replace("#joinTable",jointable_str);
-		return tables;
+function createTablesArray(){
+	var tables=[];
+	var table ={
+		name:$("#baseTable_name").val(),
+		re_name:$("#baseTable_reName").val()
+	};
+	tables.push(table);
+	$("div[name='join_table_columns']").each(function(){
+		table={
+			name:$(this).find("input[name='joinTable_name']").val(),	
+			re_name:$(this).find("input[name='joinTable_reName']").val(),	
+			name:$(this).find("input[name='joinTable_link']").val()	
+		};
+		tables.push(table);
+	});
+	return tables;
 }
 
+var data_sql = DATA_SQL_TEMPLATE;
+function setDataSqlTablesLink(tables){
+	if (tables && tables.length>0) {
+		var str ="";
+		$.each(tables,function(i,item){
+			if(i==0){
+				str += " " +item.name +" "+ item.re_name +" ";
+				data_sql=data_sql.replace("#baseTable", str);
+				str ="";
+			}
+			str +=" \n left join "+item.name +" "+item.re_name +" on "+item.link+" ";
+		});
+		data_sql=data_sql.replace("#joinTable",str);
+	}
+}
 
 //null值处理
 function formatNull(str, rep, format) {
