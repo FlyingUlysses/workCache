@@ -1,6 +1,6 @@
 //---------------------------sql模板------------------------------------------
-var SHEET_SQL_TEMPLATE=" select #id id,#name name from #tableName #joinTable #where";
-var DATA_SQL_TEMPLATE=" select #columns from #baseTable #joinTable where #sheet=#id  #where #filter ";
+var SHEET_SQL_TEMPLATE=" select #id id,#name name ";
+var DATA_SQL_TEMPLATE=" select #columns \n from #baseTable #joinTable " ;
 var row_num=3;
 var col_num=7;
 var sql_test_status = 0 ;//sql语句测试状态，初始为0，sheetsql通过为1，datasql通过为2,全部通过为3
@@ -73,40 +73,57 @@ function choseDataTable(){
 
 var columnsMap =null;
 var tablesStr="";
+var data_tables = [];
 //sheet表格编辑页调用保存sheetsql
-function saveDataTables(sql,map){
+function saveDataTables(joinTable_array,map){
 	tablesStr="";
 	columnsMap=map;
-	var data_tables=map["tables"];
+	data_tables=joinTable_array;
 	$.each(data_tables,function(i,item){
 		if (item.link && item.link != undefined && item.link != "") 
 			tablesStr+=item.table_name+"#"+item.re_name+"#"+item.link+",";
 		else
 			tablesStr+=item.table_name+"#"+item.re_name+",";
 	});
-	delete map["tables"];
-	$("#dataSql_input").empty();
-	DATA_SQL_TEMPLATE =sql;
+	createDataSql();
+}
+
+//生成DataSql的入口
+function createDataSql(){
+	$("#dataSql_input").val("");
+	var sql =DATA_SQL_TEMPLATE;
+	sql=setDataSqlTablesLink(data_tables,sql);
+	sql=saveCellToSql(sql);
 	$("#dataSql_input").val(sql);
+}
+
+//生成sql表格与映射关系
+function setDataSqlTablesLink(tables,sql){
+	var str ="";
+	if (tables && tables.length>0) {
+		$.each(tables,function(i,item){
+			if(i==0){
+				str += " " +item.name +" "+ item.re_name +" ";
+				sql=sql.replace("#baseTable", str);
+				str ="";
+			}else
+				str +=" \n left join "+item.name +" "+item.re_name +" on "+item.link+" ";
+		});
+	}
+	sql=sql.replace("#joinTable",str);
+	return sql;
 }
 
 var sheetCat="categery";//sheet分类
 //根据选择sheet类型确定页面展示内容
 function selectSheet(){
 	sheetCat = $("#sheetCat_select").val();
-	columnsMap=null;
 	$("#sheetName_content").val("");
-	$("#sheetSql_input").empty();
-	$("#dataSql_input").empty();
+	$("#sheetSql_input").val("");
 	if (sheetCat == "all") {
-		$("#sheetName_title").show();
-		$("#sheetName_content").show();
 		$("#choseShettTable").hide();
 	}else{
 		$("#choseShettTable").show();
-		$("#sheetName_title").hide();
-		$("#sheetName_content").hide();
-		
 	}
 }
 
@@ -120,16 +137,14 @@ function deleteSheetSql(){
 
 //固定sheet模式sheet语句生成
 function getAllSheet(){
-    if ($("#sheetName_content").val()+""=="") {
+    if ($("#sheetName_content").val()+""=="" || sheetCat == "categery") {
 		return;
 	}
     sheet_sql_temp=SHEET_SQL_TEMPLATE;
     sheet_sql_temp=sheet_sql_temp.replace("#id", "0");
     sheet_sql_temp=sheet_sql_temp.replace("#name","'"+$("#sheetName_content").val()+"'");
-    sheet_sql_temp=sheet_sql_temp.replace("from #tableName", "");
-    sheet_sql_temp=sheet_sql_temp.replace("#joinTable", "");
     $("#sheetSql_input").empty();
-    $("#sheetSql_input").append(sheet_sql_temp);
+    $("#sheetSql_input").val(sheet_sql_temp);
 }
 
 //--------------------------------------编辑cell内容------------------------------
@@ -174,7 +189,7 @@ function saveCellContent(){
 	$("td[chose='Y']").attr("column",$("#editColumn").val());
 	$("td[chose='Y']").html($("#cell_reColumn").val());
 	$("td[chose='Y']").attr("reName",$("#data_reColumn").val());
-	saveCellToSql();
+	createDataSql();
 }
 
 function choseTd(e){
@@ -218,7 +233,7 @@ function choseTd(e){
 		$("#data_column").trigger("liszt:updated");
 }
 
-function saveCellToSql(){
+function saveCellToSql(sql){
 	var strs ="";
 	var tds=$("#cells_table td");
 	$.each(tds,function(i,item){
@@ -233,10 +248,8 @@ function saveCellToSql(){
 			}
 		}
 	});
-	var sqlStr = DATA_SQL_TEMPLATE;
-	sqlStr = sqlStr.replace("#columns", strs);
-	$("#dataSql_input").empty();
-	$("#dataSql_input").val(sqlStr);
+	sql = sql.replace("#columns", strs);
+	return sql;
 }
 
 //添加整行
@@ -389,20 +402,6 @@ function saveValidate(){
 		return res;
 	}
 	
-	if (sql_test_status == 0) {
-		res.msg="保存前请先测试sql！";
-		res.flag = false;
-		return res;
-	}else if (sql_test_status == 1) {
-		res.msg="保存前请先测试DataSql！";
-		res.flag = false;
-		return res;
-	}else if (sql_test_status == 2) {
-		res.msg="保存前请先测试SheetSql！";
-		res.flag = false;
-		return res;
-	}
-	
 	return res;
 }
 
@@ -441,7 +440,12 @@ function savePartAndCells(){
 		
 	});
 	$("#cells_table").find('td.hide').remove();
-	
+	var data_sql=$("#dataSql_input").val();
+	if(sheetCat == "categery")
+		data_sql +=" \n where "+$("#sheetName_content").val()+"=#id  #filter ";
+	else
+		data_sql+=" \n where true #filter ";
+	alert(data_sql);
 	var result={
 			sheet_cat:sheetCat,
 			tablesStr:tablesStr,
@@ -453,19 +457,19 @@ function savePartAndCells(){
 			part_sort:$("#part_sort").val(),
 			sheet_name:$("#sheetName_content").val(),
 			sheet_sql:$("#sheetSql_input").val(),
-			data_sql:$("#dataSql_input").val(),
+			data_sql:data_sql,
 			cells:JSON.stringify(cells)
 	};
 	
-	var url = _basePath + "/poiAutoExport/savePartAndCells";
-	$.post(url, result, function(res, status) {
-		if(res.success){
-			$("#part_id").val(res.data.id);
-			$("#testExport_div").css("display","inline");
-			$("#testExport_div").show();
-		}
-		layer.alert(res.message);
-	});
+//	var url = _basePath + "/poiAutoExport/savePartAndCells";
+//	$.post(url, result, function(res, status) {
+//		if(res.success){
+//			$("#part_id").val(res.data.id);
+//			$("#testExport_div").css("display","inline");
+//			$("#testExport_div").show();
+//		}
+//		layer.alert(res.message);
+//	});
 }
 
 //调用窗口reloadRecord方法

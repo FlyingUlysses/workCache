@@ -1,6 +1,6 @@
 var page = { page: 1,limit: 9 };
 var sheetTableCode ="";
-var SHEET_SQL_TEMPLATE=" select #id id,#name name \n from #tableName #joinTable \n #where";
+var SHEET_SQL_TEMPLATE=" select #id id,#name name \n from #tableName #joinTable ";
 var sql =SHEET_SQL_TEMPLATE;
 var joinTables =[];
 var joinTableColumn =0;

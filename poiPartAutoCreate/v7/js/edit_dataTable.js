@@ -1,8 +1,4 @@
 var page = { page: 1,limit: 8 };
-var DATA_SQL_TEMPLATE=" select #columns " +
-		" \n from #baseTable" +
-		"  #joinTable " +
-		" \n where #sheet=#id  #where #filter ";
 var table_name ="";
 var joinTables =[];
 var joinTableColumn =0;
@@ -158,7 +154,6 @@ function save(){
 	};
 	$.post(url,req,function(res,status){
 		var joinTable_array=createTablesArray();
-		setDataSqlTablesLink(joinTable_array);
 		parent.saveDataTables(joinTable_array,res);
 		parent.layer.close(index);
 	});
@@ -180,22 +175,6 @@ function createTablesArray(){
 		tables.push(table);
 	});
 	return tables;
-}
-
-var data_sql = DATA_SQL_TEMPLATE;
-function setDataSqlTablesLink(tables){
-	if (tables && tables.length>0) {
-		var str ="";
-		$.each(tables,function(i,item){
-			if(i==0){
-				str += " " +item.name +" "+ item.re_name +" ";
-				data_sql=data_sql.replace("#baseTable", str);
-				str ="";
-			}else
-				str +=" \n left join "+item.name +" "+item.re_name +" on "+item.link+" ";
-		});
-		data_sql=data_sql.replace("#joinTable",str);
-	}
 }
 
 //null值处理

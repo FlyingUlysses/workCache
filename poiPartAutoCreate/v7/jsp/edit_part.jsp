@@ -38,18 +38,9 @@
 										            <input type="text" id="partName_content" placeholder="请输入模板名称……" value="${part.name }" style=" width: 41%; float: right;" />
 											</div>
 											 <div class="input-wrap">
-												         <c:choose>
-												         	<c:when test="${part.isFixed ==1 }">
-														    	 <div class="tLable"><span style="width: 40%;">sheet排序：</span><span style="width: 40%; float: right;" id ="sheetName_title" >sheet名称：</span></div>
-														         <input type="number" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 40%;"/>
-												         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 41%; float: right;" onblur="getAllSheet();"  />
-												         	</c:when>
-												         	<c:otherwise>
-														    	 <div class="tLable"><span style="width:40%;">sheet排序：</span><span style="width: 42%; float: right; display: none" id ="sheetName_title" >sheet名称：</span></div>
-														         <input type="number" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 40%;"/>
-												         		 <input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称……" value="${part.sheet }" style="width: 41%; float: right;display:none;"  onblur="getAllSheet();"  />
-												         	</c:otherwise>
-												         </c:choose>
+												    	<div class="tLable"><span style="width: 40%;">sheet排序：</span><span style="width: 42%; float: right;" id ="sheetName_title" >sheet名称：</span></div>
+												        <input type="number" id="part_sort" placeholder="请输入指定sheet排序……" value="${part.sort }" style=" width: 40%;"/>
+										         		<input type="text" id="sheetName_content"  placeholder="请输入固定sheet名称或字段……" value="${part.sheet }" style="width: 41%; float: right;" onblur="getAllSheet();"  />
 											</div>
 											<div  class="input-wrap">
 											    <div class="" style="display:inline-block;width:40%;margin-right:18%;">
