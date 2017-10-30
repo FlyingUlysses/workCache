@@ -16,6 +16,32 @@ $(function() {
 
 function reload(){
 	reloadCells();
+	loadBkColors();
+}
+
+//加载cell的颜色选择框
+function loadBkColors(){
+	$("#color_table").empty();
+	var str="";
+	for ( var int = 0; int < 7; int++) {
+		str+="<tr>";
+		for ( var y = 0; y < 7; y++) {
+			str+="<td name='cell_color'></td>";
+		}
+		str+="</tr>";
+	}
+	$("#color_table").html(str);
+	$("#color_table td").each(function(i,item){
+		if(i < cell_colors.length){
+			str="<div name='cell_color_div' style='width:20px;height:20px;background-color:"+cell_colors[i].code+";border: solid 1px black;' color_id='"+cell_colors[i].id+"'></div>";
+			$(this).html(str);
+		}
+	});
+	$("div[name='cell_color_div']").bind("click",function(){
+		$("#cells_table td[chose='1']").css("background-color",$(this).css("background-color"));
+		$("#cell_color_div").hide();
+	});
+	
 }
 
 function reloadCells(){
@@ -194,12 +220,11 @@ function saveCellContent(){
 
 function choseTd(e){
 		$("#cells_table").find('td').removeClass('selected');
+		$("td[chose='1']").css("border","");
+		$("td[chose='1']").attr("chose","0");
 		
-		$("td[chose='Y']").css("background","");
-		$("td[chose='Y']").attr("chose","N");
-		$(e).css("background","#adb6c3");
-		$(e).attr("chose","Y");
-		
+		$(e).attr("chose","1");
+		$(e).css("border","solid 4px black");
 		$("#data_table").empty();
 		$("#data_column").empty();
 		$("#data_reColumn").val("");
@@ -461,15 +486,15 @@ function savePartAndCells(){
 			cells:JSON.stringify(cells)
 	};
 	
-//	var url = _basePath + "/poiAutoExport/savePartAndCells";
-//	$.post(url, result, function(res, status) {
-//		if(res.success){
-//			$("#part_id").val(res.data.id);
-//			$("#testExport_div").css("display","inline");
-//			$("#testExport_div").show();
-//		}
-//		layer.alert(res.message);
-//	});
+	var url = _basePath + "/poiAutoExport/savePartAndCells";
+	$.post(url, result, function(res, status) {
+		if(res.success){
+			$("#part_id").val(res.data.id);
+			$("#testExport_div").css("display","inline");
+			$("#testExport_div").show();
+		}
+		layer.alert(res.message);
+	});
 }
 
 //调用窗口reloadRecord方法
@@ -631,6 +656,16 @@ function testDataSql(){
 function testExport(){
 	var url=_basePath + "/poiAutoExport/testExportPart?id="+$("#part_id").val()+"&excel_id="+$("#excel_id").val();
 	window.location.href =url;
+}
+
+/**
+ * 弹出cell颜色选择框，选择颜色
+ */
+function select_cellBkColor(){
+	if($("#cell_color_div").css("display") == "none")
+		$("#cell_color_div").show();
+	else
+		$("#cell_color_div").hide();
 }
 
 //null值处理
