@@ -38,6 +38,7 @@ $(function() {
 });
 
 function reload(){
+	alert("reload...");
 	page.page = 1;
 	reloadRecord();
 }
@@ -131,10 +132,6 @@ function revPart(url){
 	});
 }
 
-function toTest(){
-	var url=_basePath + "/poiAutoExport/toTest";
-	top.addTab("toTest","测试合并",url);
-}
 
 function exportExcel(id){
 	var url=_basePath + "/poiAutoExport/testExportExcel?id="+id;

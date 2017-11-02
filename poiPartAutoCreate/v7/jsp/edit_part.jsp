@@ -5,10 +5,11 @@
 <script src="<%=basePath %>/resources/bootstrap/datepicker/bootstrap-datepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="<%=basePath %>/resources/easyui/themes/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="<%=basePath %>/resources/easyui/themes/icon.css">
-<script src="<%=basePath %>/resources/easyui/jquery.easyui.min.js"></script>
+<script src="<%=basePath %>/resources/scripts/poi/cell_color.js"></script>
 <script src="<%=basePath %>/resources/scripts/poi/edit_part.js"></script>
 <style>
-	.cannotselect{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none;user-select:none;}td.selected{background:#0094ff;color:#fff}td.hide{display:none}
+	td.selected{border: 4px solid black;}
+	td.hide{display:none}
 </style>
 <body>
 					<input type="hidden" id="excel_id" value="${excel_id}"/>		                      
@@ -108,12 +109,13 @@
 								<div class="widget-title" id ="role_title" >
 					               	 <h4><i class="icon-align-left">Excel表头编辑</i></h4>
 					               	  <div class="update-btn">
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow_v3();"></i>&nbsp;<span style="font-size: 12px;">增加行</span></button>
-					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol_v3();"></i>&nbsp;<span style="font-size: 12px;">增加列</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" id="mergeCellButton"></i>&nbsp;<span style="font-size: 12px;">合并单元格</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="splitCell();"></i>&nbsp;<span style="font-size: 12px;">拆分</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableRow_v3();"></i>&nbsp;<span style="font-size: 12px;">增加行</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="addCellTableCol_v3();"></i>&nbsp;<span style="font-size: 12px;">增加列</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="rmvRow();"></i>&nbsp;<span style="font-size: 12px;">删除选中行</span></button>
 					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="delete_col();"></i>&nbsp;<span style="font-size: 12px;">删除尾列</span></button>
+					               	  	<button  type="button" style="margin-bottom: 10px;" class="btn btn-warning" onclick="rmvChose();"></i>&nbsp;<span style="font-size: 12px;">取消选中</span></button>
 					               	  </div>
 					            </div>
 								<div class="widget-body" style="overflow-y:auto;width:100%;padding:0!important; " >
@@ -124,8 +126,12 @@
 						  </div>
 					</div>
 			<!------------------------------------------------- 表头右侧选框菜单----------------------------------------- -->
-					 <div  style="float: right;width: 260px;margin-right: 10px;display: inline;">
-					      <div class="widget green"  >
+					 <div  style="float: right;width: 260px;margin-right: 10px;display: inline;position:relative;">
+					      <div id="cell_color_div" style="margin-top: 37px;width:260px;height:220px;border:1px solid #ddd;border-radius:3px;position:absolute;top:0;left:0;z-index:100;background:bisque;display: none;" >
+					      		<table id="color_table" class="table">
+					      		</table>
+					      </div>
+					      <div class="widget green" id="cell_edit_div" >
 							   	<div class="widget-title" id ="role_title" >
 									    <h4><i class="icon-align-left">字段编辑</i></h4>
 								</div>
@@ -133,31 +139,44 @@
 								 	<table>
 										  <tr>
 									  			<td >单元格：</td>
-										        <td><input id="cell_reColumn" placeholder="请输入单元格名称..." type="text" style="width:140px"></td>
+										        <td ><input id="cell_reColumn" placeholder="请输入单元格名称..." type="text" style="width:140px"></td>
 										 </tr>
 									  	 <tr>
-									  			<td style="width: 65px">表格：</td>
-									            <td>
+									  			<td style="width: 65px" >表格：</td>
+									            <td >
 									            	<select  id="data_table"  data-placeholder="暂无表格..." class="chzn-select" tabindex="-1" style="width: 150px" onchange="loadColumn();" required>
 						      						</select>
 						      					</td>
 										  </tr>
 										  <tr>
 									  				<td >字段选择：</td>
-									  				<td>
-											            <select  id="data_column"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="loadReName();" style="width: 150px" required>
+									  				<td >
+											            <select  id="data_column"  data-placeholder="暂无字段..." class="chzn-select" tabindex="-1" onchange="loadReName();" style="width: 150px" >
 								      					</select>
 							      					</td>
 										  </tr>
 										  <tr>
-									  			<td><span >字段编辑：</span></td>
-										        <td><input id="editColumn" placeholder="请输入伪列或编辑字段..." type="text" style="width: 140px"></td>
+									  			<td ><span >字段编辑：</span></td>
+										        <td ><input id="editColumn" placeholder="请输入伪列或编辑字段..." type="text" style="width: 140px"></td>
 										  </tr>
 										  <tr>
 									  			<td >字段别名：</td>
-										        <td><input id="data_reColumn" placeholder="请输入别名..." type="text" style="width: 140px"></td>
+										        <td ><input id="data_reColumn" placeholder="请输入别名..." type="text" style="width: 140px"></td>
 										 </tr>
 									</table>
+									<table>
+										<tr>
+										 	<td>背景颜色:</td>
+										 	<td>
+										 			<div id="cell_bkcolor" style="cursor:pointer;width: 20px;height: 20px;border: solid 1px;" onclick="editColor(0);"></div>
+											</td>	
+											<td style="padding-left: 25px;">字体颜色:</td>
+											<td>
+										 			<div id="cell_fontColor" style="cursor:pointer;width: 20px;height: 20px;border: solid 1px;" onclick="editColor(1);"></div>
+										 	</td>
+										</tr>
+									</table>
+									
 										 <div  style="text-align: right; margin-top: 10px;"  >
 											 <button  type="button" style="margin-right: 6px;" class="btn btn-success ladda-button" data-style="zoom-in" onclick="saveCellContent();">
 									    		 <i class="icon-save"></i>&nbsp;

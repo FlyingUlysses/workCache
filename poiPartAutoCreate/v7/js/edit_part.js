@@ -23,25 +23,87 @@ function reload(){
 function loadBkColors(){
 	$("#color_table").empty();
 	var str="";
-	for ( var int = 0; int < 7; int++) {
-		str+="<tr>";
-		for ( var y = 0; y < 7; y++) {
-			str+="<td name='cell_color'></td>";
+	for ( var i = 0,j=0; i < cell_colors.length; i++) {
+		if(cell_colors[i].code!=""){
+			if(j % 7 ==0){
+				if(j!=0)
+					str+="</tr>";
+				str += "<tr>";
+			}else{
+				str+="<td><div name='cell_color_div' style='cursor:pointer;width:20px;height:20px;background-color:"+cell_colors[i].code+";border: solid 1px black;' color_id='"+cell_colors[i].id+"'></div></td>";
+			}
+			j++;
 		}
-		str+="</tr>";
 	}
+	str +="</tr>";
 	$("#color_table").html(str);
-	$("#color_table td").each(function(i,item){
-		if(i < cell_colors.length){
-			str="<div name='cell_color_div' style='width:20px;height:20px;background-color:"+cell_colors[i].code+";border: solid 1px black;' color_id='"+cell_colors[i].id+"'></div>";
-			$(this).html(str);
+	bindBkColor();
+	bindFontColor();
+}
+
+
+
+//绑定背景拾色器
+function bindBkColor(){
+	$("div[name='cell_color_div']").bind("mouseenter",function(){
+		if (editColorType != null &&  editColorType == 0) {
+			if($("#cells_table td[class='selected']").length >0)
+				$("#cells_table td[class='selected']").css("background-color",$(this).css("background-color"));
+			else if($("#cells_table td[chose='1']").length >0)
+				$("#cells_table td[chose='1']").css("background-color",$(this).css("background-color"));
+		}
+	});
+	$("div[name='cell_color_div']").bind("mouseout",function(){
+		if (editColorType != null && editColorType == 0) {
+			if($("#cells_table td[class='selected']").length >0){
+				$("#cells_table td[class='selected']").css("background-color",$("#cell_bkcolor").css("background-color"));
+				$("#cells_table td[class='selected']").attr("bk_color_id",$("#cell_bkcolor").attr("bk_color_id"));
+			}else if($("#cells_table td[chose='1']").length >0){
+				$("#cells_table td[chose='1']").css("background-color",$("#cell_bkcolor").css("background-color"));
+				$("#cells_table td[chose='1']").attr("bk_color_id",$("#cell_bkcolor").attr("bk_color_id"));
+			}
+		}
+		$("#cell_bkcolor").attr("font_color_id","");
+	});
+	$("div[name='cell_color_div']").bind("click",function(){
+		if ( editColorType != null && editColorType == 0) {
+			$("#cell_bkcolor").css("background-color",$(this).css("background-color"));
+			$("#cell_bkcolor").attr("bk_color_id",$(this).attr("color_id"));
+			$("#cell_color_div").hide();
+		}
+	});
+}
+
+//绑定字体拾色器
+function bindFontColor(){
+	$("div[name='cell_color_div']").bind("mouseenter",function(){
+		if (editColorType != null && editColorType == 1) {
+			if($("#cells_table td[class='selected']").length >0 )
+				$("#cells_table td[class='selected']").css("color",$(this).css("background-color"));
+			else if($("#cells_table td[chose='1']").length >0)
+				$("#cells_table td[chose='1']").css("color",$(this).css("background-color"));
+		}
+	});
+	$("div[name='cell_color_div']").bind("mouseout",function(){
+		if (editColorType != null && editColorType == 1) {
+			if($("#cells_table td[class='selected']").length >0){
+				$("#cells_table td[class='selected']").css("color",$("#cell_fontColor").css("background-color"));
+				$("#cells_table td[class='selected']").attr("font_color_id",$("#cell_fontColor").attr("font_color_id"));
+			}
+			else if($("#cells_table td[chose='1']").length >0){
+				$("#cells_table td[chose='1']").css("color",$("#cell_fontColor").css("background-color"));
+				$("#cells_table td[chose='1']").attr("font_color_id",$("#cell_fontColor").attr("font_color_id"));
+			}
+			$("#cell_fontColor").attr("font_color_id","");
 		}
 	});
 	$("div[name='cell_color_div']").bind("click",function(){
-		$("#cells_table td[chose='1']").css("background-color",$(this).css("background-color"));
-		$("#cell_color_div").hide();
+		if (editColorType != null && editColorType == 1) {
+			$("#cell_fontColor").css("background-color",$(this).css("background-color"));
+			$("#cell_fontColor").attr("font_color_id",$(this).attr("color_id"));
+			$("#cell_color_div").hide();
+		}
 	});
-	
 }
 
 function reloadCells(){
@@ -60,7 +122,7 @@ function reloadCells(){
 					if (j==0) {
 						strs+= "<th width='25px'><input  name='rowRadio' type='checkbox' value='"+i+"'  /></th>";
 					}else
-						strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' isHead='Y'></td>";
+						strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' ></td>";
 				}
 			}
 		strs+="</tr>";
@@ -107,9 +169,9 @@ function saveDataTables(joinTable_array,map){
 	data_tables=joinTable_array;
 	$.each(data_tables,function(i,item){
 		if (item.link && item.link != undefined && item.link != "") 
-			tablesStr+=item.table_name+"#"+item.re_name+"#"+item.link+",";
+			tablesStr+=item.name+"#"+item.re_name+"#"+item.link+",";
 		else
-			tablesStr+=item.table_name+"#"+item.re_name+",";
+			tablesStr+=item.name+"#"+item.re_name+",";
 	});
 	createDataSql();
 }
@@ -210,15 +272,18 @@ function loadReName(){
 }
 
 function saveCellContent(){
-	$("td[chose='Y']").attr("tableName",$("#data_table").val());
-	$("td[chose='Y']").attr("hasEdit",'Y');
-	$("td[chose='Y']").attr("column",$("#editColumn").val());
-	$("td[chose='Y']").html($("#cell_reColumn").val());
-	$("td[chose='Y']").attr("reName",$("#data_reColumn").val());
+	$("td[chose='1']").attr("tableName",$("#data_table").val());
+	$("td[chose='1']").attr("hasEdit",'Y');
+	$("td[chose='1']").attr("column",$("#editColumn").val());
+	$("td[chose='1']").html($("#cell_reColumn").val());
+	$("td[chose='1']").attr("reName",$("#data_reColumn").val());
 	createDataSql();
 }
 
 function choseTd(e){
+		$("#cell_bkcolor").css("background-color",$(e).css("background-color"));
+		$("#cell_fontColor").css("background-color",$(e).css("color"));
+		
 		$("#cells_table").find('td').removeClass('selected');
 		$("td[chose='1']").css("border","");
 		$("td[chose='1']").attr("chose","0");
@@ -262,7 +327,7 @@ function saveCellToSql(sql){
 	var strs ="";
 	var tds=$("#cells_table td");
 	$.each(tds,function(i,item){
-		if ($(this).text() && $(this).text() != undefined && $(this).text() != "") {
+		if ($(this).text() && $(this).text() != undefined && $(this).text() != "" &&  $(this).text() != " ") {
 			if ($(item).attr("column") && $(item).attr("column") != undefined && $(item).attr("column") !="") {
 				if(i != tds.length-1){
 					strs+=" "+$(item).attr("column")+" "+$(item).attr("rename")+", ";
@@ -284,7 +349,7 @@ function addCellTableRow_v3(){
 		if (j==0) 
 			strs+= "<th width='25px'><input  name='rowRadio' type='checkbox' value='"+(row_num)+"'  /></th>";
 		else 
-			strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
+			strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' ></td>";
 	}
 	strs+="</tr>";
 	$("#cells_table_body").empty();
@@ -301,7 +366,7 @@ function addCellTableCol_v3(){
 		if (i==0) 
 			trStr+="<th style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1'>x"+(col_num)+"</th>";
 		else
-			trStr+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
+			trStr+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' ></td>";
 		trStr+="</tr>";
 		strs+=trStr;
 	}
@@ -313,13 +378,13 @@ function addCellTableCol_v3(){
 
 //拆分单元格
 function splitCell(){
-	  var tds = $("#cells_table").find("td[chose='Y']"), v,vc;
+	  var tds = $("#cells_table").find("td[chose='1']"), v,vc;
       if (tds.length) {
     	  $("#cells_table").find('td.hide').remove();
           tds.filter('[colspan]').each(function () {
               v = (parseInt($(this).attr('colspan')) || 1) - 1;
               if (v > 0) for (var i = 0; i < v; i++)
-            	  $(this).after("<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
+            	  $(this).after("<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' ></td>");
           }).end().filter('[rowspan]').each(function () {
               v = parseInt($(this).attr('rowspan')) || 1;
               vc = parseInt($(this).attr('colspan')) || 1;
@@ -327,13 +392,13 @@ function splitCell(){
                   for (var i = 1; i < v; i++) {
                       var td = $(this.parentNode.parentNode.rows[this.parentNode.rowIndex + i].cells[this.cellIndex-1]);
                      	for (var j = 0; j < vc; j++)
-                     		td.after("<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>");
+                     		td.after("<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' ></td>");
                   }
               }
           });
       }
-	$("#cells_table td[chose='Y']").attr("rowspan","1");
-	$("#cells_table td[chose='Y']").attr("colspan","1");
+	$("#cells_table td[chose='1']").attr("rowspan","1");
+	$("#cells_table td[chose='1']").attr("colspan","1");
 	moveMergeCell();
 }
 
@@ -457,7 +522,9 @@ function savePartAndCells(){
 							startRow:startRow,
 							endRow:endRow,
 							startColumn:startColumn,
-							endColumn:endColumn
+							endColumn:endColumn,
+							bkColor:$(this).attr("bk_color_id"),
+							fontColor:$(this).attr("font_color_id")
 					};
 					cells.push(cell);
 			}
@@ -470,7 +537,6 @@ function savePartAndCells(){
 		data_sql +=" \n where "+$("#sheetName_content").val()+"=#id  #filter ";
 	else
 		data_sql+=" \n where true #filter ";
-	alert(data_sql);
 	var result={
 			sheet_cat:sheetCat,
 			tablesStr:tablesStr,
@@ -490,8 +556,10 @@ function savePartAndCells(){
 	$.post(url, result, function(res, status) {
 		if(res.success){
 			$("#part_id").val(res.data.id);
+			$("#template_id").val(res.data.template);
 			$("#testExport_div").css("display","inline");
 			$("#testExport_div").show();
+			top.reloadTab("poi报表");
 		}
 		layer.alert(res.message);
 	});
@@ -520,6 +588,7 @@ function editPartAndCell(id){
 function loadEditPart(){
 	loadEditData();
 	moveMergeCell();
+	loadBkColors();
 }
 
 //编辑加载数据方法
@@ -552,15 +621,17 @@ function loadEditData(){
 					strs+="<tr   style='height:23px;'><th width='25px'><input name='rowRadio' type='checkbox' value='"+(j++)+"'></th>";
 					$.each(item,function(j,temp){
 						if (temp && temp != undefined) {
+							var bg_color = temp.bgcolor || 0;
+							var font_color = temp.fontcolor || 0;
 							if (temp.id && temp.id != undefined) {
 								if (temp.ismerge == 'Y') {
-									strs+="<td style='text-align:center; width:127px;height:27px;' colspan='"+(temp.endcolumn - temp.startcolumn+1)+"' rowspan='"+(temp.endrow - temp.startrow +1)+"' categery='cells_td' onclick='choseTd(this);' chose='N' tablename='"+ formatNull( temp.table)+"' column='"+ formatNull(temp.native_column)+"' rename='"+formatNull(temp.property)+"' >"+formatNull(temp.cellname)+"</td>";
+									strs+="<td style='text-align:center; width:127px;height:27px;background-color:"+cell_colors[bg_color].code+";color:"+cell_colors[font_color].code+"' bk_color_id='"+formatNull(temp.bgcolor)+"' font_color_id='"+formatNull(temp.fontcolor)+"' colspan='"+(temp.endcolumn - temp.startcolumn+1)+"' rowspan='"+(temp.endrow - temp.startrow +1)+"' categery='cells_td' onclick='choseTd(this);' chose='0' tablename='"+ formatNull( temp.table)+"' column='"+ formatNull(temp.native_column)+"' rename='"+formatNull(temp.property)+"' >"+formatNull(temp.cellname)+"</td>";
 								}else{
-									strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' tablename='"+ formatNull( temp.table)+"' column='"+ formatNull(temp.native_column)+"' rename='"+formatNull(temp.property)+"'  >"+temp.cellname+"</td>";
+									strs+="<td style='text-align:center; width:127px;height:27px;background-color:"+cell_colors[bg_color].code+";color:"+cell_colors[font_color].code+"' bk_color_id='"+formatNull(temp.bgcolor)+"' font_color_id='"+formatNull(temp.fontcolor)+"'  colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' tablename='"+ formatNull( temp.table)+"' column='"+ formatNull(temp.native_column)+"' rename='"+formatNull(temp.property)+"'  >"+temp.cellname+"</td>";
 								}
 							}
 						}else{
-							strs+="<td style='text-align:center; width:127px;height:27px;' colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='N' ></td>";
+							strs+="<td style='text-align:center; width:127px;height:27px;'   colspan='1' rowspan='1' categery='cells_td' onclick='choseTd(this);' chose='0' ></td>";
 						}
 					});
 					strs+="</tr>";
@@ -661,11 +732,18 @@ function testExport(){
 /**
  * 弹出cell颜色选择框，选择颜色
  */
-function select_cellBkColor(){
-	if($("#cell_color_div").css("display") == "none")
-		$("#cell_color_div").show();
-	else
-		$("#cell_color_div").hide();
+var editColorType=null;
+function editColor(code){
+	editColorType = code;
+	if($("#cells_table td[chose='1']").length >0 || $("#cells_table td[class='selected']").length >0){
+		if($("#cell_color_div").css("display") == "none")
+			$("#cell_color_div").show();
+		else
+			$("#cell_color_div").hide();
+	}else{
+		layer.alert("请先选择需要操作表格！");
+	}
+		
 }
 
 //null值处理
@@ -680,3 +758,15 @@ function formatNull(str, rep, format) {
 	}
 	return str + format;
 }
+
+//取消cell所有选中
+function rmvChose(){
+	if($("#cells_table td[chose='1']").length >0){
+		$("#cells_table td[chose='1']").css("border","");
+		$("#cells_table td[chose='1']").attr("chose","0");
+	}
+	if($("#cells_table td[class='selected']").length >0)
+		$("#cells_table td[class='selected']").removeClass("selected");
+		
+}
+

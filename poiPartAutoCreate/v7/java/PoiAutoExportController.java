@@ -91,12 +91,8 @@ public class PoiAutoExportController extends Controller{
         if (id!=null) {
             try {
                 Excel excel = Excel.me.findById(id);
-                List<Record> partList = Db.find("select * from excel_parts where excel_id =?",excel.getInt("id"));
-                for (Record part : partList) {
-					Db.update("delete from excel_cells where template = ?",part.getInt("template"));
-				}
-                Db.update("delete from excel_parts where excel_id =? ",excel.getInt("id"));
-                excel.delete();
+//                Db.update("update excel_parts set state =0  where excel_id =? ",excel.getInt("id"));
+                excel.set("state", 0).update();
             } catch (Exception e) {
                 renderJson(new ResponseData(false,"删除失败!失败原因:"+e.toString()));
                 return;
@@ -172,8 +168,7 @@ public class PoiAutoExportController extends Controller{
         if (id!=null) {
             try {
                 ExcelPart part = ExcelPart.me.findById(id);
-                Db.update("DELETE  FROM excel_cells WHERE template =? ",part.getInt("template"));
-                part.delete();
+                part.set("state", 0).update();
             } catch (Exception e) {
                 renderJson(new ResponseData(false,"删除失败!失败原因:"+e.toString()));
                 return;
@@ -246,7 +241,7 @@ public class PoiAutoExportController extends Controller{
                     .set("create_time", new Date());
                     part.save();
                }
-                String sql="INSERT INTO excel_cells (  `template`, `cellname`, `width`, `startRow`, `startColumn`, `isMerge`, `endRow`, `endColumn`,`property`,`native_name`) VALUES ";
+                String sql="INSERT INTO excel_cells (  `template`, `cellname`, `width`, `startRow`, `startColumn`, `isMerge`, `endRow`, `endColumn`,`property`,`native_name`,`fontColor`,`bgColor`) VALUES ";
                 for (int i = 0; i < cellArray.size(); i++) {
                     JSONObject cell =(JSONObject) cellArray.get(i);
                     String cellName = null;
@@ -258,17 +253,21 @@ public class PoiAutoExportController extends Controller{
                     String property = null;
                     String nativeName=null;
                     String isMerge="N";
-                    try {cellName= cell.getString("cellName");} catch (Exception e) {}
+                    Integer bkColor=null;
+                    Integer fontColor=null;
+                     try {cellName= cell.getString("cellName");} catch (Exception e) {}
                     try {startRow = cell.getInteger("startRow");} catch (Exception e) {}
                     try {startColmun = cell.getInteger("startColumn");} catch (Exception e) {}
                     try {endRow = cell.getInteger("endRow");} catch (Exception e) {}
                     try {endColmun = cell.getInteger("endColumn");} catch (Exception e) {}
                     try {property = cell.getString("property");} catch (Exception e) {}
                     try {nativeName = cell.getString("native_name");} catch (Exception e) {}
+                    try {bkColor = cell.getInteger("bkColor");} catch (Exception e) {}
+                    try {fontColor = cell.getInteger("fontColor");} catch (Exception e) {}
                     if (startRow != endRow || startColmun != endColmun) {
                     	isMerge= "Y";
                     }
-                    sql+="("+templateId+",'"+cellName+"',"+width+","+startRow+","+startColmun+",'"+isMerge+"',"+endRow+","+endColmun+",'"+property+"','"+nativeName+"')";
+                    sql+="("+templateId+",'"+cellName+"',"+width+","+startRow+","+startColmun+",'"+isMerge+"',"+endRow+","+endColmun+",'"+property+"','"+nativeName+"',"+fontColor+","+bkColor+")";
                     if (i<cellArray.size()-1) {
                         sql+=",";
                     }
@@ -281,6 +280,7 @@ public class PoiAutoExportController extends Controller{
             }
             JSONObject data = new JSONObject();
             data.put("id", part.getNumber("id").intValue());
+            data.put("template", part.getNumber("template").intValue());
             ResponseData res = new ResponseData(true,"添加模板成功!",data);
         renderJson(res);;
     }

@@ -112,8 +112,10 @@ function moveMergeCell () {
        }
        
        function onMousedown(e) {
-    	   tb.find("td[chose='Y']").css("background","");
-    	   tb.find("td[chose='Y']").attr("chose","N");
+    	   tb.find("td[chose='1']").css("border","");
+    	   tb.find("td[chose='1']").attr("chose","0");
+    	   $("#cell_bkcolor").css("background-color","");
+    	   $("#cell_fontColor").css("background-color","");
     	   
            var o = e.target;
            if (o.tagName == 'TD') {

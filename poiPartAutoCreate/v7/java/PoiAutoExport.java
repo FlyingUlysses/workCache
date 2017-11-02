@@ -31,7 +31,7 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
         Long count = Db.queryLong("select count(1) from excels t left join excel_parts t1 on t.id= t1.excel_id where t.state =1 and t1.state =1 "+filter);
         String sql="select t.id, t.busiType type,t.name,t.create_time,t1.create_time part_create_time,t.desc,t1.id part_id,t1.name part_name from excels t "
                    +" left join (select * from excel_parts where state =1) t1  on t.id= t1.excel_id "
-                   +" where t.state =1  "+filter+" order by t.create_time desc,t.id desc,t1.sort limit ?,?";
+                   +" where t.state =1  "+filter+" order by t.create_time desc,t1.create_time desc,t.id desc,t1.sort limit ?,?";
         return new Page<Record>(page, limit, count, Db.find(sql,(page - 1) * limit,limit));
     }
 
@@ -210,10 +210,10 @@ public class PoiAutoExport extends Model<PoiAutoExport>{
 			for (int i = 0; i <= cell.getInt("endrow") - row; i++) {
 				if (cellTable[row+i][col] == null) 
 					cellTable[row+i][col] = new Record();
-			}
-			for (int i = 0; i <= cell.getInt("endcolumn") - col; i++) {
-				if (cellTable[row][col + i] == null) 
-					cellTable[row][col+ i] = new Record();
+				for (int j = 0; j <= cell.getInt("endcolumn") - col; j++) {
+					if (cellTable[row+i][col + j] == null) 
+						cellTable[row+i][col+ j] = new Record();
+				}
 			}
 		}
 	}
