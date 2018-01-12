@@ -1,6 +1,6 @@
 package com.yawa.core.model;
-
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
@@ -71,11 +71,16 @@ public class LogApp extends Model<LogApp> {
 	 *@Since:2018-01-11
 	 *@Version:1.1.0
 	 */
-	public  List<LogApp> reloadBarCharts(Integer oid,String start_date,Integer type,boolean isLoging) {
-		String filter = getFilter(null,type,start_date,null,isLoging);
-		Org org = Org.me.findById(oid);
-		filter += " and o.code like '"+org.getStr("code")+"%' ";
-		return find("SELECT o.id id, o.name,COUNT(la.id) count FROM base_org o left join log_apps la on la.org_id = o.id where true "+filter+" GROUP BY o.code ");
+	public  HashMap<String, Object> reloadLogingBarChart(Integer oid,String start_date,boolean isLoging) {
+		HashMap<String, Object> map = new HashMap<String , Object>();
+		String parentfilter = " and ( o.id = "+oid+" or o.parent = "+oid+") and  clazz =1";
+		String filter = getFilter(null,1,start_date,null,isLoging);
+		List<LogApp> webList = find("SELECT o.id id, o.name,COUNT(la2.id) count,la2.plat plat FROM base_org o left join (select * from log_apps la where true "+filter+") la2 on la2.org_id = o.id where true "+parentfilter+" GROUP BY o.parent, o.id");
+		filter = getFilter(null,2,start_date,null,isLoging);
+		List<LogApp> appList = find("SELECT o.id id, o.name,COUNT(la2.id) count,la2.plat plat FROM base_org o left join (select * from log_apps la where true "+filter+") la2 on la2.org_id = o.id where true "+parentfilter+" GROUP BY o.parent,o.id ");
+		map.put("web", webList);
+		map.put("app", appList);
+		return map;
 	}
 	
 	/**
